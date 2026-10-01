@@ -153,16 +153,13 @@ class TurnoConfirmadoPage extends StatelessWidget {
               width: double.infinity,
               child: OutlinedButton(
                 onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text(
-                        'La cancelación del turno se implementará posteriormente.',
-                      ),
-                    ),
+                  Navigator.popUntil(
+                    context,
+                        (route) => route.isFirst,
                   );
                 },
                 child: const Text(
-                  'Cancelar turno',
+                  'Volver al inicio',
                 ),
               ),
             ),
