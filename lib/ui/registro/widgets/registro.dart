@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'paciente.dart';
-import 'solicitar_turno.dart';
+import '../../../domain/models/paciente.dart';
+import '../../turnos/widgets/solicitar_turno.dart';
 
 class RegistroPage extends StatefulWidget {
   const RegistroPage({super.key});

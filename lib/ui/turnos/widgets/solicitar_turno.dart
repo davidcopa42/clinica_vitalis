@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import 'paciente.dart';
-import 'turno.dart';
+import '../../../domain/models/paciente.dart';
+import '../../../domain/models/turno.dart';
 import 'turno_confirmado.dart';
-
+import 'package:clinica_vitalis/ui/core/formato.dart';
 class TurnoPage extends StatefulWidget {
   const TurnoPage({
     super.key,
@@ -205,7 +205,7 @@ class _TurnoPageState extends State<TurnoPage> {
                 label: Text(
                   _fechaSeleccionada == null
                       ? 'Seleccionar fecha'
-                      : _formatearFecha(
+                      : formatearFecha(
                     _fechaSeleccionada!,
                   ),
                 ),
