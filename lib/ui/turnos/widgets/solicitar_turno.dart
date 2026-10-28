@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 
-import '../../../domain/models/paciente.dart';
-import '../../../domain/models/turno.dart';
-import 'turno_confirmado.dart';
+import 'package:clinica_vitalis/data/services/datos_ejemplo.dart';
+import 'package:clinica_vitalis/domain/models/paciente.dart';
+import 'package:clinica_vitalis/domain/models/profesional.dart';
+import 'package:clinica_vitalis/domain/models/turno.dart';
 import 'package:clinica_vitalis/ui/core/formato.dart';
+import 'package:clinica_vitalis/ui/turnos/widgets/turno_confirmado.dart';
+
 class TurnoPage extends StatefulWidget {
   const TurnoPage({
     super.key,
@@ -17,41 +20,32 @@ class TurnoPage extends StatefulWidget {
 }
 
 class _TurnoPageState extends State<TurnoPage> {
-  final List<String> _especialidades = [
-    'Clínica Médica',
-    'Cardiología',
-    'Pediatría',
-    'Dermatología',
-  ];
-
-  final Map<String, List<String>> _profesionales = {
-    'Clínica Médica': [
-      'Dra. Ana López',
-      'Dr. Roberto Díaz',
-    ],
-    'Cardiología': [
-      'Dr. Juan Pérez',
-    ],
-    'Pediatría': [
-      'Dra. María Gómez',
-    ],
-    'Dermatología': [
-      'Dr. Carlos Ruiz',
-    ],
-  };
-
-  final List<String> _horarios = [
-    '09:00',
-    '09:30',
-    '10:00',
-    '10:30',
-    '11:00',
-  ];
-
   String? _especialidadSeleccionada;
   String? _profesionalSeleccionado;
   DateTime? _fechaSeleccionada;
   String? _horarioSeleccionado;
+
+  /// Especialidades sin repetir, sacadas de los profesionales.
+  List<String> get _especialidades => profesionalesDeEjemplo
+      .map((profesional) => profesional.especialidad)
+      .toSet()
+      .toList();
+
+  /// Profesionales de la especialidad elegida.
+  List<Profesional> get _profesionalesDisponibles => profesionalesDeEjemplo
+      .where((profesional) =>
+  profesional.especialidad == _especialidadSeleccionada)
+      .toList();
+
+  /// Horarios del profesional elegido.
+  List<String> get _horariosDisponibles {
+    for (final profesional in profesionalesDeEjemplo) {
+      if (profesional.nombre == _profesionalSeleccionado) {
+        return profesional.horarios;
+      }
+    }
+    return [];
+  }
 
   Future<void> _seleccionarFecha() async {
     final fecha = await showDatePicker(
@@ -60,12 +54,13 @@ class _TurnoPageState extends State<TurnoPage> {
       lastDate: DateTime.now().add(
         const Duration(days: 90),
       ),
-      initialDate: DateTime.now(),
+      initialDate: _fechaSeleccionada ?? DateTime.now(),
     );
 
     if (fecha != null) {
       setState(() {
         _fechaSeleccionada = fecha;
+        _horarioSeleccionado = null;
       });
     }
   }
@@ -74,6 +69,14 @@ class _TurnoPageState extends State<TurnoPage> {
     setState(() {
       _especialidadSeleccionada = valor;
       _profesionalSeleccionado = null;
+      _horarioSeleccionado = null;
+    });
+  }
+
+  void _seleccionarProfesional(String? valor) {
+    setState(() {
+      _profesionalSeleccionado = valor;
+      _horarioSeleccionado = null;
     });
   }
 
@@ -94,6 +97,8 @@ class _TurnoPageState extends State<TurnoPage> {
     }
 
     final turno = Turno(
+      // TODO: reemplazar por widget.paciente.uid cuando esté el login.
+      pacienteUid: widget.paciente.correo,
       especialidad: _especialidadSeleccionada!,
       profesional: _profesionalSeleccionado!,
       fecha: _fechaSeleccionada!,
@@ -111,18 +116,10 @@ class _TurnoPageState extends State<TurnoPage> {
     );
   }
 
-  String _formatearFecha(DateTime fecha) {
-    return '${fecha.day.toString().padLeft(2, '0')}/'
-        '${fecha.month.toString().padLeft(2, '0')}/'
-        '${fecha.year}';
-  }
-
   @override
   Widget build(BuildContext context) {
-    final profesionalesDisponibles =
-    _especialidadSeleccionada == null
-        ? <String>[]
-        : _profesionales[_especialidadSeleccionada] ?? [];
+    final puedeElegirHorario =
+        _profesionalSeleccionado != null && _fechaSeleccionada != null;
 
     return Scaffold(
       appBar: AppBar(
@@ -130,7 +127,6 @@ class _TurnoPageState extends State<TurnoPage> {
           'Clínica Vitalis',
         ),
       ),
-
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -169,19 +165,15 @@ class _TurnoPageState extends State<TurnoPage> {
                 labelText: 'Profesional',
                 border: OutlineInputBorder(),
               ),
-              items: profesionalesDisponibles.map((profesional) {
+              items: _profesionalesDisponibles.map((profesional) {
                 return DropdownMenuItem(
-                  value: profesional,
-                  child: Text(profesional),
+                  value: profesional.nombre,
+                  child: Text(profesional.nombre),
                 );
               }).toList(),
               onChanged: _especialidadSeleccionada == null
                   ? null
-                  : (valor) {
-                setState(() {
-                  _profesionalSeleccionado = valor;
-                });
-              },
+                  : _seleccionarProfesional,
             ),
 
             const SizedBox(height: 20),
@@ -205,9 +197,7 @@ class _TurnoPageState extends State<TurnoPage> {
                 label: Text(
                   _fechaSeleccionada == null
                       ? 'Seleccionar fecha'
-                      : formatearFecha(
-                    _fechaSeleccionada!,
-                  ),
+                      : formatearFecha(_fechaSeleccionada!),
                 ),
               ),
             ),
@@ -220,19 +210,19 @@ class _TurnoPageState extends State<TurnoPage> {
                 labelText: 'Horario',
                 border: OutlineInputBorder(),
               ),
-              items: _horarios.map((horario) {
+              items: _horariosDisponibles.map((horario) {
                 return DropdownMenuItem(
                   value: horario,
                   child: Text(horario),
                 );
               }).toList(),
-              onChanged: _fechaSeleccionada == null
-                  ? null
-                  : (valor) {
+              onChanged: puedeElegirHorario
+                  ? (valor) {
                 setState(() {
                   _horarioSeleccionado = valor;
                 });
-              },
+              }
+                  : null,
             ),
 
             const SizedBox(height: 35),
