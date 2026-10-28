@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'historia_clinica.dart';
-import 'registro.dart';
+import '../../historia_clinica/widgets/historia_clinica.dart';
+import '../../registro/widgets/registro.dart';
 
 class InicioPage extends StatefulWidget {
   const InicioPage({super.key});

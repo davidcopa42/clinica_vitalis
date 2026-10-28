@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'inicio.dart';
+import 'ui/inicio/widgets/inicio.dart';
 
 void main() {
   runApp(const ClinicaVitalisApp());
