@@ -62,7 +62,7 @@ class Turno {
       'paciente_uid': pacienteUid,
       'especialidad': especialidad,
       'profesional': profesional,
-      'fecha': fecha.toIso8601String(),
+      'fecha': DateTime(fecha.year, fecha.month, fecha.day).toIso8601String(),
       'horario': horario,
       'estado': estado.name,
     };
