@@ -119,8 +119,7 @@ class _TurnoPageState extends State<TurnoPage> {
 
   @override
   Widget build(BuildContext context) {
-    final profesionalesDisponibles =
-    _especialidadSeleccionada == null
+    final profesionalesDisponibles = _especialidadSeleccionada == null
         ? <String>[]
         : _profesionales[_especialidadSeleccionada] ?? [];
 
@@ -130,7 +129,6 @@ class _TurnoPageState extends State<TurnoPage> {
           'Clínica Vitalis',
         ),
       ),
-
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -143,11 +141,9 @@ class _TurnoPageState extends State<TurnoPage> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-
             const SizedBox(height: 25),
-
             DropdownButtonFormField<String>(
-              value: _especialidadSeleccionada,
+              initialValue: _especialidadSeleccionada,
               decoration: const InputDecoration(
                 labelText: 'Especialidad',
                 border: OutlineInputBorder(),
@@ -160,11 +156,9 @@ class _TurnoPageState extends State<TurnoPage> {
               }).toList(),
               onChanged: _seleccionarEspecialidad,
             ),
-
             const SizedBox(height: 20),
-
             DropdownButtonFormField<String>(
-              value: _profesionalSeleccionado,
+              initialValue: _profesionalSeleccionado,
               decoration: const InputDecoration(
                 labelText: 'Profesional',
                 border: OutlineInputBorder(),
@@ -178,23 +172,19 @@ class _TurnoPageState extends State<TurnoPage> {
               onChanged: _especialidadSeleccionada == null
                   ? null
                   : (valor) {
-                setState(() {
-                  _profesionalSeleccionado = valor;
-                });
-              },
+                      setState(() {
+                        _profesionalSeleccionado = valor;
+                      });
+                    },
             ),
-
             const SizedBox(height: 20),
-
             const Text(
               'Fecha',
               style: TextStyle(
                 fontSize: 16,
               ),
             ),
-
             const SizedBox(height: 8),
-
             SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
@@ -206,16 +196,14 @@ class _TurnoPageState extends State<TurnoPage> {
                   _fechaSeleccionada == null
                       ? 'Seleccionar fecha'
                       : _formatearFecha(
-                    _fechaSeleccionada!,
-                  ),
+                          _fechaSeleccionada!,
+                        ),
                 ),
               ),
             ),
-
             const SizedBox(height: 20),
-
             DropdownButtonFormField<String>(
-              value: _horarioSeleccionado,
+              initialValue: _horarioSeleccionado,
               decoration: const InputDecoration(
                 labelText: 'Horario',
                 border: OutlineInputBorder(),
@@ -229,14 +217,12 @@ class _TurnoPageState extends State<TurnoPage> {
               onChanged: _fechaSeleccionada == null
                   ? null
                   : (valor) {
-                setState(() {
-                  _horarioSeleccionado = valor;
-                });
-              },
+                      setState(() {
+                        _horarioSeleccionado = valor;
+                      });
+                    },
             ),
-
             const SizedBox(height: 35),
-
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(

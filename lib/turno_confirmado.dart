@@ -27,7 +27,6 @@ class TurnoConfirmadoPage extends StatelessWidget {
           'Clínica Vitalis',
         ),
       ),
-
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -39,9 +38,7 @@ class TurnoConfirmadoPage extends StatelessWidget {
                 size: 70,
               ),
             ),
-
             const SizedBox(height: 15),
-
             const Center(
               child: Text(
                 'Turno confirmado',
@@ -51,18 +48,14 @@ class TurnoConfirmadoPage extends StatelessWidget {
                 ),
               ),
             ),
-
             const SizedBox(height: 10),
-
             const Center(
               child: Text(
                 'El turno fue registrado correctamente.',
                 textAlign: TextAlign.center,
               ),
             ),
-
             const SizedBox(height: 30),
-
             const Text(
               'Datos del paciente',
               style: TextStyle(
@@ -70,9 +63,7 @@ class TurnoConfirmadoPage extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-
             const SizedBox(height: 10),
-
             Card(
               child: Column(
                 children: [
@@ -103,9 +94,7 @@ class TurnoConfirmadoPage extends StatelessWidget {
                 ],
               ),
             ),
-
             const SizedBox(height: 25),
-
             const Text(
               'Datos del turno',
               style: TextStyle(
@@ -113,9 +102,7 @@ class TurnoConfirmadoPage extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-
             const SizedBox(height: 10),
-
             Card(
               child: Column(
                 children: [
@@ -146,16 +133,14 @@ class TurnoConfirmadoPage extends StatelessWidget {
                 ],
               ),
             ),
-
             const SizedBox(height: 25),
-
             SizedBox(
               width: double.infinity,
               child: OutlinedButton(
                 onPressed: () {
                   Navigator.popUntil(
                     context,
-                        (route) => route.isFirst,
+                    (route) => route.isFirst,
                   );
                 },
                 child: const Text(

@@ -40,14 +40,11 @@ class _InicioPageState extends State<InicioPage> {
         child: Column(
           children: [
             const SizedBox(height: 20),
-
             const Icon(
               Icons.local_hospital,
               size: 70,
             ),
-
             const SizedBox(height: 12),
-
             const Text(
               'Bienvenido a Clínica Vitalis',
               style: TextStyle(
@@ -56,9 +53,7 @@ class _InicioPageState extends State<InicioPage> {
               ),
               textAlign: TextAlign.center,
             ),
-
             const SizedBox(height: 35),
-
             Card(
               child: ListTile(
                 leading: const Icon(
@@ -83,9 +78,7 @@ class _InicioPageState extends State<InicioPage> {
                 },
               ),
             ),
-
             const SizedBox(height: 12),
-
             Card(
               child: ListTile(
                 leading: const Icon(
@@ -104,8 +97,7 @@ class _InicioPageState extends State<InicioPage> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) =>
-                      const HistoriaClinicaPage(),
+                      builder: (context) => const HistoriaClinicaPage(),
                     ),
                   );
                 },
@@ -114,7 +106,6 @@ class _InicioPageState extends State<InicioPage> {
           ],
         ),
       ),
-
       bottomNavigationBar: NavigationBar(
         selectedIndex: _indiceSeleccionado,
         onDestinationSelected: _seleccionarSeccion,

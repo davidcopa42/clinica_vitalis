@@ -11,7 +11,6 @@ class HistoriaClinicaPage extends StatelessWidget {
           'Clínica Vitalis',
         ),
       ),
-
       body: const Center(
         child: Padding(
           padding: EdgeInsets.all(30),
@@ -22,9 +21,7 @@ class HistoriaClinicaPage extends StatelessWidget {
                 Icons.description_outlined,
                 size: 70,
               ),
-
               SizedBox(height: 20),
-
               Text(
                 'Historia clínica',
                 style: TextStyle(
@@ -32,13 +29,11 @@ class HistoriaClinicaPage extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-
               SizedBox(height: 12),
-
               Text(
                 'No hay información disponible por el momento.\n\n'
-                    'Esta sección será conectada posteriormente '
-                    'con el sistema interno de la clínica.',
+                'Esta sección será conectada posteriormente '
+                'con el sistema interno de la clínica.',
                 textAlign: TextAlign.center,
               ),
             ],
