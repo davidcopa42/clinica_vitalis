@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'paciente.dart';
-import 'turno.dart';
+import '../../../domain/models/paciente.dart';
+import '../../../domain/models/turno.dart';
 
 class TurnoConfirmadoPage extends StatelessWidget {
   const TurnoConfirmadoPage({
