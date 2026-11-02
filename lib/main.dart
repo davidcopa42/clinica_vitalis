@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 
+import 'data/services/notificaciones_service.dart';
 import 'ui/inicio/widgets/inicio.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await NotificacionesService().inicializar();
+
   runApp(const ClinicaVitalisApp());
 }
 
