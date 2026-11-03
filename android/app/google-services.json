@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "230767907758",
+    "project_id": "clinica-vitalis-3dcfa",
+    "storage_bucket": "clinica-vitalis-3dcfa.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:230767907758:android:89cfdb14b6f26fef6a2e3f",
+        "android_client_info": {
+          "package_name": "com.example.clinica_vitalis.clinica_vitalis"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "230767907758-eovbc4t682ngidfl8a32d4utdp2o5f1m.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCPM-92SJZ7kzZeCPRqAueE9L6-_y_-Wd8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "230767907758-eovbc4t682ngidfl8a32d4utdp2o5f1m.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
