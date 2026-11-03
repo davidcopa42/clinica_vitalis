@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "230767907758-0lqfogcs311hpbk8q1qb4arms2m03c46.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.clinica_vitalis.clinica_vitalis",
+            "certificate_hash": "9834627fd3601e0dfa3d17b11195a2d8e49fc424"
+          }
+        },
+        {
           "client_id": "230767907758-eovbc4t682ngidfl8a32d4utdp2o5f1m.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -29,6 +37,13 @@
             {
               "client_id": "230767907758-eovbc4t682ngidfl8a32d4utdp2o5f1m.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "230767907758-o03gioog3e7r4nt6jf4bi288l3o37muu.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.clinicavitalis.clinicaVitalis"
+              }
             }
           ]
         }
