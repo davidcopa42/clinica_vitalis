@@ -51,8 +51,8 @@ class TurnoViewModel extends ChangeNotifier {
   /// El horario se elige recién con profesional y fecha.
   bool get puedeElegirHorario =>
       _profesionalSeleccionado != null &&
-          _fechaSeleccionada != null &&
-          !_cargandoHorarios;
+      _fechaSeleccionada != null &&
+      !_cargandoHorarios;
 
   // ---------- Acciones ----------
 

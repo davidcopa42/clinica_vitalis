@@ -105,9 +105,7 @@ class _TurnoPageState extends State<TurnoPage> {
               fontWeight: FontWeight.bold,
             ),
           ),
-
           const SizedBox(height: 25),
-
           DropdownButtonFormField<String>(
             // La key cambia con el valor: así el campo se reinicia
             // cuando el ViewModel lo resetea.
@@ -125,13 +123,11 @@ class _TurnoPageState extends State<TurnoPage> {
             }).toList(),
             onChanged: vm.seleccionarEspecialidad,
           ),
-
           const SizedBox(height: 20),
-
           DropdownButtonFormField<String>(
             key: ValueKey(
               'profesional-${vm.especialidadSeleccionada}-'
-                  '${vm.profesionalSeleccionado}',
+              '${vm.profesionalSeleccionado}',
             ),
             initialValue: vm.profesionalSeleccionado,
             decoration: const InputDecoration(
@@ -148,16 +144,12 @@ class _TurnoPageState extends State<TurnoPage> {
                 ? null
                 : vm.seleccionarProfesional,
           ),
-
           const SizedBox(height: 20),
-
           const Text(
             'Fecha',
             style: TextStyle(fontSize: 16),
           ),
-
           const SizedBox(height: 8),
-
           SizedBox(
             width: double.infinity,
             child: OutlinedButton.icon(
@@ -170,31 +162,29 @@ class _TurnoPageState extends State<TurnoPage> {
               ),
             ),
           ),
-
           const SizedBox(height: 20),
-
           DropdownButtonFormField<String>(
             key: ValueKey(
               'horario-${vm.profesionalSeleccionado}-'
-                  '${vm.fechaSeleccionada}-${vm.horarioSeleccionado}',
+              '${vm.fechaSeleccionada}-${vm.horarioSeleccionado}',
             ),
             initialValue: vm.horarioSeleccionado,
             decoration: InputDecoration(
               labelText: 'Horario',
               border: const OutlineInputBorder(),
               helperText:
-              vm.puedeElegirHorario && vm.horariosDisponibles.isEmpty
-                  ? 'No hay horarios libres ese día.'
-                  : null,
+                  vm.puedeElegirHorario && vm.horariosDisponibles.isEmpty
+                      ? 'No hay horarios libres ese día.'
+                      : null,
               suffixIcon: vm.cargandoHorarios
                   ? const Padding(
-                padding: EdgeInsets.all(12),
-                child: SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                ),
-              )
+                      padding: EdgeInsets.all(12),
+                      child: SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    )
                   : null,
             ),
             items: vm.horariosDisponibles.map((horario) {
@@ -205,7 +195,6 @@ class _TurnoPageState extends State<TurnoPage> {
             }).toList(),
             onChanged: vm.puedeElegirHorario ? vm.seleccionarHorario : null,
           ),
-
           if (vm.error != null) ...[
             const SizedBox(height: 20),
             Text(
@@ -215,19 +204,17 @@ class _TurnoPageState extends State<TurnoPage> {
               ),
             ),
           ],
-
           const SizedBox(height: 35),
-
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
               onPressed: vm.guardando ? null : _confirmar,
               child: vm.guardando
                   ? const SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              )
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
                   : const Text('Confirmar turno'),
             ),
           ),

@@ -53,6 +53,7 @@ class _RegistroPageState extends State<RegistroPage> {
       apellido: _apellidoController.text,
       correo: _correoController.text,
       telefono: _telefonoController.text,
+      uid: '',
     );
 
     _mostrarVerificacion(paciente);

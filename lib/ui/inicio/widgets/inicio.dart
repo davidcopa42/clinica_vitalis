@@ -1,10 +1,20 @@
 import 'package:flutter/material.dart';
-
+import '../../../domain/models/paciente.dart';
+import '../../auth/view_models/sesion_view_model.dart';
 import '../../historia_clinica/widgets/historia_clinica.dart';
 import '../../registro/widgets/registro.dart';
+import '../../perfil/widgets/perfil.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class InicioPage extends StatefulWidget {
-  const InicioPage({super.key});
+  final Paciente paciente;
+  final SesionViewModel sesion;
+
+  const InicioPage({
+    super.key,
+    required this.paciente,
+    required this.sesion,
+  });
 
   @override
   State<InicioPage> createState() => _InicioPageState();
@@ -13,27 +23,93 @@ class InicioPage extends StatefulWidget {
 class _InicioPageState extends State<InicioPage> {
   int _indiceSeleccionado = 0;
 
-  void _seleccionarSeccion(int indice) {
-    setState(() {
-      _indiceSeleccionado = indice;
-    });
-
-    if (indice == 1) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Clínica Vitalis - Centro de salud',
-          ),
-        ),
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
+    final List<Widget> pantallas = [
+      _buildContenidoInicio(context),
+      _buildInformacionTab(),
+      PerfilScreen(uid: widget.paciente.uid),
+    ];
+
+    return Scaffold(
+      body: pantallas[_indiceSeleccionado],
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _indiceSeleccionado,
+        onDestinationSelected: (indice) {
+          setState(() {
+            _indiceSeleccionado = indice;
+          });
+
+          if (indice == 1) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(
+                  'Clínica Vitalis - Centro de salud',
+                ),
+              ),
+            );
+          }
+        },
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.home),
+            label: 'Inicio',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.info_outline),
+            label: 'Información',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.person),
+            label: 'Perfil',
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildContenidoInicio(BuildContext context) {
+    final userAuth = FirebaseAuth.instance.currentUser;
+    final fotoUrl = userAuth?.photoURL ?? widget.paciente.fotoUrl;
+    final nombreUsuario =
+        widget.paciente.nombre.isNotEmpty ? widget.paciente.nombre : 'Paciente';
+    final uidActual = widget.paciente.uid;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Clínica Vitalis'),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: GestureDetector(
+              onTap: () {
+                if (uidActual.isNotEmpty) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PerfilScreen(uid: uidActual),
+                    ),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text('Error: Usuario no identificado')),
+                  );
+                }
+              },
+              child: CircleAvatar(
+                radius: 18,
+                backgroundColor: Colors.blue.shade100,
+                backgroundImage: (fotoUrl != null && fotoUrl.isNotEmpty)
+                    ? NetworkImage(fotoUrl)
+                    : null,
+                child: (fotoUrl == null || fotoUrl.isEmpty)
+                    ? const Icon(Icons.person, color: Colors.blue, size: 20)
+                    : null,
+              ),
+            ),
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(20),
@@ -43,11 +119,12 @@ class _InicioPageState extends State<InicioPage> {
             const Icon(
               Icons.local_hospital,
               size: 70,
+              color: Colors.blue,
             ),
             const SizedBox(height: 12),
-            const Text(
-              'Bienvenido a Clínica Vitalis',
-              style: TextStyle(
+            Text(
+              'Hola, $nombreUsuario',
+              style: const TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
               ),
@@ -106,19 +183,21 @@ class _InicioPageState extends State<InicioPage> {
           ],
         ),
       ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _indiceSeleccionado,
-        onDestinationSelected: _seleccionarSeccion,
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.home),
-            label: 'Inicio',
+    );
+  }
+
+  Widget _buildInformacionTab() {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Información'), centerTitle: true),
+      body: const Padding(
+        padding: EdgeInsets.all(24.0),
+        child: Center(
+          child: Text(
+            'Clínica Vitalis - Centro de salud',
+            style: TextStyle(fontSize: 18),
+            textAlign: TextAlign.center,
           ),
-          NavigationDestination(
-            icon: Icon(Icons.info_outline),
-            label: 'Información',
-          ),
-        ],
+        ),
       ),
     );
   }
