@@ -11,20 +11,15 @@ class RegistroPage extends StatefulWidget {
 }
 
 class _RegistroPageState extends State<RegistroPage> {
-  final TextEditingController _nombreController =
-  TextEditingController();
+  final TextEditingController _nombreController = TextEditingController();
 
-  final TextEditingController _apellidoController =
-  TextEditingController();
+  final TextEditingController _apellidoController = TextEditingController();
 
-  final TextEditingController _correoController =
-  TextEditingController();
+  final TextEditingController _correoController = TextEditingController();
 
-  final TextEditingController _telefonoController =
-  TextEditingController();
+  final TextEditingController _telefonoController = TextEditingController();
 
-  final TextEditingController _codigoController =
-  TextEditingController();
+  final TextEditingController _codigoController = TextEditingController();
 
   @override
   void dispose() {
@@ -58,6 +53,7 @@ class _RegistroPageState extends State<RegistroPage> {
       apellido: _apellidoController.text,
       correo: _correoController.text,
       telefono: _telefonoController.text,
+      uid: '',
     );
 
     _mostrarVerificacion(paciente);
@@ -79,9 +75,7 @@ class _RegistroPageState extends State<RegistroPage> {
               const Text(
                 'Se envió un código a tu correo electrónico.',
               ),
-
               const SizedBox(height: 20),
-
               TextField(
                 controller: _codigoController,
                 keyboardType: TextInputType.number,
@@ -101,7 +95,6 @@ class _RegistroPageState extends State<RegistroPage> {
                 'Cancelar',
               ),
             ),
-
             ElevatedButton(
               onPressed: () {
                 if (_codigoController.text == '1234') {
@@ -116,7 +109,7 @@ class _RegistroPageState extends State<RegistroPage> {
                     ),
                   );
                 } else {
-                  ScaffoldMessenger.of(this.context).showSnackBar(
+                  ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text(
                         'El código ingresado es incorrecto.',
@@ -155,15 +148,11 @@ class _RegistroPageState extends State<RegistroPage> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-
             const SizedBox(height: 10),
-
             const Text(
               'Para solicitar un turno completá tus datos personales.',
             ),
-
             const SizedBox(height: 25),
-
             TextField(
               controller: _nombreController,
               decoration: const InputDecoration(
@@ -171,9 +160,7 @@ class _RegistroPageState extends State<RegistroPage> {
                 border: OutlineInputBorder(),
               ),
             ),
-
             const SizedBox(height: 15),
-
             TextField(
               controller: _apellidoController,
               decoration: const InputDecoration(
@@ -181,9 +168,7 @@ class _RegistroPageState extends State<RegistroPage> {
                 border: OutlineInputBorder(),
               ),
             ),
-
             const SizedBox(height: 15),
-
             TextField(
               controller: _correoController,
               keyboardType: TextInputType.emailAddress,
@@ -192,9 +177,7 @@ class _RegistroPageState extends State<RegistroPage> {
                 border: OutlineInputBorder(),
               ),
             ),
-
             const SizedBox(height: 15),
-
             TextField(
               controller: _telefonoController,
               keyboardType: TextInputType.phone,
@@ -203,9 +186,7 @@ class _RegistroPageState extends State<RegistroPage> {
                 border: OutlineInputBorder(),
               ),
             ),
-
             const SizedBox(height: 30),
-
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
