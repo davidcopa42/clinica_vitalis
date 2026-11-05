@@ -9,7 +9,8 @@ class AuthService {
   User? get usuarioActual => _auth.currentUser;
 
   Future<void> registrarConCorreo(String correo, String contrasena) async {
-    await _auth.createUserWithEmailAndPassword(email: correo, password: contrasena);
+    await _auth.createUserWithEmailAndPassword(
+        email: correo, password: contrasena);
   }
 
   Future<void> iniciarConCorreo(String correo, String contrasena) async {
@@ -20,7 +21,8 @@ class AuthService {
     final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
     if (googleUser == null) return null; // El usuario cerró la ventana
 
-    final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+    final GoogleSignInAuthentication googleAuth =
+        await googleUser.authentication;
     final AuthCredential credential = GoogleAuthProvider.credential(
       accessToken: googleAuth.accessToken,
       idToken: googleAuth.idToken,

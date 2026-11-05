@@ -63,7 +63,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '230767907758',
     projectId: 'clinica-vitalis-3dcfa',
     storageBucket: 'clinica-vitalis-3dcfa.firebasestorage.app',
-    iosClientId: '230767907758-o03gioog3e7r4nt6jf4bi288l3o37muu.apps.googleusercontent.com',
+    iosClientId:
+        '230767907758-o03gioog3e7r4nt6jf4bi288l3o37muu.apps.googleusercontent.com',
     iosBundleId: 'com.example.clinicavitalis.clinicaVitalis',
   );
 
@@ -73,7 +74,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '230767907758',
     projectId: 'clinica-vitalis-3dcfa',
     storageBucket: 'clinica-vitalis-3dcfa.firebasestorage.app',
-    iosClientId: '230767907758-o03gioog3e7r4nt6jf4bi288l3o37muu.apps.googleusercontent.com',
+    iosClientId:
+        '230767907758-o03gioog3e7r4nt6jf4bi288l3o37muu.apps.googleusercontent.com',
     iosBundleId: 'com.example.clinicavitalis.clinicaVitalis',
   );
 

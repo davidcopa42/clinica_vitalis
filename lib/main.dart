@@ -1,27 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'data/repositories/auth_repository.dart';
 import 'data/repositories/perfil_repository.dart';
 import 'providers/perfil_provider.dart';
-import 'ui/perfil/widgets/perfil.dart';
+import 'ui/auth/view_models/sesion_view_model.dart';
+import 'ui/auth/widgets/puerta_sesion.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
 
-
-  runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(
-          create: (_) => PerfilProvider(
-            repository: PerfilRepository(),
-          ),
-        ),
-      ],
-      child: const MyApp(),
-    ),
-  );
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -29,12 +19,28 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Clínica Vitalis',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
+    final authRepository = AuthRepository();
+    final perfilRepository = PerfilRepository();
+
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (_) => PerfilProvider(
+            repository: perfilRepository,
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => SesionViewModel(
+            authRepo: authRepository,
+            perfilRepo: perfilRepository,
+          ),
+        ),
+      ],
+      child: const MaterialApp(
+        title: 'Clínica Vitalis',
+        debugShowCheckedModeBanner: false,
+        home: PuertaSesion(),
       ),
-      home: const PerfilScreen(uid: 'usuario_prueba_123'),
     );
   }
 }

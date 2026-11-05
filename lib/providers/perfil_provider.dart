@@ -6,26 +6,31 @@ class PerfilProvider extends ChangeNotifier {
   Map<String, dynamic>? _perfilData;
   bool _isLoading = false;
 
-  PerfilProvider({required PerfilRepository repository}) : _repository = repository;
+  PerfilProvider({required PerfilRepository repository})
+      : _repository = repository;
 
   Map<String, dynamic>? get perfilData => _perfilData;
   bool get isLoading => _isLoading;
 
   Future<void> cargarPerfil(String uid) async {
-    _isLoading = true;
-    notifyListeners();
-    _perfilData = await _repository.cargarPerfilUsuario(uid);
-    _isLoading = false;
-    notifyListeners();
+    if (_perfilData == null) {
+      _isLoading = true;
+      notifyListeners();
+    }
+
+    try {
+      _perfilData = await _repository.cargarPerfilUsuario(uid);
+    } catch (e) {
+      debugPrint('Error al cargar perfil: $e');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 
-  Future<void> actualizarPerfil(String uid, Map<String, dynamic> nuevosDatos) async {
-    await _repository.actualizarDatosPerfil(
-      uid,
-      nombre: nuevosDatos['nombre'],
-      telefono: nuevosDatos['telefono'],
-      obraSocial: nuevosDatos['obraSocial'],
-    );
+  Future<void> actualizarPerfil(
+      String uid, Map<String, dynamic> nuevosDatos) async {
+    await _repository.guardarPerfil(uid, nuevosDatos);
     await cargarPerfil(uid);
   }
 }

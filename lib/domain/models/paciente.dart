@@ -19,10 +19,10 @@ class Paciente {
   /// Nombre, apellido, teléfono, DNI y fecha de nacimiento cargados.
   bool get perfilCompleto =>
       nombre.isNotEmpty &&
-          apellido.isNotEmpty &&
-          telefono.isNotEmpty &&
-          dni.isNotEmpty &&
-          fechaNacimiento != null;
+      apellido.isNotEmpty &&
+      telefono.isNotEmpty &&
+      dni.isNotEmpty &&
+      fechaNacimiento != null;
 
   String get nombreCompleto => '$nombre $apellido';
 

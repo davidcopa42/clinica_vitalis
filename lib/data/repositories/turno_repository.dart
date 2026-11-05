@@ -67,9 +67,9 @@ class TurnoRepository {
   /// Saca los ya reservados por cualquier paciente y, si la fecha es hoy,
   /// los que ya pasaron.
   Future<List<String>> horariosDisponibles(
-      String profesional,
-      DateTime fecha,
-      ) async {
+    String profesional,
+    DateTime fecha,
+  ) async {
     final profesionales = await obtenerProfesionales();
     final elegido = profesionales.where((p) => p.nombre == profesional);
     if (elegido.isEmpty) return [];

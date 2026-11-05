@@ -1,4 +1,4 @@
-import 'package:firebase_auth/package:firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../services/auth_service.dart';
 
 class AuthException implements Exception {
@@ -16,7 +16,8 @@ class AuthRepository {
 
   String? get uidActual => _authService.usuarioActual?.uid;
 
-  bool get correoVerificado => _authService.usuarioActual?.emailVerified ?? false;
+  bool get correoVerificado =>
+      _authService.usuarioActual?.emailVerified ?? false;
 
   Future<void> registrarConCorreo(String correo, String contrasena) async {
     try {

@@ -5,8 +5,9 @@ class PerfilService {
 
   Future<Map<String, dynamic>?> obtenerPerfil(String uid) async {
     try {
-      DocumentSnapshot doc = await _firestore.collection('perfiles').doc(uid).get();
-      if (doc.exists) {
+      DocumentSnapshot doc =
+          await _firestore.collection('perfiles').doc(uid).get();
+      if (doc.exists && doc.data() != null) {
         return doc.data() as Map<String, dynamic>;
       }
       return null;
@@ -15,12 +16,13 @@ class PerfilService {
     }
   }
 
-  Future<void> guardarPerfil(String uid, Map<String, dynamic> datosPerfil) async {
+  Future<void> guardarPerfil(
+      String uid, Map<String, dynamic> datosPerfil) async {
     try {
       await _firestore.collection('perfiles').doc(uid).set(
-        datosPerfil,
-        SetOptions(merge: true),
-      );
+            datosPerfil,
+            SetOptions(merge: true),
+          );
     } catch (e) {
       throw Exception('Error al guardar el perfil: $e');
     }
