@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../../../data/services/perfil_service.dart';
-import '../../auth/view_models/sesion_view_model.dart';
 import 'formulario_perfil.dart';
 import '../../../data/repositories/auth_repository.dart';
 
@@ -10,12 +8,14 @@ class CompletarPerfilScreen extends StatefulWidget {
   final String uid;
   final String correoInicial;
   final String nombreInicial;
+  final VoidCallback onPerfilCompletado;
 
   const CompletarPerfilScreen({
     super.key,
     required this.uid,
     required this.correoInicial,
     required this.nombreInicial,
+    required this.onPerfilCompletado,
   });
 
   @override
@@ -62,10 +62,9 @@ class _CompletarPerfilScreenState extends State<CompletarPerfilScreen> {
   Future<void> _seleccionarFecha(BuildContext context) async {
     final DateTime? seleccion = await showDatePicker(
       context: context,
-      initialDate: DateTime.now()
-          .subtract(const Duration(days: 365 * 18)), // 18 años por defecto
+      initialDate: DateTime.now().subtract(const Duration(days: 365 * 18)),
       firstDate: DateTime(1900),
-      lastDate: DateTime.now(), // Nunca futura
+      lastDate: DateTime.now(),
     );
 
     if (seleccion != null && seleccion != _fechaSeleccionada) {
@@ -96,7 +95,7 @@ class _CompletarPerfilScreenState extends State<CompletarPerfilScreen> {
         });
 
         if (mounted) {
-          await context.read<SesionViewModel>().recargarYCalcular();
+          widget.onPerfilCompletado();
         }
       } catch (e) {
         if (mounted) {
@@ -105,7 +104,9 @@ class _CompletarPerfilScreenState extends State<CompletarPerfilScreen> {
           );
         }
       } finally {
-        if (mounted) setState(() => _isLoading = false);
+        if (mounted) {
+          setState(() => _isLoading = false);
+        }
       }
     }
   }

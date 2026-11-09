@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
-import '../data/repositories/perfil_repository.dart';
+import 'package:clinica_vitalis/data/repositories/perfil_repository.dart';
+import 'package:clinica_vitalis/data/repositories/auth_repository.dart';
 
-class PerfilProvider extends ChangeNotifier {
-  final PerfilRepository _repository;
+class PerfilViewModel extends ChangeNotifier {
+  final PerfilRepository _perfilRepo;
+  final AuthRepository _authRepo = AuthRepository();
+
   Map<String, dynamic>? _perfilData;
   bool _isLoading = false;
 
-  PerfilProvider({required PerfilRepository repository})
-      : _repository = repository;
+  PerfilViewModel({required PerfilRepository repository})
+      : _perfilRepo = repository;
 
   Map<String, dynamic>? get perfilData => _perfilData;
   bool get isLoading => _isLoading;
@@ -19,7 +22,7 @@ class PerfilProvider extends ChangeNotifier {
     }
 
     try {
-      _perfilData = await _repository.cargarPerfilUsuario(uid);
+      _perfilData = await _perfilRepo.cargarPerfilUsuario(uid);
     } catch (e) {
       debugPrint('Error al cargar perfil: $e');
     } finally {
@@ -30,7 +33,11 @@ class PerfilProvider extends ChangeNotifier {
 
   Future<void> actualizarPerfil(
       String uid, Map<String, dynamic> nuevosDatos) async {
-    await _repository.guardarPerfil(uid, nuevosDatos);
+    await _perfilRepo.guardarPerfil(uid, nuevosDatos);
     await cargarPerfil(uid);
+  }
+
+  Future<void> cerrarSesion() async {
+    await _authRepo.cerrarSesion();
   }
 }

@@ -5,6 +5,8 @@ import '../../historia_clinica/widgets/historia_clinica.dart';
 import '../../registro/widgets/registro.dart';
 import '../../perfil/widgets/perfil.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../../perfil/view_models/perfil_view_model.dart';
+import 'package:clinica_vitalis/data/repositories/perfil_repository.dart';
 
 class InicioPage extends StatefulWidget {
   final Paciente paciente;
@@ -22,13 +24,29 @@ class InicioPage extends StatefulWidget {
 
 class _InicioPageState extends State<InicioPage> {
   int _indiceSeleccionado = 0;
+  late final PerfilViewModel _perfilViewModel;
+
+  @override
+  void initState() {
+    super.initState();
+    _perfilViewModel = PerfilViewModel(repository: PerfilRepository());
+  }
+
+  @override
+  void dispose() {
+    _perfilViewModel.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final List<Widget> pantallas = [
       _buildContenidoInicio(context),
       _buildInformacionTab(),
-      PerfilScreen(uid: widget.paciente.uid),
+      PerfilScreen(
+        uid: widget.paciente.uid,
+        viewModel: _perfilViewModel,
+      ),
     ];
 
     return Scaffold(
@@ -87,7 +105,10 @@ class _InicioPageState extends State<InicioPage> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => PerfilScreen(uid: uidActual),
+                      builder: (context) => PerfilScreen(
+                        uid: uidActual,
+                        viewModel: _perfilViewModel,
+                      ),
                     ),
                   );
                 } else {
