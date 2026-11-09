@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../../../data/repositories/auth_repository.dart';
 import '../../../data/repositories/perfil_repository.dart';
 import '../../core/estado_carga.dart';
@@ -25,6 +26,10 @@ class CrearCuentaViewModel extends ChangeNotifier {
 
     try {
       await _authRepo.registrarConCorreo(correo, password);
+
+      final userActual = FirebaseAuth.instance.currentUser;
+      await userActual
+          ?.updateDisplayName('${nombre.trim()} ${apellido.trim()}');
 
       final uid = _authRepo.uidActual;
 

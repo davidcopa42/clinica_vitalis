@@ -1,11 +1,12 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../../../data/repositories/auth_repository.dart';
-import '../view_models/sesion_view_model.dart';
 
 class VerificarCorreoScreen extends StatefulWidget {
-  const VerificarCorreoScreen({super.key});
+  final VoidCallback onVerificado;
+
+  const VerificarCorreoScreen({super.key, required this.onVerificado});
 
   @override
   State<VerificarCorreoScreen> createState() => _VerificarCorreoScreenState();
@@ -13,23 +14,48 @@ class VerificarCorreoScreen extends StatefulWidget {
 
 class _VerificarCorreoScreenState extends State<VerificarCorreoScreen> {
   final AuthRepository _authRepo = AuthRepository();
+
   bool _puedeReenviar = true;
   int _segundosRestantes = 0;
-  Timer? _timer;
+
+  Timer? _timerReenvio;
+  Timer? _timerVerificacionAutomatica;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _timerVerificacionAutomatica = Timer.periodic(
+      const Duration(seconds: 3),
+      (_) => _chequearVerificacion(),
+    );
+  }
 
   @override
   void dispose() {
-    _timer?.cancel();
+    _timerReenvio?.cancel();
+    _timerVerificacionAutomatica?.cancel();
     super.dispose();
   }
 
-  void _iniciarTemporizador() {
+  // Este es el método mágico que avanza solo
+  Future<void> _chequearVerificacion() async {
+    final user = FirebaseAuth.instance.currentUser;
+    await user?.reload();
+
+    if (user?.emailVerified ?? false) {
+      _timerVerificacionAutomatica?.cancel();
+      widget.onVerificado();
+    }
+  }
+
+  void _iniciarTemporizadorReenvio() {
     setState(() {
       _puedeReenviar = false;
       _segundosRestantes = 60;
     });
 
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+    _timerReenvio = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_segundosRestantes > 0) {
         setState(() => _segundosRestantes--);
       } else {
@@ -42,7 +68,7 @@ class _VerificarCorreoScreenState extends State<VerificarCorreoScreen> {
   void _reenviarCorreo() async {
     try {
       await _authRepo.enviarVerificacion();
-      _iniciarTemporizador();
+      _iniciarTemporizadorReenvio();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Correo reenviado. Revisa tu bandeja.')),
@@ -57,8 +83,8 @@ class _VerificarCorreoScreenState extends State<VerificarCorreoScreen> {
     }
   }
 
-  void _yaVerifique() async {
-    await context.read<SesionViewModel>().recargarYCalcular();
+  void _yaVerifiqueManual() {
+    _chequearVerificacion();
   }
 
   void _cerrarSesion() async {
@@ -87,16 +113,20 @@ class _VerificarCorreoScreenState extends State<VerificarCorreoScreen> {
             ),
             const SizedBox(height: 12),
             const Text(
-              'Revisa tu bandeja de entrada o la carpeta de Spam. Si escribiste mal tu correo, puedes cerrar sesión y registrarte de nuevo.',
+              'Revisa tu bandeja de entrada. La pantalla avanzará sola cuando toques el enlace.',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 15, color: Colors.grey),
+            ),
+            const SizedBox(height: 32),
+            const Center(
+              child: CircularProgressIndicator(),
             ),
             const SizedBox(height: 32),
             SizedBox(
               height: 50,
               child: ElevatedButton(
-                onPressed: _yaVerifique,
-                child: const Text('Ya lo verifiqué',
+                onPressed: _yaVerifiqueManual,
+                child: const Text('Ya lo verifiqué (Forzar avance)',
                     style: TextStyle(fontSize: 16)),
               ),
             ),
