@@ -6,6 +6,7 @@ import 'package:clinica_vitalis/ui/core/estado_carga.dart';
 import 'package:clinica_vitalis/ui/core/formato.dart';
 import 'package:clinica_vitalis/ui/turnos/view_models/turno_view_model.dart';
 import 'package:clinica_vitalis/ui/turnos/widgets/turno_confirmado.dart';
+import 'package:clinica_vitalis/data/services/notificaciones_service.dart';
 
 /// Pantalla para elegir especialidad, profesional, fecha y horario.
 class TurnoPage extends StatefulWidget {
@@ -21,6 +22,7 @@ class TurnoPage extends StatefulWidget {
 }
 
 class _TurnoPageState extends State<TurnoPage> {
+  final NotificacionesService _notificacionesService = NotificacionesService();
   late final TurnoViewModel _viewModel;
 
   @override
@@ -53,8 +55,11 @@ class _TurnoPageState extends State<TurnoPage> {
   Future<void> _confirmar() async {
     final turno = await _viewModel.confirmar(widget.paciente);
 
-    // Después de un await la pantalla pudo haberse cerrado.
     if (!mounted || turno == null) return;
+
+    await _notificacionesService.programarRecordatorio(turno);
+
+    if (!mounted) return;
 
     Navigator.push(
       context,
