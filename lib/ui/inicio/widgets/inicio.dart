@@ -8,6 +8,7 @@ import '../../historia_clinica/widgets/historia_clinica.dart';
 import '../../perfil/view_models/perfil_view_model.dart';
 import '../../perfil/widgets/perfil.dart';
 import '../../turnos/widgets/solicitar_turno.dart';
+import '../../turnos/widgets/mis_turnos.dart';
 
 class InicioPage extends StatefulWidget {
   final Paciente paciente;
@@ -180,6 +181,25 @@ class _InicioPageState extends State<InicioPage> {
                     context,
                     MaterialPageRoute(
                       builder: (context) => TurnoPage(
+                        paciente: widget.paciente,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 12),
+            Card(
+              child: ListTile(
+                leading: const Icon(Icons.event_available),
+                title: const Text('Mis turnos'),
+                subtitle: const Text('Consultá y cancelá tus turnos.'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => MisTurnosPage(
                         paciente: widget.paciente,
                       ),
                     ),
