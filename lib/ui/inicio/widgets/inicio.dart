@@ -96,7 +96,15 @@ class _InicioPageState extends State<InicioPage> {
 
     return Scaffold(
       appBar: AppBar(
+        leading: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Image.asset(
+            'assets/images/logo_vitalis.png',
+            fit: BoxFit.contain,
+          ),
+        ),
         title: const Text('Clínica Vitalis'),
+        centerTitle: true,
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16.0),
