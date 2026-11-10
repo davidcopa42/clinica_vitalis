@@ -30,7 +30,7 @@ class _HistoriaClinicaPageState extends State<HistoriaClinicaPage> {
       repositorio: HistoriaClinicaRepository(),
     );
 
-    _viewModel.cargar(widget.paciente.correo);
+    _viewModel.cargar(widget.paciente.uid);
   }
 
   @override

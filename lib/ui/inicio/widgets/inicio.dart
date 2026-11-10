@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../../domain/models/paciente.dart';
 import '../../auth/view_models/sesion_view_model.dart';
-import '../../historia_clinica/widgets/historia_clinica.dart';
+import '../../historia_clinica/widgets/historia_clinica_page.dart';
 import '../../perfil/view_models/perfil_view_model.dart';
 import '../../perfil/widgets/perfil.dart';
 import '../../sintomas/widgets/sintomas_page.dart';
@@ -257,7 +257,9 @@ class _InicioPageState extends State<InicioPage> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const HistoriaClinicaPage(),
+                      builder: (context) => HistoriaClinicaPage(
+                        paciente: widget.paciente,
+                      ),
                     ),
                   );
                 },
