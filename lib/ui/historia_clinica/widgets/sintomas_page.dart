@@ -1,6 +1,5 @@
-import 'package:flutter/material.dart';
-
 import 'package:clinica_vitalis/ui/sintomas/view_models/sintomas_view_model.dart';
+import 'package:flutter/material.dart';
 
 /// Pantalla para registrar los síntomas del paciente.
 class SintomasPage extends StatefulWidget {

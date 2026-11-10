@@ -1,12 +1,13 @@
+import 'package:clinica_vitalis/data/repositories/perfil_repository.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+
 import '../../../domain/models/paciente.dart';
 import '../../auth/view_models/sesion_view_model.dart';
 import '../../historia_clinica/widgets/historia_clinica.dart';
-import '../../registro/widgets/registro.dart';
-import '../../perfil/widgets/perfil.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import '../../perfil/view_models/perfil_view_model.dart';
-import 'package:clinica_vitalis/data/repositories/perfil_repository.dart';
+import '../../perfil/widgets/perfil.dart';
+import '../../registro/widgets/registro.dart';
 
 class InicioPage extends StatefulWidget {
   final Paciente paciente;

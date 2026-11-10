@@ -1,12 +1,11 @@
-import 'package:flutter/material.dart';
-
 import 'package:clinica_vitalis/data/repositories/turno_repository.dart';
+import 'package:clinica_vitalis/data/services/notificaciones_service.dart';
 import 'package:clinica_vitalis/domain/models/paciente.dart';
 import 'package:clinica_vitalis/ui/core/estado_carga.dart';
 import 'package:clinica_vitalis/ui/core/formato.dart';
 import 'package:clinica_vitalis/ui/turnos/view_models/turno_view_model.dart';
 import 'package:clinica_vitalis/ui/turnos/widgets/turno_confirmado.dart';
-import 'package:clinica_vitalis/data/services/notificaciones_service.dart';
+import 'package:flutter/material.dart';
 
 /// Pantalla para elegir especialidad, profesional, fecha y horario.
 class TurnoPage extends StatefulWidget {

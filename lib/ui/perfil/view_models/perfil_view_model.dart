@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
-import 'package:clinica_vitalis/data/repositories/perfil_repository.dart';
 import 'package:clinica_vitalis/data/repositories/auth_repository.dart';
+import 'package:clinica_vitalis/data/repositories/perfil_repository.dart';
+import 'package:flutter/material.dart';
 
 class PerfilViewModel extends ChangeNotifier {
   final PerfilRepository _perfilRepo;

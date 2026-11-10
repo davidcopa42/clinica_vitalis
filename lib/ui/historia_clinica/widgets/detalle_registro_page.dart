@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:clinica_vitalis/domain/models/registro_clinico.dart';
+import 'package:flutter/material.dart';
 
 /// Muestra los detalles de un registro clínico.
 class DetalleRegistroPage extends StatelessWidget {
