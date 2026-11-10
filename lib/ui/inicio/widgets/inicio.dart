@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../../domain/models/paciente.dart';
 import '../../auth/view_models/sesion_view_model.dart';
 import '../../historia_clinica/widgets/historia_clinica_page.dart';
+import '../../informacion/widgets/informacion_page.dart';
 import '../../perfil/view_models/perfil_view_model.dart';
 import '../../perfil/widgets/perfil.dart';
 import '../../sintomas/widgets/sintomas_page.dart';
@@ -272,18 +273,6 @@ class _InicioPageState extends State<InicioPage> {
   }
 
   Widget _buildInformacionTab() {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Información'), centerTitle: true),
-      body: const Padding(
-        padding: EdgeInsets.all(24.0),
-        child: Center(
-          child: Text(
-            'Clínica Vitalis - Centro de salud',
-            style: TextStyle(fontSize: 18),
-            textAlign: TextAlign.center,
-          ),
-        ),
-      ),
-    );
+    return const InformacionPage();
   }
 }
