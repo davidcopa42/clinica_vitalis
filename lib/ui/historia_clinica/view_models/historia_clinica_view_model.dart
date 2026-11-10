@@ -28,10 +28,12 @@ class HistoriaClinicaViewModel extends ChangeNotifier {
   /// Registros filtrados según el tipo seleccionado.
   List<RegistroClinico> get registrosFiltrados {
     if (_filtro == null) {
-      return registros;
+      return List.unmodifiable(_registros);
     }
 
-    return _registros.where((registro) => registro.tipo == _filtro).toList();
+    return _registros
+        .where((registro) => registro.tipo == _filtro)
+        .toList();
   }
 
   /// Carga los registros clínicos del paciente.
@@ -44,7 +46,7 @@ class HistoriaClinicaViewModel extends ChangeNotifier {
     try {
       _registros = await _repositorio.obtenerRegistros(pacienteUid);
       _estado = EstadoCarga.exito;
-    } catch (e) {
+    } catch (_) {
       _mensajeError = 'No se pudo cargar la historia clínica.';
       _estado = EstadoCarga.error;
     } finally {
