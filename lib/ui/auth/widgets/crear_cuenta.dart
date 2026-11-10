@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import '../view_models/crear_cuenta_view_model.dart';
+
 import '../../core/estado_carga.dart';
+import '../view_models/crear_cuenta_view_model.dart';
 
 class CrearCuentaScreen extends StatefulWidget {
   const CrearCuentaScreen({super.key});

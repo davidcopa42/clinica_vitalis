@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+
 import '../../../data/repositories/auth_repository.dart';
 import '../../../data/repositories/perfil_repository.dart';
 import '../../core/estado_carga.dart';

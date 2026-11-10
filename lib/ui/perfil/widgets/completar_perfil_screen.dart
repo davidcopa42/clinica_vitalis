@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+
+import '../../../data/repositories/auth_repository.dart';
 import '../../../data/services/perfil_service.dart';
 import 'formulario_perfil.dart';
-import '../../../data/repositories/auth_repository.dart';
 
 class CompletarPerfilScreen extends StatefulWidget {
   final String uid;

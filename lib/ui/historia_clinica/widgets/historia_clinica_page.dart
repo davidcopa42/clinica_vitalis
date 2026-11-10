@@ -1,11 +1,10 @@
-import 'package:flutter/material.dart';
-
 import 'package:clinica_vitalis/data/repositories/historia_clinica_repository.dart';
 import 'package:clinica_vitalis/domain/models/paciente.dart';
 import 'package:clinica_vitalis/domain/models/registro_clinico.dart';
+import 'package:clinica_vitalis/ui/core/estado_carga.dart';
 import 'package:clinica_vitalis/ui/historia_clinica/view_models/historia_clinica_view_model.dart';
 import 'package:clinica_vitalis/ui/historia_clinica/widgets/detalle_registro_page.dart';
-import 'package:clinica_vitalis/ui/core/estado_carga.dart';
+import 'package:flutter/material.dart';
 
 /// Pantalla que muestra la historia clínica del paciente.
 class HistoriaClinicaPage extends StatefulWidget {

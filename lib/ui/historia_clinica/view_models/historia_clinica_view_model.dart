@@ -1,7 +1,7 @@
-import 'package:flutter/foundation.dart';
-import 'package:clinica_vitalis/domain/models/registro_clinico.dart';
 import 'package:clinica_vitalis/data/repositories/historia_clinica_repository.dart';
+import 'package:clinica_vitalis/domain/models/registro_clinico.dart';
 import 'package:clinica_vitalis/ui/core/estado_carga.dart';
+import 'package:flutter/foundation.dart';
 
 /// Administra los datos y el estado de la historia clínica.
 class HistoriaClinicaViewModel extends ChangeNotifier {

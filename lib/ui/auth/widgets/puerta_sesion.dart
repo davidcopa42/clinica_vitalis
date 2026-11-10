@@ -1,12 +1,13 @@
-import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../view_models/sesion_view_model.dart';
+import 'package:flutter/material.dart';
+
 import '../../../data/repositories/auth_repository.dart';
 import '../../../data/repositories/perfil_repository.dart';
-import 'login.dart';
-import 'verificar_correo.dart';
 import '../../inicio/widgets/inicio.dart';
 import '../../perfil/widgets/completar_perfil_screen.dart';
+import '../view_models/sesion_view_model.dart';
+import 'login.dart';
+import 'verificar_correo.dart';
 
 class PuertaSesion extends StatefulWidget {
   const PuertaSesion({super.key});

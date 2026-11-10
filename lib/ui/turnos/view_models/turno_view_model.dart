@@ -1,10 +1,9 @@
-import 'package:flutter/foundation.dart';
-
 import 'package:clinica_vitalis/data/repositories/turno_repository.dart';
 import 'package:clinica_vitalis/domain/models/paciente.dart';
 import 'package:clinica_vitalis/domain/models/profesional.dart';
 import 'package:clinica_vitalis/domain/models/turno.dart';
 import 'package:clinica_vitalis/ui/core/estado_carga.dart';
+import 'package:flutter/foundation.dart';
 
 /// Estado y lógica de la pantalla Solicitar turno.
 class TurnoViewModel extends ChangeNotifier {

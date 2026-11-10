@@ -1,8 +1,8 @@
-import 'package:flutter_test/flutter_test.dart';
-import 'package:clinica_vitalis/ui/auth/view_models/sesion_view_model.dart';
 import 'package:clinica_vitalis/data/repositories/auth_repository.dart';
 import 'package:clinica_vitalis/data/repositories/perfil_repository.dart';
 import 'package:clinica_vitalis/domain/models/paciente.dart';
+import 'package:clinica_vitalis/ui/auth/view_models/sesion_view_model.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 // Repositorio Falso de Auth para los tests
 class FakeAuthRepository implements AuthRepository {
