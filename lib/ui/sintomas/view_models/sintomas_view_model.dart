@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 class SintomasViewModel extends ChangeNotifier {
-  final List<String> _sintomasDisponibles = [
+  static const List<String> _sintomasDisponibles = [
     'Dolor de cabeza',
     'Fiebre',
     'Tos',
@@ -17,15 +17,15 @@ class SintomasViewModel extends ChangeNotifier {
     'Dificultad para hablar o mover un lado del cuerpo',
   ];
 
-  final Set<String> _sintomasSeleccionados = {};
-
-  final Set<String> _sintomasAlarma = {
+  static const Set<String> _sintomasAlarma = {
     'Dolor de pecho',
     'Falta de aire',
     'Pérdida de conocimiento',
     'Sangrado abundante',
     'Dificultad para hablar o mover un lado del cuerpo',
   };
+
+  final Set<String> _sintomasSeleccionados = {};
 
   String _descripcion = '';
   String _duracion = 'Hoy';

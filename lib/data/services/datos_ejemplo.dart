@@ -10,7 +10,7 @@ const List<Profesional> profesionalesDeEjemplo = [
   Profesional(
     nombre: 'Dr. Roberto Díaz',
     especialidad: 'Clínica Médica',
-    horarios: ['14:00', '14:30', '15:00', '15:30'],
+    horarios: ['14:00', '14:30', '15:00', '15:30', '16:00'],
   ),
   Profesional(
     nombre: 'Dr. Juan Pérez',

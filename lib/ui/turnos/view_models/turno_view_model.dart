@@ -118,8 +118,7 @@ class TurnoViewModel extends ChangeNotifier {
     try {
       return await _repositorio.guardarTurno(
         Turno(
-          // TODO: reemplazar por paciente.uid cuando esté el login.
-          pacienteUid: paciente.correo,
+          pacienteUid: paciente.uid,
           especialidad: _especialidadSeleccionada!,
           profesional: _profesionalSeleccionado!,
           fecha: _fechaSeleccionada!,

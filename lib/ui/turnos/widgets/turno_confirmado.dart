@@ -91,6 +91,11 @@ class TurnoConfirmadoPage extends StatelessWidget {
                       paciente.telefono,
                     ),
                   ),
+                  if (paciente.obraSocial != null && paciente.obraSocial!.isNotEmpty)
+                    ListTile(
+                      title: const Text('Obra social'),
+                      subtitle: Text(paciente.obraSocial!),
+                    ),
                 ],
               ),
             ),
