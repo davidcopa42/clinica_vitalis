@@ -7,7 +7,7 @@ import '../../auth/view_models/sesion_view_model.dart';
 import '../../historia_clinica/widgets/historia_clinica.dart';
 import '../../perfil/view_models/perfil_view_model.dart';
 import '../../perfil/widgets/perfil.dart';
-import '../../registro/widgets/registro.dart';
+import '../../turnos/widgets/solicitar_turno.dart';
 
 class InicioPage extends StatefulWidget {
   final Paciente paciente;
@@ -179,7 +179,9 @@ class _InicioPageState extends State<InicioPage> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const RegistroPage(),
+                      builder: (context) => TurnoPage(
+                        paciente: widget.paciente,
+                      ),
                     ),
                   );
                 },
