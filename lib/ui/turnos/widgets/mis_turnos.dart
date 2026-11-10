@@ -1,9 +1,9 @@
+import 'package:clinica_vitalis/data/repositories/turno_repository.dart';
 import 'package:clinica_vitalis/domain/models/paciente.dart';
 import 'package:clinica_vitalis/domain/models/turno.dart';
 import 'package:clinica_vitalis/ui/core/estado_carga.dart';
 import 'package:clinica_vitalis/ui/core/formato.dart';
 import 'package:clinica_vitalis/ui/turnos/view_models/mis_turnos_view_model.dart';
-import 'package:clinica_vitalis/data/repositories/turno_repository.dart';
 import 'package:flutter/material.dart';
 
 /// Pantalla con los turnos confirmados y futuros del paciente.

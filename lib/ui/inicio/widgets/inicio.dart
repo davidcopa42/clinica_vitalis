@@ -7,8 +7,9 @@ import '../../auth/view_models/sesion_view_model.dart';
 import '../../historia_clinica/widgets/historia_clinica.dart';
 import '../../perfil/view_models/perfil_view_model.dart';
 import '../../perfil/widgets/perfil.dart';
-import '../../turnos/widgets/solicitar_turno.dart';
+import '../../sintomas/widgets/sintomas_page.dart';
 import '../../turnos/widgets/mis_turnos.dart';
+import '../../turnos/widgets/solicitar_turno.dart';
 
 class InicioPage extends StatefulWidget {
   final Paciente paciente;
@@ -201,6 +202,36 @@ class _InicioPageState extends State<InicioPage> {
                     MaterialPageRoute(
                       builder: (context) => MisTurnosPage(
                         paciente: widget.paciente,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 12),
+            Card(
+              child: ListTile(
+                leading: const Icon(Icons.medical_information),
+                title: const Text('Registrar síntomas'),
+                subtitle: const Text(
+                  'Contanos cómo te sentís y recibí una recomendación.',
+                ),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => SintomasPage(
+                        onSolicitarTurno: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => TurnoPage(
+                                paciente: widget.paciente,
+                              ),
+                            ),
+                          );
+                        },
                       ),
                     ),
                   );
