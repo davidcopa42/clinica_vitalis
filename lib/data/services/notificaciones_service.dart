@@ -5,8 +5,15 @@ import 'package:timezone/data/latest_all.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 
 class NotificacionesService {
+  NotificacionesService._internal();
+
+  static final NotificacionesService _instancia =
+  NotificacionesService._internal();
+
+  factory NotificacionesService() => _instancia;
+
   final FlutterLocalNotificationsPlugin _notificaciones =
-      FlutterLocalNotificationsPlugin();
+  FlutterLocalNotificationsPlugin();
 
   Future<void> inicializar() async {
     tz_data.initializeTimeZones();
@@ -61,7 +68,7 @@ class NotificacionesService {
           'Mañana tenés turno con ${turno.profesional} a las ${turno.horario}.',
       scheduledDate: fechaProgramada,
       notificationDetails: detalles,
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
     );
   }
 
