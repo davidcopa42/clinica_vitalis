@@ -7,7 +7,6 @@ import 'package:clinica_vitalis/ui/turnos/view_models/turno_view_model.dart';
 import 'package:clinica_vitalis/ui/turnos/widgets/turno_confirmado.dart';
 import 'package:flutter/material.dart';
 
-/// Pantalla para elegir especialidad, profesional, fecha y horario.
 class TurnoPage extends StatefulWidget {
   const TurnoPage({
     super.key,
@@ -23,16 +22,25 @@ class TurnoPage extends StatefulWidget {
 class _TurnoPageState extends State<TurnoPage> {
   final NotificacionesService _notificacionesService = NotificacionesService();
   late final TurnoViewModel _viewModel;
+  late final AppLifecycleListener _cicloDeVida;
 
   @override
   void initState() {
     super.initState();
     _viewModel = TurnoViewModel(repositorio: TurnoRepository());
     _viewModel.cargar();
+
+    // Vinculamos los eventos del ciclo de vida a los métodos del ViewModel
+    _cicloDeVida = AppLifecycleListener(
+      onHide: _viewModel.guardarBorrador,
+      onResume: _viewModel.refrescar,
+      onStateChange: (estado) => debugPrint('Estado de la app: ${estado.name}'),
+    );
   }
 
   @override
   void dispose() {
+    _cicloDeVida.dispose();
     _viewModel.dispose();
     super.dispose();
   }
@@ -111,8 +119,6 @@ class _TurnoPageState extends State<TurnoPage> {
           ),
           const SizedBox(height: 25),
           DropdownButtonFormField<String>(
-            // La key cambia con el valor: así el campo se reinicia
-            // cuando el ViewModel lo resetea.
             key: ValueKey('especialidad-${vm.especialidadSeleccionada}'),
             initialValue: vm.especialidadSeleccionada,
             decoration: const InputDecoration(
@@ -131,7 +137,7 @@ class _TurnoPageState extends State<TurnoPage> {
           DropdownButtonFormField<String>(
             key: ValueKey(
               'profesional-${vm.especialidadSeleccionada}-'
-              '${vm.profesionalSeleccionado}',
+                  '${vm.profesionalSeleccionado}',
             ),
             initialValue: vm.profesionalSeleccionado,
             decoration: const InputDecoration(
@@ -170,25 +176,25 @@ class _TurnoPageState extends State<TurnoPage> {
           DropdownButtonFormField<String>(
             key: ValueKey(
               'horario-${vm.profesionalSeleccionado}-'
-              '${vm.fechaSeleccionada}-${vm.horarioSeleccionado}',
+                  '${vm.fechaSeleccionada}-${vm.horarioSeleccionado}',
             ),
             initialValue: vm.horarioSeleccionado,
             decoration: InputDecoration(
               labelText: 'Horario',
               border: const OutlineInputBorder(),
               helperText:
-                  vm.puedeElegirHorario && vm.horariosDisponibles.isEmpty
-                      ? 'No hay horarios libres ese día.'
-                      : null,
+              vm.puedeElegirHorario && vm.horariosDisponibles.isEmpty
+                  ? 'No hay horarios libres ese día.'
+                  : null,
               suffixIcon: vm.cargandoHorarios
                   ? const Padding(
-                      padding: EdgeInsets.all(12),
-                      child: SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      ),
-                    )
+                padding: EdgeInsets.all(12),
+                child: SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+              )
                   : null,
             ),
             items: vm.horariosDisponibles.map((horario) {
@@ -215,10 +221,10 @@ class _TurnoPageState extends State<TurnoPage> {
               onPressed: vm.guardando ? null : _confirmar,
               child: vm.guardando
                   ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
                   : const Text('Confirmar turno'),
             ),
           ),
