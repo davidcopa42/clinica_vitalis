@@ -55,9 +55,8 @@ class MisTurnosViewModel extends ChangeNotifier {
       await _repositorio.cancelarTurno(turno.id!);
       await _notificacionesService.cancelarRecordatorio(turno.id!);
 
-      _turnos = _turnos
-          .where((turnoActual) => turnoActual.id != turno.id)
-          .toList();
+      _turnos =
+          _turnos.where((turnoActual) => turnoActual.id != turno.id).toList();
 
       return true;
     } catch (_) {

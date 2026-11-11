@@ -31,9 +31,7 @@ class HistoriaClinicaViewModel extends ChangeNotifier {
       return List.unmodifiable(_registros);
     }
 
-    return _registros
-        .where((registro) => registro.tipo == _filtro)
-        .toList();
+    return _registros.where((registro) => registro.tipo == _filtro).toList();
   }
 
   /// Carga los registros clínicos del paciente.

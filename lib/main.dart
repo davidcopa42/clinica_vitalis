@@ -17,10 +17,19 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    const Color semilla = Colors.blue;
+    return MaterialApp(
       title: 'Clínica Vitalis',
       debugShowCheckedModeBanner: false,
-      home: PuertaSesion(),
+      theme: ThemeData(
+        colorSchemeSeed: semilla,
+      ),
+      darkTheme: ThemeData(
+        colorSchemeSeed: semilla,
+        brightness: Brightness.dark,
+      ),
+      themeMode: ThemeMode.system,
+      home: const PuertaSesion(),
     );
   }
 }
