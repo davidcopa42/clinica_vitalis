@@ -27,19 +27,18 @@ class InformacionPage extends StatelessWidget {
                   icono: Icons.schedule,
                   titulo: 'Horarios de atención',
                   detalle:
-                  'Lunes a viernes de 8:00 a 20:00.\nSábados de 9:00 a 13:00.',
+                      'Lunes a viernes de 8:00 a 20:00.\nSábados de 9:00 a 13:00.',
                 ),
                 _TarjetaInformacion(
                   icono: Icons.local_hospital,
                   titulo: 'Guardia',
-                  detalle:
-                  'Atención las 24 horas.\nTeléfono de guardia: 107.',
+                  detalle: 'Atención las 24 horas.\nTeléfono de guardia: 107.',
                 ),
                 _TarjetaInformacion(
                   icono: Icons.medical_services,
                   titulo: 'Especialidades',
                   detalle:
-                  'Cardiología, Pediatría, Traumatología, Dermatología y Clínica médica.',
+                      'Cardiología, Pediatría, Traumatología, Dermatología y Clínica médica.',
                 ),
               ],
             ),

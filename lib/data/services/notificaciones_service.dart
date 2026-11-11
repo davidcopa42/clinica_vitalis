@@ -8,12 +8,12 @@ class NotificacionesService {
   NotificacionesService._internal();
 
   static final NotificacionesService _instancia =
-  NotificacionesService._internal();
+      NotificacionesService._internal();
 
   factory NotificacionesService() => _instancia;
 
   final FlutterLocalNotificationsPlugin _notificaciones =
-  FlutterLocalNotificationsPlugin();
+      FlutterLocalNotificationsPlugin();
 
   Future<void> inicializar() async {
     tz_data.initializeTimeZones();

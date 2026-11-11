@@ -61,16 +61,6 @@ class _InicioPageState extends State<InicioPage> {
           setState(() {
             _indiceSeleccionado = indice;
           });
-
-          if (indice == 1) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text(
-                  'Clínica Vitalis - Centro de salud',
-                ),
-              ),
-            );
-          }
         },
         destinations: const [
           NavigationDestination(
