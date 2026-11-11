@@ -2,8 +2,11 @@ import 'package:clinica_vitalis/data/repositories/perfil_repository.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../../../data/services/conectividad_service.dart';
 import '../../../domain/models/paciente.dart';
 import '../../auth/view_models/sesion_view_model.dart';
+import '../../conectividad/view_models/conectividad_view_model.dart';
+import '../../conectividad/widgets/aviso_sin_conexion.dart';
 import '../../historia_clinica/widgets/historia_clinica_page.dart';
 import '../../informacion/widgets/informacion_page.dart';
 import '../../perfil/view_models/perfil_view_model.dart';
@@ -29,16 +32,21 @@ class InicioPage extends StatefulWidget {
 class _InicioPageState extends State<InicioPage> {
   int _indiceSeleccionado = 0;
   late final PerfilViewModel _perfilViewModel;
+  late final ConectividadViewModel _conectividadViewModel; // 1. Declaramos el ViewModel de conectividad
 
   @override
   void initState() {
     super.initState();
     _perfilViewModel = PerfilViewModel(repository: PerfilRepository());
+    // 2. Inicializamos el ViewModel de conectividad con el servicio real
+    _conectividadViewModel = ConectividadViewModel(servicio: ConectividadConPlus());
   }
 
   @override
   void dispose() {
     _perfilViewModel.dispose();
+    // 3. OBLIGATORIO: Liberamos el ViewModel de conectividad en el dispose para evitar fugas de memoria
+    _conectividadViewModel.dispose();
     super.dispose();
   }
 
@@ -84,7 +92,7 @@ class _InicioPageState extends State<InicioPage> {
     final userAuth = FirebaseAuth.instance.currentUser;
     final fotoUrl = userAuth?.photoURL ?? widget.paciente.fotoUrl;
     final nombreUsuario =
-        widget.paciente.nombre.isNotEmpty ? widget.paciente.nombre : 'Paciente';
+    widget.paciente.nombre.isNotEmpty ? widget.paciente.nombre : 'Paciente';
     final uidActual = widget.paciente.uid;
 
     return Scaffold(
@@ -134,130 +142,139 @@ class _InicioPageState extends State<InicioPage> {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            const SizedBox(height: 20),
-            const Icon(
-              Icons.local_hospital,
-              size: 70,
-              color: Colors.blue,
-            ),
-            const SizedBox(height: 12),
-            Text(
-              'Hola, $nombreUsuario',
-              style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 35),
-            Card(
-              child: ListTile(
-                leading: const Icon(
-                  Icons.calendar_month,
-                ),
-                title: const Text(
-                  'Solicitar un turno',
-                ),
-                subtitle: const Text(
-                  'Elegí una especialidad, profesional y horario.',
-                ),
-                trailing: const Icon(
-                  Icons.chevron_right,
-                ),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => TurnoPage(
-                        paciente: widget.paciente,
-                      ),
+      body: Column(
+        children: [
+          // 4. Colocamos el aviso de sin conexión justo arriba de todo en el cuerpo
+          AvisoSinConexion(viewModel: _conectividadViewModel),
+
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: ListView(
+                children: [
+                  const SizedBox(height: 10),
+                  const Icon(
+                    Icons.local_hospital,
+                    size: 70,
+                    color: Colors.blue,
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Hola, $nombreUsuario',
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
                     ),
-                  );
-                },
-              ),
-            ),
-            const SizedBox(height: 12),
-            Card(
-              child: ListTile(
-                leading: const Icon(Icons.event_available),
-                title: const Text('Mis turnos'),
-                subtitle: const Text('Consultá y cancelá tus turnos.'),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => MisTurnosPage(
-                        paciente: widget.paciente,
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 35),
+                  Card(
+                    child: ListTile(
+                      leading: const Icon(
+                        Icons.calendar_month,
                       ),
-                    ),
-                  );
-                },
-              ),
-            ),
-            const SizedBox(height: 12),
-            Card(
-              child: ListTile(
-                leading: const Icon(Icons.medical_information),
-                title: const Text('Registrar síntomas'),
-                subtitle: const Text(
-                  'Contanos cómo te sentís y recibí una recomendación.',
-                ),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => SintomasPage(
-                        onSolicitarTurno: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => TurnoPage(
-                                paciente: widget.paciente,
-                              ),
+                      title: const Text(
+                        'Solicitar un turno',
+                      ),
+                      subtitle: const Text(
+                        'Elegí una especialidad, profesional y horario.',
+                      ),
+                      trailing: const Icon(
+                        Icons.chevron_right,
+                      ),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => TurnoPage(
+                              paciente: widget.paciente,
                             ),
-                          );
-                        },
-                      ),
+                          ),
+                        );
+                      },
                     ),
-                  );
-                },
+                  ),
+                  const SizedBox(height: 12),
+                  Card(
+                    child: ListTile(
+                      leading: const Icon(Icons.event_available),
+                      title: const Text('Mis turnos'),
+                      subtitle: const Text('Consultá y cancelá tus turnos.'),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => MisTurnosPage(
+                              paciente: widget.paciente,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Card(
+                    child: ListTile(
+                      leading: const Icon(Icons.medical_information),
+                      title: const Text('Registrar síntomas'),
+                      subtitle: const Text(
+                        'Contanos cómo te sentís y recibí una recomendación.',
+                      ),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => SintomasPage(
+                              onSolicitarTurno: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => TurnoPage(
+                                      paciente: widget.paciente,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Card(
+                    child: ListTile(
+                      leading: const Icon(
+                        Icons.description,
+                      ),
+                      title: const Text(
+                        'Historia clínica',
+                      ),
+                      subtitle: const Text(
+                        'Consultá tu información clínica.',
+                      ),
+                      trailing: const Icon(
+                        Icons.chevron_right,
+                      ),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => HistoriaClinicaPage(
+                              paciente: widget.paciente,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 12),
-            Card(
-              child: ListTile(
-                leading: const Icon(
-                  Icons.description,
-                ),
-                title: const Text(
-                  'Historia clínica',
-                ),
-                subtitle: const Text(
-                  'Consultá tu información clínica.',
-                ),
-                trailing: const Icon(
-                  Icons.chevron_right,
-                ),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => HistoriaClinicaPage(
-                        paciente: widget.paciente,
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
