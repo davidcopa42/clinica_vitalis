@@ -1,3 +1,4 @@
+import 'dart:async'; // 1. Agregamos este import para la suscripción
 import 'package:clinica_vitalis/data/repositories/perfil_repository.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +15,8 @@ import '../../perfil/widgets/perfil.dart';
 import '../../sintomas/widgets/sintomas_page.dart';
 import '../../turnos/widgets/mis_turnos.dart';
 import '../../turnos/widgets/solicitar_turno.dart';
+import '../../../domain/evento_de_app.dart'; // 2. Import del evento
+import '../../../data/services/bus_de_eventos.dart'; // 3. Import del bus
 
 class InicioPage extends StatefulWidget {
   final Paciente paciente;
@@ -34,15 +37,35 @@ class _InicioPageState extends State<InicioPage> {
   late final PerfilViewModel _perfilViewModel;
   late final ConectividadViewModel _conectividadViewModel;
 
+  // 4. Declaramos la variable de la suscripción al Stream
+  late final StreamSubscription<EventoDeApp> _suscripcionEventos;
+
   @override
   void initState() {
     super.initState();
     _perfilViewModel = PerfilViewModel(repository: PerfilRepository());
     _conectividadViewModel = ConectividadViewModel(servicio: ConectividadConPlus());
+
+    // 5. Nos suscribimos a la "radio" para escuchar eventos en vivo
+    _suscripcionEventos = busDeEventos.stream.listen((evento) {
+      if (evento is TurnoConfirmadoEvento) {
+        if (!mounted) return;
+        // Mostramos el SnackBar verde cuando escuchamos el evento
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('¡Éxito! Turno de ${evento.especialidad} registrado.'),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
+    });
   }
 
   @override
   void dispose() {
+    // 6. OBLIGATORIO: Cerramos la suscripción del Stream para evitar fugas de memoria
+    _suscripcionEventos.cancel();
     _perfilViewModel.dispose();
     _conectividadViewModel.dispose();
     super.dispose();
@@ -142,7 +165,7 @@ class _InicioPageState extends State<InicioPage> {
       ),
       body: Column(
         children: [
-          // 4. Colocamos el aviso de sin conexión justo arriba de todo en el cuerpo
+          // Colocamos el aviso de sin conexión justo arriba de todo en el cuerpo
           AvisoSinConexion(viewModel: _conectividadViewModel),
 
           Expanded(

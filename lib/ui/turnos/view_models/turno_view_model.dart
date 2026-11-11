@@ -6,6 +6,9 @@ import 'package:clinica_vitalis/ui/core/estado_carga.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../domain/evento_de_app.dart';
+import '../../../data/services/bus_de_eventos.dart';
+
 /// Estado y lógica de la pantalla Solicitar turno.
 class TurnoViewModel extends ChangeNotifier {
   TurnoViewModel({required TurnoRepository repositorio})
@@ -93,7 +96,6 @@ class TurnoViewModel extends ChangeNotifier {
     await cargar();
   }
 
-  /// Carga los profesionales al abrir la pantalla y recupera el borrador si existe.
   /// Carga los profesionales al abrir la pantalla y recupera todo el borrador si existe.
   Future<void> cargar() async {
     _estado = EstadoCarga.cargando;
@@ -157,7 +159,7 @@ class TurnoViewModel extends ChangeNotifier {
     _horariosDisponibles = [];
     _error = null;
     notifyListeners();
-    guardarBorrador(); // <--- Guardamos al instante cada cambio
+    guardarBorrador();
   }
 
   Future<void> seleccionarProfesional(String? profesional) async {
@@ -166,7 +168,7 @@ class TurnoViewModel extends ChangeNotifier {
     _error = null;
     await _cargarHorarios();
     notifyListeners();
-    guardarBorrador(); // <--- Guardamos al instante cada cambio
+    guardarBorrador();
   }
 
   Future<void> seleccionarFecha(DateTime fecha) async {
@@ -175,14 +177,14 @@ class TurnoViewModel extends ChangeNotifier {
     _error = null;
     await _cargarHorarios();
     notifyListeners();
-    guardarBorrador(); // <--- Guardamos al instante cada cambio
+    guardarBorrador();
   }
 
   void seleccionarHorario(String? horario) {
     _horarioSeleccionado = horario;
     _error = null;
     notifyListeners();
-    guardarBorrador(); // <--- Guardamos al instante cada cambio
+    guardarBorrador();
   }
 
   /// Valida y guarda el turno. Devuelve el turno guardado, o null si falló
@@ -217,6 +219,15 @@ class TurnoViewModel extends ChangeNotifier {
       await prefs.remove('borrador_profesional');
       await prefs.remove('borrador_fecha');
       await prefs.remove('borrador_horario');
+
+      // ---> 2. PUBLICAMOS EL EVENTO EN EL STREAM (El Micrófono) <---
+      busDeEventos.publicar(
+        TurnoConfirmadoEvento(
+          especialidad: _especialidadSeleccionada!,
+          profesional: _profesionalSeleccionado!,
+          fecha: _fechaSeleccionada!,
+        ),
+      );
 
       return turnoGuardado;
     } on TurnoNoDisponibleException {
