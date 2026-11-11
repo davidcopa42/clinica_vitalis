@@ -32,20 +32,18 @@ class InicioPage extends StatefulWidget {
 class _InicioPageState extends State<InicioPage> {
   int _indiceSeleccionado = 0;
   late final PerfilViewModel _perfilViewModel;
-  late final ConectividadViewModel _conectividadViewModel; // 1. Declaramos el ViewModel de conectividad
+  late final ConectividadViewModel _conectividadViewModel;
 
   @override
   void initState() {
     super.initState();
     _perfilViewModel = PerfilViewModel(repository: PerfilRepository());
-    // 2. Inicializamos el ViewModel de conectividad con el servicio real
     _conectividadViewModel = ConectividadViewModel(servicio: ConectividadConPlus());
   }
 
   @override
   void dispose() {
     _perfilViewModel.dispose();
-    // 3. OBLIGATORIO: Liberamos el ViewModel de conectividad en el dispose para evitar fugas de memoria
     _conectividadViewModel.dispose();
     super.dispose();
   }

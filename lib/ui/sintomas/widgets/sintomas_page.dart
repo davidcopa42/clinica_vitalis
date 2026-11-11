@@ -16,16 +16,39 @@ class SintomasPage extends StatefulWidget {
 
 class _SintomasPageState extends State<SintomasPage> {
   late final SintomasViewModel _viewModel;
+  late final AppLifecycleListener _cicloDeVida;
+  late final TextEditingController _descripcionController;
 
   @override
   void initState() {
     super.initState();
     _viewModel = SintomasViewModel();
+    _descripcionController = TextEditingController();
+
+    _viewModel.addListener(_sincronizarControlador);
+
+    _cicloDeVida = AppLifecycleListener(
+      onHide: _viewModel.guardarBorrador,
+      onResume: _viewModel.refrescar,
+      onStateChange: (estado) => debugPrint('Estado app (Síntomas): ${estado.name}'),
+    );
+  }
+
+  void _sincronizarControlador() {
+    if (_descripcionController.text != _viewModel.descripcion) {
+      _descripcionController.text = _viewModel.descripcion;
+      _descripcionController.selection = TextSelection.fromPosition(
+        TextPosition(offset: _descripcionController.text.length),
+      );
+    }
   }
 
   @override
   void dispose() {
+    _viewModel.removeListener(_sincronizarControlador);
+    _cicloDeVida.dispose();
     _viewModel.dispose();
+    _descripcionController.dispose();
     super.dispose();
   }
 
@@ -63,6 +86,7 @@ class _SintomasPageState extends State<SintomasPage> {
                     ),
                     const SizedBox(height: 8),
                     TextField(
+                      controller: _descripcionController,
                       maxLines: 3,
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(),
@@ -144,7 +168,7 @@ class _SintomasPageState extends State<SintomasPage> {
                     const SizedBox(height: 20),
                     const Text(
                       'Esta herramienta no reemplaza la consulta médica '
-                      'ni brinda diagnósticos.',
+                          'ni brinda diagnósticos.',
                       textAlign: TextAlign.center,
                     ),
                   ],
@@ -208,7 +232,7 @@ class _SintomasPageState extends State<SintomasPage> {
       padding: EdgeInsets.only(top: 12),
       child: Text(
         'La información quedó registrada en esta sesión. '
-        'Te recomendamos solicitar un turno.',
+            'Te recomendamos solicitar un turno.',
         textAlign: TextAlign.center,
       ),
     );
