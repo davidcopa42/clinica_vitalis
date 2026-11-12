@@ -7,7 +7,6 @@ import 'package:clinica_vitalis/ui/turnos/view_models/turno_view_model.dart';
 import 'package:clinica_vitalis/ui/turnos/widgets/turno_confirmado.dart';
 import 'package:flutter/material.dart';
 
-/// Pantalla para elegir especialidad, profesional, fecha y horario.
 class TurnoPage extends StatefulWidget {
   const TurnoPage({
     super.key,
@@ -23,16 +22,25 @@ class TurnoPage extends StatefulWidget {
 class _TurnoPageState extends State<TurnoPage> {
   final NotificacionesService _notificacionesService = NotificacionesService();
   late final TurnoViewModel _viewModel;
+  late final AppLifecycleListener _cicloDeVida;
 
   @override
   void initState() {
     super.initState();
     _viewModel = TurnoViewModel(repositorio: TurnoRepository());
     _viewModel.cargar();
+
+    // Vinculamos los eventos del ciclo de vida a los métodos del ViewModel
+    _cicloDeVida = AppLifecycleListener(
+      onHide: _viewModel.guardarBorrador,
+      onResume: _viewModel.refrescar,
+      onStateChange: (estado) => debugPrint('Estado de la app: ${estado.name}'),
+    );
   }
 
   @override
   void dispose() {
+    _cicloDeVida.dispose();
     _viewModel.dispose();
     super.dispose();
   }
@@ -111,8 +119,6 @@ class _TurnoPageState extends State<TurnoPage> {
           ),
           const SizedBox(height: 25),
           DropdownButtonFormField<String>(
-            // La key cambia con el valor: así el campo se reinicia
-            // cuando el ViewModel lo resetea.
             key: ValueKey('especialidad-${vm.especialidadSeleccionada}'),
             initialValue: vm.especialidadSeleccionada,
             decoration: const InputDecoration(
