@@ -1,5 +1,4 @@
 import 'package:clinica_vitalis/data/repositories/turno_repository.dart';
-import 'package:clinica_vitalis/data/services/notificaciones_service.dart';
 import 'package:clinica_vitalis/domain/models/paciente.dart';
 import 'package:clinica_vitalis/ui/core/estado_carga.dart';
 import 'package:clinica_vitalis/ui/core/formato.dart';
@@ -20,7 +19,6 @@ class TurnoPage extends StatefulWidget {
 }
 
 class _TurnoPageState extends State<TurnoPage> {
-  final NotificacionesService _notificacionesService = NotificacionesService();
   late final TurnoViewModel _viewModel;
   late final AppLifecycleListener _cicloDeVida;
 
@@ -60,13 +58,10 @@ class _TurnoPageState extends State<TurnoPage> {
   }
 
   Future<void> _confirmar() async {
+    // El ViewModel guarda el turno y programa el recordatorio.
     final turno = await _viewModel.confirmar(widget.paciente);
 
     if (!mounted || turno == null) return;
-
-    await _notificacionesService.programarRecordatorio(turno);
-
-    if (!mounted) return;
 
     Navigator.push(
       context,
@@ -137,7 +132,7 @@ class _TurnoPageState extends State<TurnoPage> {
           DropdownButtonFormField<String>(
             key: ValueKey(
               'profesional-${vm.especialidadSeleccionada}-'
-                  '${vm.profesionalSeleccionado}',
+              '${vm.profesionalSeleccionado}',
             ),
             initialValue: vm.profesionalSeleccionado,
             decoration: const InputDecoration(
@@ -176,25 +171,25 @@ class _TurnoPageState extends State<TurnoPage> {
           DropdownButtonFormField<String>(
             key: ValueKey(
               'horario-${vm.profesionalSeleccionado}-'
-                  '${vm.fechaSeleccionada}-${vm.horarioSeleccionado}',
+              '${vm.fechaSeleccionada}-${vm.horarioSeleccionado}',
             ),
             initialValue: vm.horarioSeleccionado,
             decoration: InputDecoration(
               labelText: 'Horario',
               border: const OutlineInputBorder(),
               helperText:
-              vm.puedeElegirHorario && vm.horariosDisponibles.isEmpty
-                  ? 'No hay horarios libres ese día.'
-                  : null,
+                  vm.puedeElegirHorario && vm.horariosDisponibles.isEmpty
+                      ? 'No hay horarios libres ese día.'
+                      : null,
               suffixIcon: vm.cargandoHorarios
                   ? const Padding(
-                padding: EdgeInsets.all(12),
-                child: SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                ),
-              )
+                      padding: EdgeInsets.all(12),
+                      child: SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    )
                   : null,
             ),
             items: vm.horariosDisponibles.map((horario) {
@@ -221,10 +216,10 @@ class _TurnoPageState extends State<TurnoPage> {
               onPressed: vm.guardando ? null : _confirmar,
               child: vm.guardando
                   ? const SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              )
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
                   : const Text('Confirmar turno'),
             ),
           ),
