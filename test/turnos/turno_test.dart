@@ -2,6 +2,7 @@ import 'package:clinica_vitalis/data/repositories/turno_repository.dart';
 import 'package:clinica_vitalis/domain/models/turno.dart';
 import 'package:clinica_vitalis/ui/turnos/view_models/turno_view_model.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'base_datos_service_falso.dart';
 
@@ -15,6 +16,8 @@ void main() {
   late TurnoRepository repositorio;
 
   setUp(() {
+    // Simula el almacenamiento del celular: el ViewModel guarda un borrador.
+    SharedPreferences.setMockInitialValues({});
     // Repositorio real con base en memoria: cada test arranca vacío.
     repositorio = TurnoRepository(baseDatos: BaseDatosServiceFalso());
   });
