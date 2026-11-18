@@ -14,8 +14,9 @@ Aplicación móvil desarrollada en Flutter para la gestión de turnos y servicio
 ### Turnos
 - El paciente elige especialidad, profesional, fecha y horario, y la app muestra solo los horarios disponibles.
 - Al confirmar, se muestra la pantalla **Turno confirmado** con los datos del paciente y del turno (con una animación de aparición `FadeTransition`).
-- Desde esa pantalla se puede activar un recordatorio: una notificación local un día antes del turno (`flutter_local_notifications`).
-- En **Mis turnos** se listan los turnos solicitados y se pueden cancelar.
+- Desde esa pantalla se puede activar un recordatorio: una notificación local un día antes del turno (ver [Notificaciones](#notificaciones-de-recordatorio)).
+- En **Mis turnos** se listan los turnos solicitados y se pueden cancelar. La lista se filtra y ordena en un isolate aparte con `compute()`, para no trabar la interfaz.
+- Una tarea en background borra los turnos vencidos una vez por día (ver [Tareas en background](#tareas-en-background-workmanager)).
 - Los turnos se guardan localmente con **SQLite** (`sqflite`).
 - Código: `lib/ui/turnos/`, `lib/data/repositories/turno_repository.dart`, `lib/data/services/base_datos_service.dart`.
 
@@ -33,6 +34,24 @@ Aplicación móvil desarrollada en Flutter para la gestión de turnos y servicio
 - Por ahora los registros son datos de ejemplo.
 - Código: `lib/ui/historia_clinica/`, `lib/data/repositories/historia_clinica_repository.dart`.
 
+### Notificaciones de recordatorio
+- Se programan con `flutter_local_notifications` para 24 horas antes del turno, en el canal **Recordatorios de turnos**. Se usa una alarma inexacta (`inexactAllowWhileIdle`), así que no hace falta el permiso de alarmas exactas.
+- El permiso de notificaciones (Android 13 o superior) se pide en contexto, con el botón **Avisarme un día antes** de la pantalla Turno confirmado. Si el usuario lo niega, la app sigue funcionando.
+- Al cancelar un turno, también se cancela su recordatorio.
+- **Al tocar la notificación, la app abre directamente Mis turnos.** Cada recordatorio lleva el payload `mis_turnos`:
+  - Con la app abierta o en segundo plano, el toque llega por `onDidReceiveNotificationResponse`.
+  - Con la app cerrada, ese callback no se ejecuta, así que al iniciar se consulta `getNotificationAppLaunchDetails()`.
+  - En los dos casos el pedido queda guardado en `NotificacionesService.payloadPendiente`, y `InicioPage` lo atiende cuando la sesión ya está lista. Si la notificación se toca antes de iniciar sesión, Mis turnos se abre después del login.
+- Código: `lib/data/services/notificaciones_service.dart`, `lib/ui/inicio/widgets/inicio.dart`.
+
+### Tareas en background (WorkManager)
+- Con el paquete `workmanager` se registra una tarea periódica, `limpiar_turnos_vencidos`, que Android ejecuta **una vez por día**, aunque la app esté cerrada.
+- La tarea borra de la base local los turnos cuya fecha y hora ya pasaron, estén confirmados o cancelados (`TurnoRepository.limpiarTurnosVencidos()`). Si falla, WorkManager la reintenta más tarde.
+- Se registra al abrir la app con la política `keep`, así que volver a abrirla no reinicia el contador de 24 horas.
+- Android decide el momento exacto según la batería y el uso del dispositivo, así que no corre siempre a la misma hora.
+- Por ahora solo funciona en **Android**. En iOS, las tareas periódicas necesitan configurar BGTaskScheduler en Xcode.
+- Código: `lib/data/services/tareas_background_service.dart`.
+
 ### Otros
 - **Perfil y ajustes**: ver y editar los datos del paciente (`lib/ui/perfil/`).
 - **Conectividad**: aviso cuando el dispositivo se queda sin conexión a internet (`lib/ui/conectividad/`).
@@ -46,7 +65,7 @@ lib/
 ├── domain/        # Modelos (Paciente, Profesional, Turno, RegistroClinico) y eventos
 ├── data/
 │   ├── repositories/  # Acceso a datos que usan los ViewModels
-│   └── services/      # Firebase, SQLite, notificaciones, conectividad
+│   └── services/      # Firebase, SQLite, notificaciones, WorkManager, conectividad
 └── ui/
     └── <modulo>/
         ├── view_models/   # Estado y lógica de cada pantalla (ChangeNotifier)
