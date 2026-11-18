@@ -23,9 +23,10 @@ Aplicación móvil desarrollada en Flutter para la gestión de turnos y servicio
 ### Síntomas
 - El paciente selecciona sus síntomas de una lista, indica la duración y la intensidad (escala 1 a 10) y puede agregar una descripción.
 - Si marca síntomas de alarma (dolor de pecho, falta de aire, pérdida de conocimiento, etc.) o una intensidad muy alta, la app lo advierte y sugiere buscar atención urgente.
-- El formulario se guarda como borrador con `shared_preferences`, para no perder lo cargado al salir de la pantalla.
+- El formulario se guarda como borrador en el dispositivo con cada cambio, para no perder lo cargado al salir de la pantalla o cerrar la app. Al volver a la app, el borrador se vuelve a cargar, y al registrar los síntomas se borra.
+- El borrador lo maneja `SintomasRepository` (`cargarBorrador()`, `guardarBorrador()` y `eliminarBorrador()`), que lo guarda con `shared_preferences`. El `SintomasViewModel` solo usa el repositorio y no conoce cómo se almacena. Los datos viajan en el modelo `BorradorSintomas`.
 - Desde el registro de síntomas se puede ir directamente a solicitar un turno.
-- Código: `lib/ui/sintomas/`.
+- Código: `lib/ui/sintomas/`, `lib/data/repositories/sintomas_repository.dart`, `lib/domain/models/borrador_sintomas.dart`.
 
 ### Historia clínica
 - Muestra los registros clínicos del paciente (análisis, estudios y recetas), con filtros por tipo.
@@ -62,9 +63,9 @@ El proyecto separa la interfaz de la lógica y del acceso a datos:
 
 ```
 lib/
-├── domain/        # Modelos (Paciente, Profesional, Turno, RegistroClinico) y eventos
+├── domain/        # Modelos (Paciente, Profesional, Turno, RegistroClinico, BorradorSintomas) y eventos
 ├── data/
-│   ├── repositories/  # Acceso a datos que usan los ViewModels
+│   ├── repositories/  # Acceso a datos que usan los ViewModels (turnos, síntomas, perfil, etc.)
 │   └── services/      # Firebase, SQLite, notificaciones, WorkManager, conectividad
 └── ui/
     └── <modulo>/
