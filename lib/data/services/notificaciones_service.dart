@@ -1,4 +1,5 @@
 import 'package:clinica_vitalis/domain/models/turno.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/data/latest_all.dart' as tz_data;
@@ -16,6 +17,17 @@ class NotificacionesService {
   final FlutterLocalNotificationsPlugin _notificaciones =
       FlutterLocalNotificationsPlugin();
 
+  /// Payload que llevan los recordatorios de turno. Al tocarlos,
+  /// la app abre la pantalla Mis turnos.
+  static const String payloadMisTurnos = 'mis_turnos';
+
+  /// Payload de la última notificación tocada que todavía no se atendió.
+  ///
+  /// La notificación se puede tocar antes de que haya una pantalla lista
+  /// para navegar (app cerrada, o en el login). Por eso se guarda acá:
+  /// `InicioPage` la escucha, abre la pantalla y la vuelve a poner en null.
+  final ValueNotifier<String?> payloadPendiente = ValueNotifier(null);
+
   /// Prepara zonas horarias, plugin y canal. NO pide permiso:
   /// el permiso se pide en contexto, con un botón (ver pedirPermiso).
   Future<void> inicializar() async {
@@ -28,7 +40,21 @@ class NotificacionesService {
       android: AndroidInitializationSettings('@mipmap/ic_launcher'),
     );
 
-    await _notificaciones.initialize(settings: configuracion);
+    // Se llama cuando el usuario toca una notificación con la app
+    // abierta o en segundo plano.
+    await _notificaciones.initialize(
+      settings: configuracion,
+      onDidReceiveNotificationResponse: (respuesta) {
+        payloadPendiente.value = respuesta.payload;
+      },
+    );
+
+    // Si la app estaba cerrada y se abrió por tocar una notificación,
+    // el callback de arriba no se ejecuta: hay que preguntarlo acá.
+    final lanzamiento = await _notificaciones.getNotificationAppLaunchDetails();
+    if (lanzamiento?.didNotificationLaunchApp ?? false) {
+      payloadPendiente.value = lanzamiento!.notificationResponse?.payload;
+    }
 
     const canalRecordatorios = AndroidNotificationChannel(
       'recordatorios_turnos',
@@ -78,6 +104,7 @@ class NotificacionesService {
           'Mañana tenés turno con ${turno.profesional} a las ${turno.horario}.',
       scheduledDate: tz.TZDateTime.from(fechaRecordatorio, tz.local),
       notificationDetails: detalles,
+      payload: payloadMisTurnos,
       // Inexacta: es lo que recomienda el apunte para recordatorios
       // y no necesita el permiso especial de alarmas exactas.
       androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,

@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../../../data/services/conectividad_service.dart';
+import '../../../data/services/notificaciones_service.dart';
 import '../../../domain/models/paciente.dart';
 import '../../auth/view_models/sesion_view_model.dart';
 import '../../conectividad/view_models/conectividad_view_model.dart';
@@ -60,10 +61,37 @@ class _InicioPageState extends State<InicioPage> {
         );
       }
     });
+
+    // Abre Mis turnos cuando el usuario toca un recordatorio. Se revisa
+    // también al entrar, por si la notificación se tocó con la app cerrada
+    // o antes de iniciar sesión.
+    NotificacionesService().payloadPendiente.addListener(_atenderNotificacion);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _atenderNotificacion());
+  }
+
+  void _atenderNotificacion() {
+    final pendiente = NotificacionesService().payloadPendiente;
+    if (!mounted || pendiente.value != NotificacionesService.payloadMisTurnos) {
+      return;
+    }
+    pendiente.value = null;
+
+    // Vuelve a Inicio antes de abrir Mis turnos, para no apilar
+    // la pantalla dos veces si ya estaba abierta.
+    final navegador = Navigator.of(context);
+    navegador.popUntil((ruta) => ruta.isFirst);
+    navegador.push(
+      MaterialPageRoute(
+        builder: (context) => MisTurnosPage(paciente: widget.paciente),
+      ),
+    );
   }
 
   @override
   void dispose() {
+    NotificacionesService()
+        .payloadPendiente
+        .removeListener(_atenderNotificacion);
     // 6. OBLIGATORIO: Cerramos la suscripción del Stream para evitar fugas de memoria
     _suscripcionEventos.cancel();
     _perfilViewModel.dispose();
