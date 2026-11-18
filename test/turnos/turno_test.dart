@@ -135,4 +135,33 @@ void main() {
       expect(turnos.map((t) => t.fecha), [manana(), pasadoManana]);
     });
   });
+
+  group('limpiarTurnosVencidos (WorkManager)', () {
+    test('borra los turnos que ya pasaron y deja los futuros', () async {
+      final profesional = (await repositorio.obtenerProfesionales()).first;
+      final horario = profesional.horarios.first;
+
+      // Se guardan mañana y pasado mañana; después se limpia "como si"
+      // fuera pasado mañana a las 00:00, así el de mañana ya venció.
+      final pasadoManana = manana().add(const Duration(days: 1));
+      for (final fecha in [manana(), pasadoManana]) {
+        await repositorio.guardarTurno(
+          Turno(
+            pacienteUid: 'paciente-de-prueba',
+            especialidad: profesional.especialidad,
+            profesional: profesional.nombre,
+            fecha: fecha,
+            horario: horario,
+          ),
+        );
+      }
+
+      final borrados =
+          await repositorio.limpiarTurnosVencidos(ahora: pasadoManana);
+
+      expect(borrados, 1);
+      final restantes = await repositorio.obtenerTurnos('paciente-de-prueba');
+      expect(restantes.map((t) => t.fecha), [pasadoManana]);
+    });
+  });
 }

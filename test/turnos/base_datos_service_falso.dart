@@ -41,4 +41,9 @@ class BaseDatosServiceFalso implements BaseDatosService {
     final indice = _filas.indexWhere((fila) => fila['id'] == id);
     if (indice != -1) _filas[indice] = {..._filas[indice], ...datos};
   }
+
+  @override
+  Future<void> eliminar(int id) async {
+    _filas.removeWhere((fila) => fila['id'] == id);
+  }
 }

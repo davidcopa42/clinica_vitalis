@@ -51,4 +51,10 @@ class BaseDatosService {
     final db = await _db;
     await db.update('turnos', datos, where: 'id = ?', whereArgs: [id]);
   }
+
+  /// Borra la fila con ese id.
+  Future<void> eliminar(int id) async {
+    final db = await _db;
+    await db.delete('turnos', where: 'id = ?', whereArgs: [id]);
+  }
 }
