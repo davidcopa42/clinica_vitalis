@@ -13,6 +13,10 @@ Aplicación móvil desarrollada en Flutter para la gestión de turnos y servicio
 
 ### Turnos
 - El paciente elige especialidad, profesional, fecha y horario, y la app muestra solo los horarios disponibles.
+- La pantalla **Solicitar turno** se adapta al ancho disponible con `LayoutBuilder`:
+  - En celulares (600 px o menos) muestra el formulario en una sola columna.
+  - En pantallas anchas, como tablets (más de 600 px), lo muestra en dos columnas: **¿Con quién?** (especialidad y profesional) y **¿Cuándo?** (fecha y horario). El botón de confirmar queda abajo, ocupando todo el ancho.
+  - El formulario tiene un ancho máximo de 900 px y queda centrado, para que los campos no se estiren en pantallas muy grandes.
 - Al confirmar, se muestra la pantalla **Turno confirmado** con los datos del paciente y del turno (con una animación de aparición `FadeTransition`).
 - Desde esa pantalla se puede activar un recordatorio: una notificación local un día antes del turno (ver [Notificaciones](#notificaciones-de-recordatorio)).
 - En **Mis turnos** se listan los turnos solicitados y se pueden cancelar. La lista se filtra y ordena en un isolate aparte con `compute()`, para no trabar la interfaz.
