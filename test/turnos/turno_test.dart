@@ -83,4 +83,56 @@ void main() {
       );
     });
   });
+
+  group('procesarTurnos (compute)', () {
+    Map<String, Object?> fila(int id, DateTime fecha, String horario) {
+      return Turno(
+        id: id,
+        pacienteUid: 'paciente-de-prueba',
+        especialidad: 'Clínica médica',
+        profesional: 'Dra. Prueba',
+        fecha: fecha,
+        horario: horario,
+      ).toMap();
+    }
+
+    test('descarta los turnos pasados y ordena del más cercano al más lejano',
+        () {
+      final ahora = DateTime(2026, 11, 18, 12, 0);
+
+      final resultado = procesarTurnos((
+        filas: [
+          fila(1, DateTime(2026, 11, 20), '10:00'),
+          fila(2, DateTime(2026, 11, 18), '09:00'), // ya pasó
+          fila(3, DateTime(2026, 11, 18), '15:30'),
+          fila(4, DateTime(2026, 11, 19), '08:00'),
+        ],
+        ahora: ahora,
+      ));
+
+      expect(resultado.map((t) => t.id), [3, 4, 1]);
+    });
+
+    test('obtenerTurnos devuelve los turnos procesados en el isolate',
+        () async {
+      final profesional = (await repositorio.obtenerProfesionales()).first;
+      final pasadoManana = manana().add(const Duration(days: 1));
+
+      for (final fecha in [pasadoManana, manana()]) {
+        await repositorio.guardarTurno(
+          Turno(
+            pacienteUid: 'paciente-de-prueba',
+            especialidad: profesional.especialidad,
+            profesional: profesional.nombre,
+            fecha: fecha,
+            horario: profesional.horarios.first,
+          ),
+        );
+      }
+
+      final turnos = await repositorio.obtenerTurnos('paciente-de-prueba');
+
+      expect(turnos.map((t) => t.fecha), [manana(), pasadoManana]);
+    });
+  });
 }
