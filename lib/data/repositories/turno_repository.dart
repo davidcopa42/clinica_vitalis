@@ -2,6 +2,25 @@ import 'package:clinica_vitalis/data/services/base_datos_service.dart';
 import 'package:clinica_vitalis/data/services/datos_ejemplo.dart';
 import 'package:clinica_vitalis/domain/models/profesional.dart';
 import 'package:clinica_vitalis/domain/models/turno.dart';
+import 'package:flutter/foundation.dart';
+
+/// Convierte las filas de la base en turnos, descarta los que ya pasaron
+/// y los ordena del más cercano al más lejano.
+///
+/// Es una función de nivel superior (fuera de la clase) porque `compute()`
+/// la ejecuta en otro isolate y solo puede recibir funciones de ese tipo.
+/// Recibe un único argumento: un record con las filas y la fecha de corte.
+List<Turno> procesarTurnos(
+  ({List<Map<String, Object?>> filas, DateTime ahora}) datos,
+) {
+  final turnos = datos.filas
+      .map(Turno.fromMap)
+      .where((turno) => turno.fechaHora.isAfter(datos.ahora))
+      .toList();
+
+  turnos.sort((a, b) => a.fechaHora.compareTo(b.fechaHora));
+  return turnos;
+}
 
 /// Se lanza cuando se intenta reservar un horario que ya no está libre.
 class TurnoNoDisponibleException implements Exception {
@@ -34,14 +53,13 @@ class TurnoRepository {
       whereArgs: [pacienteUid, EstadoTurno.confirmado.name],
     );
 
-    final ahora = DateTime.now();
-    final turnos = filas
-        .map(Turno.fromMap)
-        .where((turno) => turno.fechaHora.isAfter(ahora))
-        .toList();
-
-    turnos.sort((a, b) => a.fechaHora.compareTo(b.fechaHora));
-    return turnos;
+    // El filtrado y el ordenamiento se hacen en un isolate aparte con
+    // compute(), para no trabar el hilo principal (la UI) si el paciente
+    // tiene muchos turnos.
+    return compute(
+      procesarTurnos,
+      (filas: filas, ahora: DateTime.now()),
+    );
   }
 
   /// Guarda el turno y lo devuelve con el id que le asignó la base.
@@ -60,6 +78,26 @@ class TurnoRepository {
   /// Marca el turno como cancelado. No se borra, queda en el historial.
   Future<void> cancelarTurno(int id) async {
     await _baseDatos.actualizar(id, {'estado': EstadoTurno.cancelado.name});
+  }
+
+  /// Borra de la base los turnos cuya fecha y hora ya pasaron, estén
+  /// confirmados o cancelados. Devuelve cuántos borró.
+  ///
+  /// La ejecuta una vez por día la tarea en background
+  /// (ver `TareasBackgroundService`). [ahora] se puede pasar en los tests.
+  Future<int> limpiarTurnosVencidos({DateTime? ahora}) async {
+    final corte = ahora ?? DateTime.now();
+    final filas = await _baseDatos.consultar();
+
+    final vencidos = filas
+        .map(Turno.fromMap)
+        .where((turno) => turno.fechaHora.isBefore(corte))
+        .toList();
+
+    for (final turno in vencidos) {
+      await _baseDatos.eliminar(turno.id!);
+    }
+    return vencidos.length;
   }
 
   /// Horarios libres de un profesional en una fecha.
