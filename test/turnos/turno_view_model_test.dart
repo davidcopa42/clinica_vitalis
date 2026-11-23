@@ -175,6 +175,43 @@ void main() {
       expect(viewModel.profesionalSeleccionado, isNull);
       expect(viewModel.fechaSeleccionada, isNull);
     });
+
+    test('si fallan los horarios al restaurar queda en exito sin horario',
+        () async {
+      SharedPreferences.setMockInitialValues({
+        'borrador_especialidad': 'Cardiología',
+        'borrador_profesional': 'Dr. Juan Pérez',
+        'borrador_fecha': fecha.toIso8601String(),
+        'borrador_horario': '08:40',
+      });
+      repositorio.errorAlObtenerHorarios = Exception('falla');
+
+      await viewModel.cargar();
+
+      expect(viewModel.estado, EstadoCarga.exito);
+      expect(viewModel.fechaSeleccionada, fecha);
+      expect(viewModel.horariosDisponibles, isEmpty);
+      expect(viewModel.horarioSeleccionado, isNull);
+    });
+
+    test('al refrescar sin fecha en el borrador usa la fecha ya elegida',
+        () async {
+      await viewModel.cargar();
+      await viewModel.seleccionarFecha(fecha);
+      // Deja terminar el guardado de borrador que dispara la seleccion.
+      await pumpEventQueue();
+      SharedPreferences.setMockInitialValues({
+        'borrador_especialidad': 'Cardiología',
+        'borrador_profesional': 'Dr. Juan Pérez',
+      });
+      final consultasPrevias = repositorio.consultasDeHorarios.length;
+
+      await viewModel.refrescar();
+
+      expect(viewModel.fechaSeleccionada, fecha);
+      expect(repositorio.consultasDeHorarios.length, consultasPrevias + 1);
+      expect(repositorio.consultasDeHorarios.last, ('Dr. Juan Pérez', fecha));
+    });
   });
 
   group('selecciones', () {

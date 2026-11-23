@@ -100,47 +100,9 @@ class TurnoViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      // 1. Primero obtenemos la lista de profesionales del repositorio
       _profesionales = await _repositorio.obtenerProfesionales();
-
-      // 2. Leemos el borrador guardado
       final borrador = await _borradorRepository.obtenerBorradorTurno();
-      final especialidadGuardada = borrador.especialidad;
-      final profesionalGuardado = borrador.profesional;
-      final fechaGuardada = borrador.fecha;
-      final horarioGuardado = borrador.horario;
-
-      // 3. Restauramos la especialidad si es válida
-      if (especialidadGuardada != null && especialidades.contains(especialidadGuardada)) {
-        _especialidadSeleccionada = especialidadGuardada;
-
-        // 4. Restauramos el profesional si existe
-        if (profesionalGuardado != null && profesionalesDisponibles.any((profesional) => profesional.nombre == profesionalGuardado)) {
-          _profesionalSeleccionado = profesionalGuardado;
-
-          // 5. Restauramos la fecha si está guardada
-          if (fechaGuardada != null) {
-            _fechaSeleccionada = fechaGuardada;
-          }
-
-          // 6. SOLUCIÓN CLAVE: Si ya tenemos profesional y fecha, cargamos los horarios de forma sincrónica/esperada
-          if (_fechaSeleccionada != null) {
-            try {
-              _horariosDisponibles = await _repositorio.horariosDisponibles(
-                _profesionalSeleccionado!,
-                _fechaSeleccionada!,
-              );
-            } catch (_) {
-              _horariosDisponibles = [];
-            }
-          }
-
-          // 7. Finalmente, restauramos el horario si está dentro de los disponibles
-          if (horarioGuardado != null && _horariosDisponibles.contains(horarioGuardado)) {
-            _horarioSeleccionado = horarioGuardado;
-          }
-        }
-      }
+      await _restaurarBorrador(borrador);
 
       _estado = EstadoCarga.exito;
     } catch (_) {
@@ -241,6 +203,45 @@ class TurnoViewModel extends ChangeNotifier {
     // Fuera del try: si falla, el error se propaga a la vista como antes.
     await _recordatorioRepository.programarRecordatorio(turnoGuardado);
     return turnoGuardado;
+  }
+
+  /// Restaura del borrador lo que siga siendo válido, en orden:
+  /// especialidad, profesional, fecha, horarios libres y horario.
+  ///
+  /// Si un paso no es válido, deja de restaurar los siguientes.
+  Future<void> _restaurarBorrador(BorradorTurno borrador) async {
+    final especialidadGuardada = borrador.especialidad;
+    if (especialidadGuardada == null ||
+        !especialidades.contains(especialidadGuardada)) {
+      return;
+    }
+    _especialidadSeleccionada = especialidadGuardada;
+
+    final profesionalGuardado = borrador.profesional;
+    final profesionalEsValido = profesionalesDisponibles
+        .any((profesional) => profesional.nombre == profesionalGuardado);
+    if (profesionalGuardado == null || !profesionalEsValido) return;
+    _profesionalSeleccionado = profesionalGuardado;
+
+    final fechaGuardada = borrador.fecha;
+    if (fechaGuardada != null) _fechaSeleccionada = fechaGuardada;
+
+    // Usa la fecha ya elegida aunque el borrador no tenga una.
+    final fecha = _fechaSeleccionada;
+    if (fecha != null) {
+      try {
+        _horariosDisponibles =
+            await _repositorio.horariosDisponibles(profesionalGuardado, fecha);
+      } catch (_) {
+        _horariosDisponibles = [];
+      }
+    }
+
+    final horarioGuardado = borrador.horario;
+    if (horarioGuardado != null &&
+        _horariosDisponibles.contains(horarioGuardado)) {
+      _horarioSeleccionado = horarioGuardado;
+    }
   }
 
   /// Pide al repositorio los horarios libres del profesional en la fecha.
