@@ -16,7 +16,6 @@ class MisTurnosViewModel extends ChangeNotifier {
     required this.pacienteUid,
   })  : _repositorio = repositorio,
         _recordatorioRepository = recordatorioRepository {
-    // Nos suscribimos al Stream de eventos inyectado
     _suscripcionEventos = busDeEventos.stream.listen(_manejarEventosApp);
   }
 
@@ -36,17 +35,15 @@ class MisTurnosViewModel extends ChangeNotifier {
   String? get error => _error;
   bool get estaCancelando => _turnoCancelando != null;
 
-  /// Método que reacciona cada vez que el Bus de Eventos transmite algo
+  /// Recarga la lista cuando se confirma un turno nuevo.
   void _manejarEventosApp(EventoDeApp evento) {
     if (evento is TurnoConfirmadoEvento) {
-      debugPrint('MisTurnosViewModel escuchó: ¡Nuevo turno confirmado! Recargando...');
       cargar(pacienteUid);
     }
   }
 
   @override
   void dispose() {
-    // Cerramos la suscripción del Stream para evitar fugas de memoria
     _suscripcionEventos.cancel();
     super.dispose();
   }

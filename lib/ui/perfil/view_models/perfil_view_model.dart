@@ -68,8 +68,8 @@ class PerfilViewModel extends ChangeNotifier {
 
     try {
       _paciente = await _perfilRepo.obtenerPerfil(uid);
-    } catch (error) {
-      debugPrint('Error al cargar perfil: $error');
+    } catch (_) {
+      // Se conservan los datos anteriores; la pantalla no muestra error.
     } finally {
       _estaCargando = false;
       notifyListeners();

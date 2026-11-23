@@ -29,8 +29,6 @@ class TurnoViewModel extends ChangeNotifier {
   final RecordatorioRepository _recordatorioRepository;
   final BusDeEventos _busDeEventos;
 
-  // ---------- Estado privado ----------
-
   EstadoCarga _estado = EstadoCarga.inicial;
   List<Profesional> _profesionales = [];
   String? _especialidadSeleccionada;
@@ -41,8 +39,6 @@ class TurnoViewModel extends ChangeNotifier {
   bool _cargandoHorarios = false;
   bool _guardando = false;
   String? _error;
-
-  // ---------- Lo que la vista puede leer ----------
 
   EstadoCarga get estado => _estado;
   String? get especialidadSeleccionada => _especialidadSeleccionada;
@@ -88,8 +84,6 @@ class TurnoViewModel extends ChangeNotifier {
           ? 'No hay horarios libres ese día.'
           : null;
 
-  // ---------- Acciones de Persistencia Local (Borrador) ----------
-
   /// Guarda los datos actuales de forma inmediata en el borrador.
   Future<void> guardarBorrador() async {
     await _borradorRepository.guardarBorradorTurno(
@@ -101,12 +95,10 @@ class TurnoViewModel extends ChangeNotifier {
       ),
     );
 
-    debugPrint('Ciclo de vida - Borrador actualizado en SharedPreferences.');
   }
 
   /// Refresca los datos del servidor cuando la app vuelve al frente (onResume)
   Future<void> refrescar() async {
-    debugPrint('Ciclo de vida - App retomada. Refrescando cartelera de turnos...');
     await cargar();
   }
 
@@ -192,10 +184,8 @@ class TurnoViewModel extends ChangeNotifier {
         ),
       );
 
-      // Limpiamos el borrador al confirmar el turno con éxito
       await _borradorRepository.borrarBorradorTurno();
 
-      // ---> 2. PUBLICAMOS EL EVENTO EN EL STREAM (El Micrófono) <---
       _busDeEventos.publicar(
         TurnoConfirmadoEvento(
           especialidad: _especialidadSeleccionada!,

@@ -65,8 +65,8 @@ class SesionViewModel extends ChangeNotifier {
           _estadoSesion = EstadoSesion.lista;
         }
       }
-    } catch (error) {
-      debugPrint('Error silencioso atrapado en SesionViewModel: $error');
+    } catch (_) {
+      // Si el perfil no se puede leer, se pide completarlo.
       _pacienteActual = null;
       _estadoSesion = EstadoSesion.perfilIncompleto;
     } finally {

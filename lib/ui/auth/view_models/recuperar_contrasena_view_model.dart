@@ -25,8 +25,8 @@ class RecuperarContrasenaViewModel extends ChangeNotifier {
 
     try {
       await _authRepo.recuperarContrasena(correo);
-    } catch (error) {
-      debugPrint('Error al recuperar: $error');
+    } catch (_) {
+      // Por seguridad no se informa si el correo existe.
     } finally {
       _estado = EstadoCarga.exito;
       notifyListeners();

@@ -7,7 +7,6 @@ import '../../domain/models/evento_de_app.dart';
 /// Se crea una sola instancia en `main.dart` y se inyecta por constructor
 /// a quien necesite publicar o escuchar eventos.
 class BusDeEventos {
-  // Controlador de stream tipo broadcast (permite múltiples oyentes)
   final StreamController<EventoDeApp> _controlador =
       StreamController<EventoDeApp>.broadcast();
 

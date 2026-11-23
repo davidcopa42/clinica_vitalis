@@ -89,7 +89,6 @@ class SintomasViewModel extends ChangeNotifier {
         intensidad: _intensidad,
       ),
     );
-    debugPrint('Ciclo de vida - Borrador de síntomas guardado.');
   }
 
   /// Carga el borrador guardado al abrir la pantalla
@@ -117,7 +116,6 @@ class SintomasViewModel extends ChangeNotifier {
 
   /// Refresca o sincroniza datos al volver al frente (onResume)
   Future<void> refrescar() async {
-    debugPrint('Ciclo de vida - App retomada en Síntomas.');
     await _cargarBorrador();
   }
 
@@ -158,7 +156,6 @@ class SintomasViewModel extends ChangeNotifier {
     _registrado = true;
     notifyListeners();
 
-    // Limpiamos el borrador al registrarse con éxito
     await _borradorRepository.borrarBorradorSintomas();
   }
 }

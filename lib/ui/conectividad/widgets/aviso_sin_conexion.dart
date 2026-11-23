@@ -11,12 +11,10 @@ class AvisoSinConexion extends StatelessWidget {
     return ListenableBuilder(
       listenable: viewModel,
       builder: (context, child) {
-        // Si hay conexión, no mostramos nada (retornamos un contenedor vacío)
         if (viewModel.hayConexion) {
           return const SizedBox.shrink();
         }
 
-        // Si NO hay conexión, mostramos la franja de alerta arriba
         return Container(
           color: Colors.red[700],
           width: double.infinity,

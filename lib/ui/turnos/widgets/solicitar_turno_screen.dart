@@ -35,11 +35,9 @@ class _SolicitarTurnoScreenState extends State<SolicitarTurnoScreen> {
     super.initState();
     _viewModel.cargar();
 
-    // Vinculamos los eventos del ciclo de vida a los métodos del ViewModel
     _cicloDeVida = AppLifecycleListener(
       onHide: _viewModel.guardarBorrador,
       onResume: _viewModel.refrescar,
-      onStateChange: (estado) => debugPrint('Estado de la app: ${estado.name}'),
     );
   }
 

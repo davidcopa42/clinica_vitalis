@@ -37,8 +37,6 @@ class _SintomasScreenState extends State<SintomasScreen> {
     _cicloDeVida = AppLifecycleListener(
       onHide: _viewModel.guardarBorrador,
       onResume: _viewModel.refrescar,
-      onStateChange: (estado) =>
-          debugPrint('Estado app (Síntomas): ${estado.name}'),
     );
   }
 

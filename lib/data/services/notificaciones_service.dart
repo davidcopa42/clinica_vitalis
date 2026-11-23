@@ -43,7 +43,6 @@ class NotificacionesService {
     final android = _notificaciones.resolvePlatformSpecificImplementation<
         AndroidFlutterLocalNotificationsPlugin>();
 
-    // Crear explícitamente el canal de notificaciones.
     const canalRecordatorios = AndroidNotificationChannel(
       _idCanal,
       _nombreCanal,
@@ -53,7 +52,6 @@ class NotificacionesService {
 
     await android?.createNotificationChannel(canalRecordatorios);
 
-    // Solicitar permisos.
     await android?.requestNotificationsPermission();
     await android?.requestExactAlarmsPermission();
   }

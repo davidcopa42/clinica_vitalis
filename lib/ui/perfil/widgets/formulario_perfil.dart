@@ -43,7 +43,6 @@ class FormularioPerfil extends StatelessWidget {
       key: formKey,
       child: Column(
         children: [
-          // Nombre
           TextFormField(
             controller: nombreController,
             decoration: const InputDecoration(
@@ -56,7 +55,6 @@ class FormularioPerfil extends StatelessWidget {
           ),
           const SizedBox(height: 16),
 
-          // Apellido
           TextFormField(
             controller: apellidoController,
             decoration: const InputDecoration(
@@ -69,7 +67,6 @@ class FormularioPerfil extends StatelessWidget {
           ),
           const SizedBox(height: 16),
 
-          // DNI (7 u 8 dígitos)
           TextFormField(
             controller: dniController,
             keyboardType: TextInputType.number,
@@ -90,7 +87,6 @@ class FormularioPerfil extends StatelessWidget {
           ),
           const SizedBox(height: 16),
 
-          // Fecha de Nacimiento (Solo lectura, abre el DatePicker)
           TextFormField(
             controller: fechaNacimientoController,
             readOnly: true,
@@ -105,7 +101,6 @@ class FormularioPerfil extends StatelessWidget {
           ),
           const SizedBox(height: 16),
 
-          // Teléfono (8 a 15 dígitos)
           TextFormField(
             controller: telefonoController,
             keyboardType: TextInputType.phone,
@@ -126,7 +121,6 @@ class FormularioPerfil extends StatelessWidget {
           ),
           const SizedBox(height: 16),
 
-          // Obra Social (Dropdown)
           DropdownButtonFormField<String>(
             initialValue: obraSocialValue,
             decoration: const InputDecoration(
@@ -142,7 +136,6 @@ class FormularioPerfil extends StatelessWidget {
           ),
           const SizedBox(height: 16),
 
-          // Número de Afiliado (Solo aparece si no es Particular)
           if (obraSocialValue != obraSocialParticular)
             Padding(
               padding: const EdgeInsets.only(bottom: 16.0),
