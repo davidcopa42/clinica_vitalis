@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../../../domain/models/obra_social.dart';
 import '../../core/dialogo_cerrar_sesion.dart';
-import '../../core/formato.dart';
 import '../view_models/perfil_view_model.dart';
 import 'editar_perfil_screen.dart';
+import 'fila_dato_perfil.dart';
 
 class PerfilScreen extends StatefulWidget {
   final String uid;
@@ -23,23 +22,6 @@ class _PerfilScreenState extends State<PerfilScreen> {
     if (widget.viewModel.paciente == null) {
       widget.viewModel.cargarPerfil(widget.uid);
     }
-  }
-
-  String _formatearFecha(DateTime? fecha) {
-    if (fecha == null) return 'No registrado';
-    return formatearFecha(fecha);
-  }
-
-  String _formatearObraSocial(String? obraSocial, String? numeroAfiliado) {
-    if (obraSocial == null || obraSocial.isEmpty) {
-      return 'No registrado';
-    }
-    if (obraSocial != obraSocialParticular &&
-        numeroAfiliado != null &&
-        numeroAfiliado.isNotEmpty) {
-      return '$obraSocial (Nº $numeroAfiliado)';
-    }
-    return obraSocial;
   }
 
   Future<void> _confirmarCierreSesion() async {
@@ -103,7 +85,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
             return const Center(child: Text('No hay datos de perfil.'));
           }
 
-          final nombreCompleto = paciente.nombreCompleto.trim();
+          final viewModel = widget.viewModel;
 
           return Padding(
             padding: const EdgeInsets.all(24.0),
@@ -136,18 +118,31 @@ class _PerfilScreenState extends State<PerfilScreen> {
                   ),
                 ),
                 const SizedBox(height: 32),
-                _buildInfoRow(Icons.person, 'Nombre Completo', nombreCompleto),
-                _buildInfoRow(Icons.badge, 'DNI', paciente.dni),
-                _buildInfoRow(
-                    Icons.calendar_today,
-                    'Nacimiento',
-                    _formatearFecha(paciente.fechaNacimiento)),
-                _buildInfoRow(Icons.phone, 'Teléfono', paciente.telefono),
-                _buildInfoRow(
-                    Icons.medical_services,
-                    'Obra Social',
-                    _formatearObraSocial(
-                        paciente.obraSocial, paciente.numeroAfiliado)),
+                FilaDatoPerfil(
+                  icono: Icons.person,
+                  etiqueta: 'Nombre Completo',
+                  valor: viewModel.nombreCompletoTexto,
+                ),
+                FilaDatoPerfil(
+                  icono: Icons.badge,
+                  etiqueta: 'DNI',
+                  valor: viewModel.dniTexto,
+                ),
+                FilaDatoPerfil(
+                  icono: Icons.calendar_today,
+                  etiqueta: 'Nacimiento',
+                  valor: viewModel.fechaNacimientoTexto,
+                ),
+                FilaDatoPerfil(
+                  icono: Icons.phone,
+                  etiqueta: 'Teléfono',
+                  valor: viewModel.telefonoTexto,
+                ),
+                FilaDatoPerfil(
+                  icono: Icons.medical_services,
+                  etiqueta: 'Obra Social',
+                  valor: viewModel.obraSocialTexto,
+                ),
                 const Spacer(),
                 SizedBox(
                   width: double.infinity,
@@ -174,30 +169,6 @@ class _PerfilScreenState extends State<PerfilScreen> {
             ),
           );
         },
-      ),
-    );
-  }
-
-  Widget _buildInfoRow(IconData icono, String etiqueta, String? valor) {
-    final valorMostrado =
-        (valor == null || valor.isEmpty) ? 'No registrado' : valor;
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
-      child: Row(
-        children: [
-          Icon(icono, color: Colors.blue, size: 28),
-          const SizedBox(width: 16),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(etiqueta,
-                  style: const TextStyle(fontSize: 14, color: Colors.grey)),
-              Text(valorMostrado,
-                  style: const TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.w500)),
-            ],
-          ),
-        ],
       ),
     );
   }

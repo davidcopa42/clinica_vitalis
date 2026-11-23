@@ -203,6 +203,57 @@ void main() {
     expect(auth.cierresDeSesion, 1);
   });
 
+  group('textos para mostrar', () {
+    test('sin paciente todo dice No registrado', () {
+      expect(viewModel.nombreCompletoTexto, 'No registrado');
+      expect(viewModel.dniTexto, 'No registrado');
+      expect(viewModel.telefonoTexto, 'No registrado');
+      expect(viewModel.fechaNacimientoTexto, 'No registrado');
+      expect(viewModel.obraSocialTexto, 'No registrado');
+    });
+
+    test('con un perfil completo formatea cada dato', () async {
+      crearViewModel(datos: {
+        'nombre': 'Ana',
+        'apellido': 'López',
+        'dni': '30111222',
+        'telefono': '2615551234',
+        'fechaNacimiento': DateTime(1990, 5, 12).toIso8601String(),
+        'obraSocial': 'OSDE',
+        'numeroAfiliado': '9876',
+      });
+
+      await viewModel.cargarPerfil('uid-1');
+
+      expect(viewModel.nombreCompletoTexto, 'Ana López');
+      expect(viewModel.dniTexto, '30111222');
+      expect(viewModel.telefonoTexto, '2615551234');
+      expect(viewModel.fechaNacimientoTexto, '12/05/1990');
+      expect(viewModel.obraSocialTexto, 'OSDE (Nº 9876)');
+    });
+
+    test('solo nombre, sin apellido, no deja espacios de mas', () async {
+      crearViewModel(datos: {'nombre': 'Ana'});
+
+      await viewModel.cargarPerfil('uid-1');
+
+      expect(viewModel.nombreCompletoTexto, 'Ana');
+    });
+
+    test('Particular o sin numero de afiliado muestra solo la obra social',
+        () async {
+      crearViewModel(
+        datos: {'obraSocial': 'Particular', 'numeroAfiliado': '123'},
+      );
+      await viewModel.cargarPerfil('uid-1');
+      expect(viewModel.obraSocialTexto, 'Particular');
+
+      crearViewModel(datos: {'obraSocial': 'OSDE', 'numeroAfiliado': ''});
+      await viewModel.cargarPerfil('uid-1');
+      expect(viewModel.obraSocialTexto, 'OSDE');
+    });
+  });
+
   group('datos de la cuenta', () {
     test('sin usuario no hay foto y el correo dice "Sin correo electronico"',
         () {
