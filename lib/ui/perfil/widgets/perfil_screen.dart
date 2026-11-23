@@ -87,86 +87,96 @@ class _PerfilScreenState extends State<PerfilScreen> {
 
           final viewModel = widget.viewModel;
 
-          return Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
+          // Con scroll en pantallas bajas; en las altas el Spacer deja el
+          // botón abajo de todo.
+          return CustomScrollView(
+            slivers: [
+              SliverFillRemaining(
+                hasScrollBody: false,
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      CircleAvatar(
-                        radius: 50,
-                        backgroundColor: Colors.blue.shade100,
-                        backgroundImage:
-                            fotoUrl != null ? NetworkImage(fotoUrl) : null,
-                        child: fotoUrl == null
-                            ? const Icon(Icons.person,
-                                size: 50, color: Colors.blue)
-                            : null,
+                      Center(
+                        child: Column(
+                          children: [
+                            CircleAvatar(
+                              radius: 50,
+                              backgroundColor: Colors.blue.shade100,
+                              backgroundImage: fotoUrl != null
+                                  ? NetworkImage(fotoUrl)
+                                  : null,
+                              child: fotoUrl == null
+                                  ? const Icon(Icons.person,
+                                      size: 50, color: Colors.blue)
+                                  : null,
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              correoActual,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                      const SizedBox(height: 12),
-                      Text(
-                        correoActual,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          color: Colors.grey,
-                          fontWeight: FontWeight.w500,
+                      const SizedBox(height: 32),
+                      FilaDatoPerfil(
+                        icono: Icons.person,
+                        etiqueta: 'Nombre Completo',
+                        valor: viewModel.nombreCompletoTexto,
+                      ),
+                      FilaDatoPerfil(
+                        icono: Icons.badge,
+                        etiqueta: 'DNI',
+                        valor: viewModel.dniTexto,
+                      ),
+                      FilaDatoPerfil(
+                        icono: Icons.calendar_today,
+                        etiqueta: 'Nacimiento',
+                        valor: viewModel.fechaNacimientoTexto,
+                      ),
+                      FilaDatoPerfil(
+                        icono: Icons.phone,
+                        etiqueta: 'Teléfono',
+                        valor: viewModel.telefonoTexto,
+                      ),
+                      FilaDatoPerfil(
+                        icono: Icons.medical_services,
+                        etiqueta: 'Obra Social',
+                        valor: viewModel.obraSocialTexto,
+                      ),
+                      const Spacer(),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 50,
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => EditarPerfilScreen(
+                                  uid: widget.uid,
+                                  paciente: paciente,
+                                  viewModel: widget.viewModel,
+                                ),
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.edit),
+                          label: const Text('Editar Información',
+                              style: TextStyle(fontSize: 16)),
                         ),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 32),
-                FilaDatoPerfil(
-                  icono: Icons.person,
-                  etiqueta: 'Nombre Completo',
-                  valor: viewModel.nombreCompletoTexto,
-                ),
-                FilaDatoPerfil(
-                  icono: Icons.badge,
-                  etiqueta: 'DNI',
-                  valor: viewModel.dniTexto,
-                ),
-                FilaDatoPerfil(
-                  icono: Icons.calendar_today,
-                  etiqueta: 'Nacimiento',
-                  valor: viewModel.fechaNacimientoTexto,
-                ),
-                FilaDatoPerfil(
-                  icono: Icons.phone,
-                  etiqueta: 'Teléfono',
-                  valor: viewModel.telefonoTexto,
-                ),
-                FilaDatoPerfil(
-                  icono: Icons.medical_services,
-                  etiqueta: 'Obra Social',
-                  valor: viewModel.obraSocialTexto,
-                ),
-                const Spacer(),
-                SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton.icon(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => EditarPerfilScreen(
-                            uid: widget.uid,
-                            paciente: paciente,
-                            viewModel: widget.viewModel,
-                          ),
-                        ),
-                      );
-                    },
-                    icon: const Icon(Icons.edit),
-                    label: const Text('Editar Información',
-                        style: TextStyle(fontSize: 16)),
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           );
         },
       ),

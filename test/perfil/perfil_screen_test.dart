@@ -27,10 +27,15 @@ class FakePerfilRepository implements PerfilRepository {
 }
 
 void main() {
-  Future<void> mostrarPerfil(WidgetTester tester, Paciente? paciente) async {
-    // Pantalla de telefono (360x800): el perfil no tiene scroll y en la
-    // superficie por defecto del test (800x600) no entra.
-    tester.view.physicalSize = const Size(1080, 2400);
+  /// Pantalla de telefono de 360x800 puntos.
+  const pantallaTelefono = Size(1080, 2400);
+
+  Future<void> mostrarPerfil(
+    WidgetTester tester,
+    Paciente? paciente, {
+    Size tamanioFisico = pantallaTelefono,
+  }) async {
+    tester.view.physicalSize = tamanioFisico;
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.reset);
 
@@ -77,6 +82,24 @@ void main() {
 
     expect(find.text('Ana'), findsOneWidget);
     expect(find.text('No registrado'), findsNWidgets(4));
+  });
+
+  testWidgets(
+      'en una pantalla baja no se desborda y el boton de editar '
+      'se alcanza con scroll', (tester) async {
+    await mostrarPerfil(
+      tester,
+      const Paciente(uid: 'uid-1', nombre: 'Ana', apellido: '', correo: ''),
+      tamanioFisico: const Size(1080, 1440),
+    );
+
+    expect(tester.takeException(), isNull);
+    await tester.ensureVisible(find.text('Editar Información'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Editar Información'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Editar Perfil'), findsOneWidget);
   });
 
   testWidgets('sin perfil avisa que no hay datos', (tester) async {
