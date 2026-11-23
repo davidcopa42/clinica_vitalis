@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:clinica_vitalis/data/repositories/auth_repository.dart';
 import 'package:clinica_vitalis/ui/auth/view_models/verificar_correo_view_model.dart';
 import 'package:fake_async/fake_async.dart';
@@ -55,6 +57,29 @@ void main() {
     });
   });
 
+  test(
+      'si falla la recarga el timer no deja errores sin manejar '
+      'y sigue revisando', () {
+    final erroresSinManejar = <Object>[];
+
+    runZonedGuarded(
+      () => fakeAsync((tiempo) {
+        auth.errores['recargarUsuario'] = AuthException('Sin conexión.');
+        viewModel.iniciarVerificacionAutomatica();
+        tiempo.elapse(const Duration(seconds: 3));
+
+        auth.errores.clear();
+        auth.verificadoAlRecargar = true;
+        tiempo.elapse(const Duration(seconds: 3));
+      }),
+      (error, _) => erroresSinManejar.add(error),
+    );
+
+    expect(erroresSinManejar, isEmpty);
+    expect(recargas(), 2);
+    expect(avisosDeVerificacion, 1);
+  });
+
   group('comprobarVerificacion manual', () {
     test('sin verificar no avisa', () async {
       await viewModel.comprobarVerificacion();
@@ -72,13 +97,13 @@ void main() {
       expect(avisosDeVerificacion, 2);
     });
 
-    test('un error al recargar se propaga', () async {
+    test('un error al recargar no se propaga ni avisa', () async {
       auth.errores['recargarUsuario'] = AuthException('Sin conexión.');
 
-      await expectLater(
-        viewModel.comprobarVerificacion(),
-        throwsA(isA<AuthException>()),
-      );
+      await viewModel.comprobarVerificacion();
+
+      expect(recargas(), 1);
+      expect(avisosDeVerificacion, 0);
     });
   });
 

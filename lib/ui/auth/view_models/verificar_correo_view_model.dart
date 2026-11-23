@@ -40,8 +40,14 @@ class VerificarCorreoViewModel extends ChangeNotifier {
   }
 
   /// Recarga el usuario y, si ya verificó el correo, avisa y deja de revisar.
+  ///
+  /// Si la recarga falla, no avisa; el timer vuelve a intentar.
   Future<void> comprobarVerificacion() async {
-    await _authRepo.recargarUsuario();
+    try {
+      await _authRepo.recargarUsuario();
+    } catch (_) {
+      return;
+    }
 
     if (_authRepo.correoVerificado) {
       _timerVerificacionAutomatica?.cancel();
