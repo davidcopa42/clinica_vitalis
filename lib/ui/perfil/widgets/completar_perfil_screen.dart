@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../domain/models/obra_social.dart';
+import '../../core/dialogo_cerrar_sesion.dart';
 import '../../core/formato.dart';
 import '../view_models/completar_perfil_view_model.dart';
 import 'formulario_perfil.dart';
@@ -104,25 +105,9 @@ class _CompletarPerfilScreenState extends State<CompletarPerfilScreen> {
   }
 
   Future<void> _confirmarCierreSesion() async {
-    final confirmar = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Cerrar sesión'),
-        content: const Text('¿Estás seguro de que deseas salir?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Salir', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
-    );
+    final confirmar = await DialogoCerrarSesion.confirmar(context);
 
-    if (confirmar == true && mounted) {
+    if (confirmar && mounted) {
       await _viewModel.cerrarSesion();
       if (mounted) {
         Navigator.of(context).popUntil((route) => route.isFirst);
