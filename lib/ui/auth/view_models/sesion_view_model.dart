@@ -75,10 +75,15 @@ class SesionViewModel extends ChangeNotifier {
     }
   }
 
+  /// Recarga la cuenta y vuelve a calcular el estado de la sesión.
   Future<void> recargarYCalcular() async {
     _estaCargando = true;
     notifyListeners();
-    await _authRepo.recargarUsuario();
+    try {
+      await _authRepo.recargarUsuario();
+    } catch (_) {
+      // Sin recarga se recalcula con los datos que la cuenta ya tenía.
+    }
     await _calcularEstadoSesion(_uidActual);
   }
 

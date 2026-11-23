@@ -5,6 +5,8 @@ import 'package:clinica_vitalis/domain/models/usuario_autenticado.dart';
 import 'package:clinica_vitalis/ui/auth/view_models/sesion_view_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../fakes/fake_auth_repository.dart' as compartido;
+
 // Repositorio Falso de Auth para los tests
 class FakeAuthRepository implements AuthRepository {
   final String? _uidSimulado;
@@ -182,6 +184,25 @@ void main() {
 
       expect(sesionViewModel.usuarioActual!.correo, 'ana@test.com');
       expect(sesionViewModel.usuarioActual!.nombreVisible, 'Ana López');
+    });
+
+    test('recargarYCalcular deja de cargar y recalcula aunque falle la recarga',
+        () async {
+      final authRepo = compartido.FakeAuthRepository()
+        ..uid = '123'
+        ..errores['recargarUsuario'] = Exception('sin red');
+      final sesionViewModel = SesionViewModel(
+        authRepo: authRepo,
+        perfilRepo: FakePerfilRepository(),
+      );
+      addTearDown(sesionViewModel.dispose);
+      await pumpEventQueue();
+
+      await sesionViewModel.recargarYCalcular();
+
+      expect(authRepo.llamadas, contains('recargarUsuario'));
+      expect(sesionViewModel.estaCargando, isFalse);
+      expect(sesionViewModel.estadoSesion, EstadoSesion.correoSinVerificar);
     });
   });
 }
