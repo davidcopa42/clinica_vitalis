@@ -6,7 +6,7 @@ import '../../auth/view_models/sesion_view_model.dart';
 import '../../conectividad/view_models/conectividad_view_model.dart';
 import '../../conectividad/widgets/aviso_sin_conexion.dart';
 import '../../historia_clinica/view_models/historia_clinica_view_model.dart';
-import '../../historia_clinica/widgets/historia_clinica_page.dart';
+import '../../historia_clinica/widgets/historia_clinica_screen.dart';
 import '../../informacion/widgets/informacion_page.dart';
 import '../../perfil/view_models/perfil_view_model.dart';
 import '../../perfil/widgets/perfil.dart';
@@ -120,7 +120,7 @@ class _InicioScreenState extends State<InicioScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => HistoriaClinicaPage(
+        builder: (context) => HistoriaClinicaScreen(
           paciente: widget.paciente,
           viewModel: viewModel,
         ),

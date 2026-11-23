@@ -2,12 +2,12 @@ import 'package:clinica_vitalis/domain/models/paciente.dart';
 import 'package:clinica_vitalis/domain/models/registro_clinico.dart';
 import 'package:clinica_vitalis/ui/core/estado_carga.dart';
 import 'package:clinica_vitalis/ui/historia_clinica/view_models/historia_clinica_view_model.dart';
-import 'package:clinica_vitalis/ui/historia_clinica/widgets/detalle_registro_page.dart';
+import 'package:clinica_vitalis/ui/historia_clinica/widgets/detalle_registro_screen.dart';
 import 'package:flutter/material.dart';
 
 /// Pantalla que muestra la historia clínica del paciente.
-class HistoriaClinicaPage extends StatefulWidget {
-  const HistoriaClinicaPage({
+class HistoriaClinicaScreen extends StatefulWidget {
+  const HistoriaClinicaScreen({
     super.key,
     required this.paciente,
     required this.viewModel,
@@ -19,10 +19,10 @@ class HistoriaClinicaPage extends StatefulWidget {
   final HistoriaClinicaViewModel viewModel;
 
   @override
-  State<HistoriaClinicaPage> createState() => _HistoriaClinicaPageState();
+  State<HistoriaClinicaScreen> createState() => _HistoriaClinicaScreenState();
 }
 
-class _HistoriaClinicaPageState extends State<HistoriaClinicaPage> {
+class _HistoriaClinicaScreenState extends State<HistoriaClinicaScreen> {
   HistoriaClinicaViewModel get _viewModel => widget.viewModel;
 
   @override
@@ -156,7 +156,7 @@ class _HistoriaClinicaPageState extends State<HistoriaClinicaPage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => DetalleRegistroPage(
+                              builder: (_) => DetalleRegistroScreen(
                                 registro: registro,
                               ),
                             ),
