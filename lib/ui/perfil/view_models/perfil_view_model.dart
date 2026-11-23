@@ -6,7 +6,7 @@ class PerfilViewModel extends ChangeNotifier {
   final PerfilRepository _perfilRepo;
   final AuthRepository _authRepo;
 
-  Map<String, dynamic>? _perfilData;
+  Map<String, dynamic>? _datosPerfil;
   bool _estaCargando = false;
 
   PerfilViewModel({
@@ -15,7 +15,7 @@ class PerfilViewModel extends ChangeNotifier {
   })  : _perfilRepo = repository,
         _authRepo = authRepository;
 
-  Map<String, dynamic>? get perfilData => _perfilData;
+  Map<String, dynamic>? get datosPerfil => _datosPerfil;
   bool get estaCargando => _estaCargando;
 
   /// Foto de la cuenta, o null si no tiene.
@@ -26,13 +26,13 @@ class PerfilViewModel extends ChangeNotifier {
       _authRepo.usuarioActual?.correo ?? 'Sin correo electrónico';
 
   Future<void> cargarPerfil(String uid) async {
-    if (_perfilData == null) {
+    if (_datosPerfil == null) {
       _estaCargando = true;
       notifyListeners();
     }
 
     try {
-      _perfilData = await _perfilRepo.cargarPerfilUsuario(uid);
+      _datosPerfil = await _perfilRepo.cargarPerfilUsuario(uid);
     } catch (e) {
       debugPrint('Error al cargar perfil: $e');
     } finally {

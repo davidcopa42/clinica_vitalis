@@ -34,7 +34,7 @@ class _CrearCuentaScreenState extends State<CrearCuentaScreen> {
     super.dispose();
   }
 
-  void _submit() async {
+  void _registrar() async {
     if (_formKey.currentState?.validate() ?? false) {
       await _viewModel.registrarUsuario(
         nombre: _nombreController.text.trim(),
@@ -180,7 +180,7 @@ class _CrearCuentaScreenState extends State<CrearCuentaScreen> {
                         child: ElevatedButton(
                           onPressed: _viewModel.estadoCarga == EstadoCarga.cargando
                               ? null
-                              : _submit,
+                              : _registrar,
                           child: _viewModel.estadoCarga == EstadoCarga.cargando
                               ? const CircularProgressIndicator(
                                   color: Colors.white)

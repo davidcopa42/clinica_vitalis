@@ -106,7 +106,7 @@ void main() {
   tearDown(() => viewModel.dispose());
 
   test('empieza sin datos y sin cargar', () {
-    expect(viewModel.perfilData, isNull);
+    expect(viewModel.datosPerfil, isNull);
     expect(viewModel.estaCargando, isFalse);
   });
 
@@ -115,7 +115,7 @@ void main() {
       await viewModel.cargarPerfil('uid-1');
 
       expect(perfiles.uidsCargados, ['uid-1']);
-      expect(viewModel.perfilData, {'nombre': 'Ana', 'dni': '123'});
+      expect(viewModel.datosPerfil, {'nombre': 'Ana', 'dni': '123'});
       expect(viewModel.estaCargando, isFalse);
       expect(estadosDeCarga, [true, false]);
     });
@@ -127,7 +127,7 @@ void main() {
 
       await viewModel.cargarPerfil('uid-1');
 
-      expect(viewModel.perfilData, {'nombre': 'Ana María'});
+      expect(viewModel.datosPerfil, {'nombre': 'Ana María'});
       expect(estadosDeCarga, [false]);
     });
 
@@ -136,7 +136,7 @@ void main() {
 
       await viewModel.cargarPerfil('uid-1');
 
-      expect(viewModel.perfilData, isNull);
+      expect(viewModel.datosPerfil, isNull);
       expect(viewModel.estaCargando, isFalse);
     });
 
@@ -147,7 +147,7 @@ void main() {
 
       await viewModel.cargarPerfil('uid-1');
 
-      expect(viewModel.perfilData, {'nombre': 'Ana', 'dni': '123'});
+      expect(viewModel.datosPerfil, {'nombre': 'Ana', 'dni': '123'});
       expect(viewModel.estaCargando, isFalse);
     });
   });
@@ -162,7 +162,7 @@ void main() {
       expect(uidGuardado, 'uid-1');
       expect(datosGuardados, {'telefono': '261'});
       expect(perfiles.uidsCargados, ['uid-1', 'uid-1']);
-      expect(viewModel.perfilData!['telefono'], '261');
+      expect(viewModel.datosPerfil!['telefono'], '261');
     });
 
     test('si falla el guardado el error se propaga y no recarga', () async {
