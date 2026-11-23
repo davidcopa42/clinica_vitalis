@@ -96,5 +96,20 @@ void main() {
       expect(copia.id, 5);
       expect(copia.estado, EstadoTurno.cancelado);
     });
+
+    test('soloDia descarta la hora', () {
+      expect(
+        Turno.soloDia(DateTime(2026, 12, 1, 15, 45, 30)),
+        DateTime(2026, 12, 1),
+      );
+    });
+
+    test('combinarFechaYHorario usa el dia de la fecha y la hora del horario',
+        () {
+      expect(
+        Turno.combinarFechaYHorario(DateTime(2026, 12, 1, 23, 59), '08:40'),
+        DateTime(2026, 12, 1, 8, 40),
+      );
+    });
   });
 }

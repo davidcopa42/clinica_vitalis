@@ -73,7 +73,7 @@ class TurnoRepositorioLocal implements TurnoRepository {
       where: 'profesional = ? AND fecha = ? AND estado = ?',
       whereArgs: [
         profesional,
-        _soloDia(fecha).toIso8601String(),
+        Turno.soloDia(fecha).toIso8601String(),
         EstadoTurno.confirmado.name,
       ],
     );
@@ -82,23 +82,10 @@ class TurnoRepositorioLocal implements TurnoRepository {
     final ahora = DateTime.now();
     return elegido.first.horarios
         .where((horario) => !ocupados.contains(horario))
-        .where((horario) => _combinar(fecha, horario).isAfter(ahora))
+        .where(
+          (horario) =>
+              Turno.combinarFechaYHorario(fecha, horario).isAfter(ahora),
+        )
         .toList();
-  }
-
-  /// Deja solo día, mes y año (hora 00:00).
-  DateTime _soloDia(DateTime fecha) =>
-      DateTime(fecha.year, fecha.month, fecha.day);
-
-  /// Junta una fecha con un horario 'HH:mm'.
-  DateTime _combinar(DateTime fecha, String horario) {
-    final partes = horario.split(':');
-    return DateTime(
-      fecha.year,
-      fecha.month,
-      fecha.day,
-      int.parse(partes[0]),
-      int.parse(partes[1]),
-    );
   }
 }
