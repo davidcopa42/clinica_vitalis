@@ -1,35 +1,25 @@
 import 'package:flutter/material.dart';
 
-import '../../../data/repositories/auth_repositorio_firebase.dart';
-import '../../../data/services/auth_service.dart';
 import '../view_models/verificar_correo_view_model.dart';
 
 class VerificarCorreoScreen extends StatefulWidget {
-  final VoidCallback onVerificado;
+  /// Lo crea y lo descarta PuertaSesion (al descartarlo se cortan los
+  /// timers).
+  final VerificarCorreoViewModel viewModel;
 
-  const VerificarCorreoScreen({super.key, required this.onVerificado});
+  const VerificarCorreoScreen({super.key, required this.viewModel});
 
   @override
   State<VerificarCorreoScreen> createState() => _VerificarCorreoScreenState();
 }
 
 class _VerificarCorreoScreenState extends State<VerificarCorreoScreen> {
-  late final VerificarCorreoViewModel _viewModel;
+  VerificarCorreoViewModel get _viewModel => widget.viewModel;
 
   @override
   void initState() {
     super.initState();
-    _viewModel = VerificarCorreoViewModel(
-      authRepository: AuthRepositorioFirebase(authService: AuthService()),
-      alVerificarCorreo: widget.onVerificado,
-    );
     _viewModel.iniciarVerificacionAutomatica();
-  }
-
-  @override
-  void dispose() {
-    _viewModel.dispose();
-    super.dispose();
   }
 
   void _reenviarCorreo() async {

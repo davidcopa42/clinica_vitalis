@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../../../data/repositories/auth_repositorio_firebase.dart';
-import '../../../data/repositories/perfil_repositorio_firestore.dart';
-import '../../../data/services/auth_service.dart';
-import '../../../data/services/perfil_service.dart';
 import '../view_models/completar_perfil_view_model.dart';
 import 'formulario_perfil.dart';
 
 class CompletarPerfilScreen extends StatefulWidget {
+  /// Lo crea y lo descarta PuertaSesion.
+  final CompletarPerfilViewModel viewModel;
   final String uid;
   final String correoInicial;
   final String nombreInicial;
@@ -16,6 +14,7 @@ class CompletarPerfilScreen extends StatefulWidget {
 
   const CompletarPerfilScreen({
     super.key,
+    required this.viewModel,
     required this.uid,
     required this.correoInicial,
     required this.nombreInicial,
@@ -38,16 +37,11 @@ class _CompletarPerfilScreenState extends State<CompletarPerfilScreen> {
   String _obraSocialSeleccionada = 'Particular';
   DateTime? _fechaSeleccionada;
 
-  late final CompletarPerfilViewModel _viewModel;
+  CompletarPerfilViewModel get _viewModel => widget.viewModel;
 
   @override
   void initState() {
     super.initState();
-    _viewModel = CompletarPerfilViewModel(
-      perfilRepository:
-          PerfilRepositorioFirestore(perfilService: PerfilService()),
-      authRepository: AuthRepositorioFirebase(authService: AuthService()),
-    );
     final nombreSeparado =
         _viewModel.separarNombreInicial(widget.nombreInicial);
     _nombreController = TextEditingController(text: nombreSeparado.nombre);
@@ -56,7 +50,6 @@ class _CompletarPerfilScreenState extends State<CompletarPerfilScreen> {
 
   @override
   void dispose() {
-    _viewModel.dispose();
     _nombreController.dispose();
     _apellidoController.dispose();
     _dniController.dispose();

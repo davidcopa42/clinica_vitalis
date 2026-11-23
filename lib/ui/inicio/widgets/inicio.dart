@@ -23,11 +23,19 @@ class InicioPage extends StatefulWidget {
   final SesionViewModel sesion;
   final Dependencias dependencias;
 
+  // Los crea y los descarta PuertaSesion.
+  final InicioViewModel inicioViewModel;
+  final PerfilViewModel perfilViewModel;
+  final ConectividadViewModel conectividadViewModel;
+
   const InicioPage({
     super.key,
     required this.paciente,
     required this.sesion,
     required this.dependencias,
+    required this.inicioViewModel,
+    required this.perfilViewModel,
+    required this.conectividadViewModel,
   });
 
   @override
@@ -36,27 +44,16 @@ class InicioPage extends StatefulWidget {
 
 class _InicioPageState extends State<InicioPage> {
   int _indiceSeleccionado = 0;
-  late final PerfilViewModel _perfilViewModel;
-  late final ConectividadViewModel _conectividadViewModel;
-  late final InicioViewModel _inicioViewModel;
+
+  InicioViewModel get _inicioViewModel => widget.inicioViewModel;
+  PerfilViewModel get _perfilViewModel => widget.perfilViewModel;
+  ConectividadViewModel get _conectividadViewModel =>
+      widget.conectividadViewModel;
 
   @override
   void initState() {
     super.initState();
-    final dependencias = widget.dependencias;
-    _inicioViewModel = InicioViewModel(
-      busDeEventos: dependencias.busDeEventos,
-      authRepository: dependencias.authRepository,
-      paciente: widget.paciente,
-    );
     _inicioViewModel.addListener(_mostrarAvisoPendiente);
-    _perfilViewModel = PerfilViewModel(
-      repository: dependencias.perfilRepository,
-      authRepository: dependencias.authRepository,
-    );
-    _conectividadViewModel = ConectividadViewModel(
-      repositorio: dependencias.conectividadRepository,
-    );
   }
 
   /// Crea el ViewModel de Solicitar turno y abre la pantalla.
@@ -149,9 +146,6 @@ class _InicioPageState extends State<InicioPage> {
   @override
   void dispose() {
     _inicioViewModel.removeListener(_mostrarAvisoPendiente);
-    _inicioViewModel.dispose();
-    _perfilViewModel.dispose();
-    _conectividadViewModel.dispose();
     super.dispose();
   }
 

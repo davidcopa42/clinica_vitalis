@@ -8,7 +8,14 @@ import 'crear_cuenta.dart';
 import 'recuperar_password.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key, required this.dependencias});
+  const LoginScreen({
+    super.key,
+    required this.viewModel,
+    required this.dependencias,
+  });
+
+  /// Lo crea y lo descarta PuertaSesion.
+  final LoginViewModel viewModel;
 
   /// Para armar los ViewModels de las pantallas que se abren desde acá.
   final Dependencias dependencias;
@@ -22,16 +29,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _correoController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  late final LoginViewModel _loginVM;
-
-  @override
-  void initState() {
-    super.initState();
-    _loginVM = LoginViewModel(
-      authRepository: widget.dependencias.authRepository,
-      perfilRepository: widget.dependencias.perfilRepository,
-    );
-  }
+  LoginViewModel get _loginVM => widget.viewModel;
 
   /// Crea el ViewModel de Recuperar contraseña y abre la pantalla.
   void _abrirRecuperarContrasena() {
@@ -64,7 +62,6 @@ class _LoginScreenState extends State<LoginScreen> {
   void dispose() {
     _correoController.dispose();
     _passwordController.dispose();
-    _loginVM.dispose();
     super.dispose();
   }
 

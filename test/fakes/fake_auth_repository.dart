@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:clinica_vitalis/data/repositories/auth_repository.dart';
 import 'package:clinica_vitalis/domain/models/usuario_autenticado.dart';
 
@@ -21,8 +23,12 @@ class FakeAuthRepository implements AuthRepository {
     if (error != null) throw error;
   }
 
+  /// Permite simular cambios de sesion desde el test.
+  final StreamController<String?> controladorSesion =
+      StreamController<String?>.broadcast();
+
   @override
-  Stream<String?> get cambiosDeSesion => const Stream.empty();
+  Stream<String?> get cambiosDeSesion => controladorSesion.stream;
 
   @override
   String? get uidActual => uid;
