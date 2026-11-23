@@ -7,7 +7,7 @@ import '../../conectividad/view_models/conectividad_view_model.dart';
 import '../../conectividad/widgets/aviso_sin_conexion.dart';
 import '../../historia_clinica/view_models/historia_clinica_view_model.dart';
 import '../../historia_clinica/widgets/historia_clinica_screen.dart';
-import '../../informacion/widgets/informacion_page.dart';
+import '../../informacion/widgets/informacion_screen.dart';
 import '../../perfil/view_models/perfil_view_model.dart';
 import '../../perfil/widgets/perfil.dart';
 import '../../sintomas/view_models/sintomas_view_model.dart';
@@ -332,6 +332,6 @@ class _InicioScreenState extends State<InicioScreen> {
   }
 
   Widget _buildInformacionTab() {
-    return const InformacionPage();
+    return const InformacionScreen();
   }
 }

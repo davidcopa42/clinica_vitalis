@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 /// Pantalla con información general de la clínica.
-class InformacionPage extends StatelessWidget {
-  const InformacionPage({super.key});
+class InformacionScreen extends StatelessWidget {
+  const InformacionScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
