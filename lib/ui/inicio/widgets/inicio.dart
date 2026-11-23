@@ -1,4 +1,3 @@
-import 'dart:async'; // 1. Agregamos este import para la suscripción
 import 'package:clinica_vitalis/data/repositories/auth_repositorio_firebase.dart';
 import 'package:clinica_vitalis/data/repositories/perfil_repositorio_firestore.dart';
 import 'package:clinica_vitalis/data/services/auth_service.dart';
@@ -19,8 +18,8 @@ import '../../perfil/widgets/perfil.dart';
 import '../../sintomas/widgets/sintomas_page.dart';
 import '../../turnos/widgets/mis_turnos.dart';
 import '../../turnos/widgets/solicitar_turno.dart';
-import '../../../domain/models/evento_de_app.dart'; // 2. Import del evento
 import '../../../data/services/bus_de_eventos.dart'; // 3. Import del bus
+import '../view_models/inicio_view_model.dart';
 
 class InicioPage extends StatefulWidget {
   final Paciente paciente;
@@ -42,13 +41,16 @@ class _InicioPageState extends State<InicioPage> {
   int _indiceSeleccionado = 0;
   late final PerfilViewModel _perfilViewModel;
   late final ConectividadViewModel _conectividadViewModel;
-
-  // 4. Declaramos la variable de la suscripción al Stream
-  late final StreamSubscription<EventoDeApp> _suscripcionEventos;
+  late final InicioViewModel _inicioViewModel;
 
   @override
   void initState() {
     super.initState();
+    _inicioViewModel = InicioViewModel(
+      busDeEventos: widget.busDeEventos,
+      paciente: widget.paciente,
+    );
+    _inicioViewModel.addListener(_mostrarAvisoPendiente);
     _perfilViewModel = PerfilViewModel(
       repository: PerfilRepositorioFirestore(perfilService: PerfilService()),
       authRepository: AuthRepositorioFirebase(authService: AuthService()),
@@ -58,27 +60,27 @@ class _InicioPageState extends State<InicioPage> {
         conectividadService: ConectividadConPlus(),
       ),
     );
+  }
 
-    // 5. Nos suscribimos a la "radio" para escuchar eventos en vivo
-    _suscripcionEventos = widget.busDeEventos.stream.listen((evento) {
-      if (evento is TurnoConfirmadoEvento) {
-        if (!mounted) return;
-        // Mostramos el SnackBar verde cuando escuchamos el evento
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('¡Éxito! Turno de ${evento.especialidad} registrado.'),
-            backgroundColor: Colors.green,
-            duration: const Duration(seconds: 4),
-          ),
-        );
-      }
-    });
+  /// Muestra el SnackBar verde cuando el ViewModel deja un aviso.
+  void _mostrarAvisoPendiente() {
+    final aviso = _inicioViewModel.avisoPendiente;
+    if (aviso == null || !mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(aviso),
+        backgroundColor: Colors.green,
+        duration: const Duration(seconds: 4),
+      ),
+    );
+    _inicioViewModel.descartarAviso();
   }
 
   @override
   void dispose() {
-    // 6. OBLIGATORIO: Cerramos la suscripción del Stream para evitar fugas de memoria
-    _suscripcionEventos.cancel();
+    _inicioViewModel.removeListener(_mostrarAvisoPendiente);
+    _inicioViewModel.dispose();
     _perfilViewModel.dispose();
     _conectividadViewModel.dispose();
     super.dispose();
@@ -125,8 +127,7 @@ class _InicioPageState extends State<InicioPage> {
   Widget _buildContenidoInicio(BuildContext context) {
     final userAuth = FirebaseAuth.instance.currentUser;
     final fotoUrl = userAuth?.photoURL ?? widget.paciente.fotoUrl;
-    final nombreUsuario =
-    widget.paciente.nombre.isNotEmpty ? widget.paciente.nombre : 'Paciente';
+    final nombreUsuario = _inicioViewModel.nombreUsuario;
     final uidActual = widget.paciente.uid;
 
     return Scaffold(
