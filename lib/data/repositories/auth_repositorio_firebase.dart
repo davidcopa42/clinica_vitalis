@@ -98,12 +98,7 @@ class AuthRepositorioFirebase implements AuthRepository {
   }
 
   AuthException _traducirError(FirebaseAuthException e) {
-    return AuthException(
-      _mensajePara(e.code),
-      codigo: e.code,
-      detalle: e.message,
-      textoOriginal: e.toString(),
-    );
+    return AuthException(_mensajePara(e.code));
   }
 
   String _mensajePara(String codigo) {

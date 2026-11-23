@@ -196,34 +196,6 @@ void main() {
     });
   });
 
-  group('datos transitorios de AuthException', () {
-    test('conserva codigo, detalle y texto del error original', () async {
-      final original = FirebaseAuthException(
-        code: 'user-disabled',
-        message: 'The user account has been disabled.',
-      );
-      servicio.error = original;
-
-      await expectLater(
-        repositorio.iniciarConCorreo('a@b.com', 'clave'),
-        throwsA(
-          isA<AuthException>()
-              .having((e) => e.codigo, 'codigo', 'user-disabled')
-              .having(
-                (e) => e.detalle,
-                'detalle',
-                'The user account has been disabled.',
-              )
-              .having(
-                (e) => e.textoOriginal,
-                'textoOriginal',
-                original.toString(),
-              ),
-        ),
-      );
-    });
-  });
-
   group('traduccion de errores de Firebase', () {
     const mensajesPorCodigo = {
       'invalid-email': 'El correo no es válido.',

@@ -90,15 +90,6 @@ class FakePerfilRepository implements PerfilRepository {
   }) async {}
 }
 
-AuthException errorDeFirebase(String codigo, {String? detalle}) {
-  return AuthException(
-    'Mensaje traducido',
-    codigo: codigo,
-    detalle: detalle,
-    textoOriginal: '[firebase_auth/$codigo] $detalle',
-  );
-}
-
 void main() {
   late FakeAuthRepository auth;
   late FakePerfilRepository perfiles;
@@ -133,37 +124,14 @@ void main() {
       expect(viewModel.mensajeError, isNull);
     });
 
-    const mensajesPorCodigo = {
-      'user-not-found': 'No existe una cuenta con este correo.',
-      'wrong-password': 'Contraseña incorrecta.',
-      'invalid-email': 'El formato del correo es inválido.',
-      'user-disabled': 'Este usuario ha sido deshabilitado.',
-      'invalid-credential': 'Credenciales inválidas. Verifique sus datos.',
-    };
-
-    for (final entrada in mensajesPorCodigo.entries) {
-      test('el codigo ${entrada.key} muestra "${entrada.value}"', () async {
-        auth.errorAlIngresar = errorDeFirebase(entrada.key);
-
-        await viewModel.iniciarSesion('ana@test.com', 'clave123');
-
-        expect(viewModel.estadoCarga, EstadoCarga.error);
-        expect(viewModel.mensajeError, entrada.value);
-      });
-    }
-
-    test('otro codigo muestra el detalle crudo del proveedor', () async {
-      auth.errorAlIngresar = errorDeFirebase(
-        'too-many-requests',
-        detalle: 'We have blocked all requests.',
-      );
+    test('una AuthException muestra el mensaje traducido del repositorio',
+        () async {
+      auth.errorAlIngresar = AuthException('Correo o contraseña incorrectos.');
 
       await viewModel.iniciarSesion('ana@test.com', 'clave123');
 
-      expect(
-        viewModel.mensajeError,
-        'Error de autenticación: We have blocked all requests.',
-      );
+      expect(viewModel.estadoCarga, EstadoCarga.error);
+      expect(viewModel.mensajeError, 'Correo o contraseña incorrectos.');
     });
 
     test('un error que no es de autenticacion muestra su texto', () async {
@@ -179,7 +147,7 @@ void main() {
     });
 
     test('un nuevo intento limpia el error anterior', () async {
-      auth.errorAlIngresar = errorDeFirebase('wrong-password');
+      auth.errorAlIngresar = AuthException('Correo o contraseña incorrectos.');
       await viewModel.iniciarSesion('ana@test.com', 'mala');
       auth.errorAlIngresar = null;
 
@@ -253,21 +221,15 @@ void main() {
       expect(viewModel.estadoCarga, EstadoCarga.exito);
     });
 
-    test('un error de autenticacion muestra el texto original de Firebase',
-        () async {
-      auth.errorConGoogle = errorDeFirebase(
-        'network-request-failed',
-        detalle: 'A network error has occurred.',
-      );
+    test('un error de autenticacion muestra el mensaje traducido', () async {
+      auth.errorConGoogle = AuthException('Sin conexión. Revisá internet.');
 
       await viewModel.iniciarSesionConGoogle();
 
       expect(viewModel.estadoCarga, EstadoCarga.error);
       expect(
         viewModel.mensajeError,
-        'No se pudo iniciar sesión con Google: '
-        '[firebase_auth/network-request-failed] '
-        'A network error has occurred.',
+        'No se pudo iniciar sesión con Google: Sin conexión. Revisá internet.',
       );
     });
 

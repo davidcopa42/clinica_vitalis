@@ -33,25 +33,7 @@ class LoginViewModel extends ChangeNotifier {
       _estadoCarga = EstadoCarga.exito;
     } on AuthException catch (e) {
       _estadoCarga = EstadoCarga.error;
-      switch (e.codigo) {
-        case 'user-not-found':
-          _mensajeError = 'No existe una cuenta con este correo.';
-          break;
-        case 'wrong-password':
-          _mensajeError = 'Contraseña incorrecta.';
-          break;
-        case 'invalid-email':
-          _mensajeError = 'El formato del correo es inválido.';
-          break;
-        case 'user-disabled':
-          _mensajeError = 'Este usuario ha sido deshabilitado.';
-          break;
-        case 'invalid-credential':
-          _mensajeError = 'Credenciales inválidas. Verifique sus datos.';
-          break;
-        default:
-          _mensajeError = 'Error de autenticación: ${e.detalle}';
-      }
+      _mensajeError = e.mensaje;
     } catch (e) {
       _estadoCarga = EstadoCarga.error;
       _mensajeError = 'Ocurrió un error inesperado: $e';
@@ -92,10 +74,8 @@ class LoginViewModel extends ChangeNotifier {
 
       _estadoCarga = EstadoCarga.exito;
     } on AuthException catch (e) {
-      // Conserva el texto que mostraba el error original de Firebase.
       _estadoCarga = EstadoCarga.error;
-      _mensajeError =
-          'No se pudo iniciar sesión con Google: ${e.textoOriginal}';
+      _mensajeError = 'No se pudo iniciar sesión con Google: ${e.mensaje}';
     } catch (e) {
       _estadoCarga = EstadoCarga.error;
       _mensajeError = 'No se pudo iniciar sesión con Google: $e';
