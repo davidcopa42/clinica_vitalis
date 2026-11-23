@@ -1,3 +1,4 @@
+import 'package:clinica_vitalis/data/repositories/recordatorio_repositorio_local.dart';
 import 'package:clinica_vitalis/data/repositories/turno_repositorio_local.dart';
 import 'package:clinica_vitalis/data/services/base_datos_service.dart';
 import 'package:clinica_vitalis/data/services/bus_de_eventos.dart';
@@ -32,7 +33,9 @@ class _MisTurnosPageState extends State<MisTurnosPage> {
     super.initState();
     _viewModel = MisTurnosViewModel(
       repositorio: TurnoRepositorioLocal(baseDatos: BaseDatosService()),
-      notificacionesService: NotificacionesService(),
+      recordatorioRepository: RecordatorioRepositorioLocal(
+        notificacionesService: NotificacionesService(),
+      ),
       busDeEventos: widget.busDeEventos,
       pacienteUid: widget.paciente.uid, // Pasamos el UID al ViewModel
     );

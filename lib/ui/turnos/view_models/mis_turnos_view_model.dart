@@ -1,6 +1,6 @@
 import 'dart:async';
+import 'package:clinica_vitalis/data/repositories/recordatorio_repository.dart';
 import 'package:clinica_vitalis/data/repositories/turno_repository.dart';
-import 'package:clinica_vitalis/data/services/notificaciones_service.dart';
 import 'package:clinica_vitalis/domain/models/turno.dart';
 import 'package:clinica_vitalis/ui/core/estado_carga.dart';
 import 'package:flutter/foundation.dart';
@@ -11,17 +11,17 @@ import '../../../data/services/bus_de_eventos.dart';
 class MisTurnosViewModel extends ChangeNotifier {
   MisTurnosViewModel({
     required TurnoRepository repositorio,
-    required NotificacionesService notificacionesService,
+    required RecordatorioRepository recordatorioRepository,
     required BusDeEventos busDeEventos,
     required this.pacienteUid,
   })  : _repositorio = repositorio,
-        _notificacionesService = notificacionesService {
+        _recordatorioRepository = recordatorioRepository {
     // Nos suscribimos al Stream de eventos inyectado
     _suscripcionEventos = busDeEventos.stream.listen(_manejarEventosApp);
   }
 
   final TurnoRepository _repositorio;
-  final NotificacionesService _notificacionesService;
+  final RecordatorioRepository _recordatorioRepository;
   final String pacienteUid;
 
   late final StreamSubscription<EventoDeApp> _suscripcionEventos;
@@ -79,7 +79,7 @@ class MisTurnosViewModel extends ChangeNotifier {
 
     try {
       await _repositorio.cancelarTurno(turno.id!);
-      await _notificacionesService.cancelarRecordatorio(turno.id!);
+      await _recordatorioRepository.cancelarRecordatorio(turno.id!);
 
       _turnos =
           _turnos.where((turnoActual) => turnoActual.id != turno.id).toList();

@@ -1,30 +1,12 @@
 import 'package:clinica_vitalis/data/services/bus_de_eventos.dart';
-import 'package:clinica_vitalis/data/services/notificaciones_service.dart';
 import 'package:clinica_vitalis/domain/models/evento_de_app.dart';
 import 'package:clinica_vitalis/domain/models/turno.dart';
 import 'package:clinica_vitalis/ui/core/estado_carga.dart';
 import 'package:clinica_vitalis/ui/turnos/view_models/mis_turnos_view_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../fakes/fake_recordatorio_repository.dart';
 import '../fakes/fake_turno_repository.dart';
-
-/// Servicio de notificaciones falso que registra las cancelaciones.
-class FakeNotificacionesService implements NotificacionesService {
-  final List<int> recordatoriosCancelados = [];
-  Object? errorAlCancelar;
-
-  @override
-  Future<void> inicializar() async {}
-
-  @override
-  Future<void> programarRecordatorio(Turno turno) async {}
-
-  @override
-  Future<void> cancelarRecordatorio(int turnoId) async {
-    recordatoriosCancelados.add(turnoId);
-    if (errorAlCancelar != null) throw errorAlCancelar!;
-  }
-}
 
 Turno crearTurno(int? id, String horario) {
   return Turno(
@@ -40,7 +22,7 @@ Turno crearTurno(int? id, String horario) {
 void main() {
   late BusDeEventos busDeEventos;
   late FakeTurnoRepository repositorio;
-  late FakeNotificacionesService notificaciones;
+  late FakeRecordatorioRepository recordatorios;
   late MisTurnosViewModel viewModel;
   var viewModelDescartado = false;
 
@@ -48,11 +30,11 @@ void main() {
     repositorio = FakeTurnoRepository(
       turnos: [crearTurno(1, '08:00'), crearTurno(2, '08:40')],
     );
-    notificaciones = FakeNotificacionesService();
+    recordatorios = FakeRecordatorioRepository();
     busDeEventos = BusDeEventos();
     viewModel = MisTurnosViewModel(
       repositorio: repositorio,
-      notificacionesService: notificaciones,
+      recordatorioRepository: recordatorios,
       busDeEventos: busDeEventos,
       pacienteUid: 'paciente-1',
     );
@@ -105,7 +87,7 @@ void main() {
 
       expect(cancelado, isFalse);
       expect(repositorio.turnosCancelados, isEmpty);
-      expect(notificaciones.recordatoriosCancelados, isEmpty);
+      expect(recordatorios.recordatoriosCancelados, isEmpty);
     });
 
     test(
@@ -121,7 +103,7 @@ void main() {
 
       expect(cancelado, isTrue);
       expect(repositorio.turnosCancelados, [1]);
-      expect(notificaciones.recordatoriosCancelados, [1]);
+      expect(recordatorios.recordatoriosCancelados, [1]);
       expect(viewModel.turnos.map((turno) => turno.id), [2]);
       expect(estadosCancelando, [true, false]);
       expect(viewModel.estaCancelando, isFalse);
@@ -137,7 +119,7 @@ void main() {
       expect(cancelado, isFalse);
       expect(viewModel.error, 'No se pudo cancelar el turno. Probá de nuevo.');
       expect(viewModel.turnos.map((turno) => turno.id), [1, 2]);
-      expect(notificaciones.recordatoriosCancelados, isEmpty);
+      expect(recordatorios.recordatoriosCancelados, isEmpty);
       expect(viewModel.estaCancelando, isFalse);
     });
 
@@ -145,7 +127,7 @@ void main() {
         'si falla quitar el recordatorio devuelve false aunque el turno '
         'ya se cancelo en el repositorio', () async {
       await viewModel.cargar('paciente-1');
-      notificaciones.errorAlCancelar = Exception('falla');
+      recordatorios.errorAlCancelar = Exception('falla');
 
       final cancelado = await viewModel.cancelar(viewModel.turnos.first);
 
