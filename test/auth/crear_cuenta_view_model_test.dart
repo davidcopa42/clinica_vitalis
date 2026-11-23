@@ -117,7 +117,7 @@ void main() {
       nombre: ' Ana ',
       apellido: ' López ',
       correo: ' ana@test.com ',
-      password: 'clave123',
+      contrasena: 'clave123',
     );
   }
 

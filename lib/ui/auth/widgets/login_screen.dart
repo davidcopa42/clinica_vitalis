@@ -27,7 +27,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _correoController = TextEditingController();
-  final _passwordController = TextEditingController();
+  final _contrasenaController = TextEditingController();
 
   LoginViewModel get _viewModel => widget.viewModel;
 
@@ -61,7 +61,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void dispose() {
     _correoController.dispose();
-    _passwordController.dispose();
+    _contrasenaController.dispose();
     super.dispose();
   }
 
@@ -69,7 +69,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (_formKey.currentState?.validate() ?? false) {
       await _viewModel.iniciarSesion(
         _correoController.text.trim(),
-        _passwordController.text.trim(),
+        _contrasenaController.text.trim(),
       );
     }
   }
@@ -133,7 +133,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const SizedBox(height: 16),
                       TextFormField(
-                        controller: _passwordController,
+                        controller: _contrasenaController,
                         obscureText: true,
                         decoration: const InputDecoration(
                           labelText: 'Contraseña',

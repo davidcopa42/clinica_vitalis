@@ -24,14 +24,14 @@ class CrearCuentaViewModel extends ChangeNotifier {
     required String nombre,
     required String apellido,
     required String correo,
-    required String password,
+    required String contrasena,
   }) async {
     _estadoCarga = EstadoCarga.cargando;
     _mensajeError = null;
     notifyListeners();
 
     try {
-      await _authRepo.registrarConCorreo(correo, password);
+      await _authRepo.registrarConCorreo(correo, contrasena);
 
       await _authRepo
           .actualizarNombreVisible('${nombre.trim()} ${apellido.trim()}');

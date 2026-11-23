@@ -22,13 +22,13 @@ class LoginViewModel extends ChangeNotifier {
   final AuthRepository _authRepo;
   final PerfilRepository _perfilRepo;
 
-  Future<void> iniciarSesion(String correo, String password) async {
+  Future<void> iniciarSesion(String correo, String contrasena) async {
     _estadoCarga = EstadoCarga.cargando;
     _mensajeError = null;
     notifyListeners();
 
     try {
-      await _authRepo.iniciarConCorreo(correo, password);
+      await _authRepo.iniciarConCorreo(correo, contrasena);
 
       _estadoCarga = EstadoCarga.exito;
     } on AuthException catch (e) {

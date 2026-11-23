@@ -18,8 +18,8 @@ class _CrearCuentaScreenState extends State<CrearCuentaScreen> {
   final _nombreController = TextEditingController();
   final _apellidoController = TextEditingController();
   final _correoController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _confirmPasswordController = TextEditingController();
+  final _contrasenaController = TextEditingController();
+  final _confirmarContrasenaController = TextEditingController();
 
   CrearCuentaViewModel get _viewModel => widget.viewModel;
 
@@ -28,8 +28,8 @@ class _CrearCuentaScreenState extends State<CrearCuentaScreen> {
     _nombreController.dispose();
     _apellidoController.dispose();
     _correoController.dispose();
-    _passwordController.dispose();
-    _confirmPasswordController.dispose();
+    _contrasenaController.dispose();
+    _confirmarContrasenaController.dispose();
     _viewModel.dispose();
     super.dispose();
   }
@@ -40,7 +40,7 @@ class _CrearCuentaScreenState extends State<CrearCuentaScreen> {
         nombre: _nombreController.text.trim(),
         apellido: _apellidoController.text.trim(),
         correo: _correoController.text.trim(),
-        password: _passwordController.text.trim(),
+        contrasena: _contrasenaController.text.trim(),
       );
 
       if (_viewModel.estadoCarga == EstadoCarga.exito && mounted) {
@@ -54,7 +54,7 @@ class _CrearCuentaScreenState extends State<CrearCuentaScreen> {
     }
   }
 
-  String? _validarPassword(String? value) {
+  String? _validarContrasena(String? value) {
     if (value == null || value.isEmpty) {
       return 'Ingrese su contraseña';
     }
@@ -137,18 +137,18 @@ class _CrearCuentaScreenState extends State<CrearCuentaScreen> {
                       ),
                       const SizedBox(height: 16),
                       TextFormField(
-                        controller: _passwordController,
+                        controller: _contrasenaController,
                         obscureText: true,
                         decoration: const InputDecoration(
                           labelText: 'Contraseña',
                           border: OutlineInputBorder(),
                           prefixIcon: Icon(Icons.lock),
                         ),
-                        validator: _validarPassword,
+                        validator: _validarContrasena,
                       ),
                       const SizedBox(height: 16),
                       TextFormField(
-                        controller: _confirmPasswordController,
+                        controller: _confirmarContrasenaController,
                         obscureText: true,
                         decoration: const InputDecoration(
                           labelText: 'Repetir contraseña',
@@ -159,7 +159,7 @@ class _CrearCuentaScreenState extends State<CrearCuentaScreen> {
                           if (value == null || value.isEmpty) {
                             return 'Confirme su contraseña';
                           }
-                          if (value != _passwordController.text) {
+                          if (value != _contrasenaController.text) {
                             return 'Las contraseñas no coinciden';
                           }
                           return null;
