@@ -86,11 +86,9 @@ class _RecuperarContrasenaScreenState extends State<RecuperarContrasenaScreen> {
                   listenable: _viewModel,
                   builder: (context, _) {
                     return ElevatedButton(
-                      onPressed:
-                          _viewModel.estaEnviando ? null : _enviarCorreo,
+                      onPressed: _viewModel.estaEnviando ? null : _enviarCorreo,
                       child: _viewModel.estaEnviando
-                          ? const CircularProgressIndicator(
-                              color: Colors.white)
+                          ? const CircularProgressIndicator(color: Colors.white)
                           : const Text('Enviar enlace',
                               style: TextStyle(fontSize: 16)),
                     );

@@ -9,8 +9,8 @@ import 'package:clinica_vitalis/ui/core/estado_carga.dart';
 import 'package:clinica_vitalis/ui/core/formato.dart';
 import 'package:flutter/foundation.dart';
 
-import '../../../domain/models/evento_de_app.dart';
 import '../../../data/services/bus_de_eventos.dart';
+import '../../../domain/models/evento_de_app.dart';
 
 /// Estado y lógica de la pantalla Solicitar turno.
 class TurnoViewModel extends ChangeNotifier {
@@ -59,15 +59,16 @@ class TurnoViewModel extends ChangeNotifier {
   /// Profesionales de la especialidad elegida.
   List<Profesional> get profesionalesDisponibles => List.unmodifiable(
         _profesionales.where(
-          (profesional) => profesional.especialidad == _especialidadSeleccionada,
+          (profesional) =>
+              profesional.especialidad == _especialidadSeleccionada,
         ),
       );
 
   /// El horario se elige recién con profesional y fecha.
   bool get puedeElegirHorario =>
       _profesionalSeleccionado != null &&
-          _fechaSeleccionada != null &&
-          !_cargandoHorarios;
+      _fechaSeleccionada != null &&
+      !_cargandoHorarios;
 
   /// El profesional se elige recién con especialidad.
   bool get puedeElegirProfesional => _especialidadSeleccionada != null;
@@ -94,7 +95,6 @@ class TurnoViewModel extends ChangeNotifier {
         horario: _horarioSeleccionado,
       ),
     );
-
   }
 
   /// Refresca los datos del servidor cuando la app vuelve al frente (onResume)

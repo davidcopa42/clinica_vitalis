@@ -24,7 +24,6 @@ class FakePerfilRepository implements PerfilRepository {
     String uid,
     Map<String, dynamic> datosPerfil,
   ) async {}
-
 }
 
 void main() {

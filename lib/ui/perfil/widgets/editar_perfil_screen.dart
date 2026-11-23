@@ -82,8 +82,7 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
     if (seleccion != null && seleccion != _fechaSeleccionada) {
       setState(() {
         _fechaSeleccionada = seleccion;
-        _fechaNacimientoController.text =
-            formatearFecha(seleccion);
+        _fechaNacimientoController.text = formatearFecha(seleccion);
       });
     }
   }

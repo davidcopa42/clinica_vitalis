@@ -32,5 +32,4 @@ class PerfilRepositorioFirestore implements PerfilRepository {
       String uid, Map<String, dynamic> datosPerfil) async {
     await _perfilService.guardarPerfil(uid, datosPerfil);
   }
-
 }

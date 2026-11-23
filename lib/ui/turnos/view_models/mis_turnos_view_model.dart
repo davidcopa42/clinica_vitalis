@@ -1,11 +1,13 @@
 import 'dart:async';
+
 import 'package:clinica_vitalis/data/repositories/recordatorio_repository.dart';
 import 'package:clinica_vitalis/data/repositories/turno_repository.dart';
 import 'package:clinica_vitalis/domain/models/turno.dart';
 import 'package:clinica_vitalis/ui/core/estado_carga.dart';
 import 'package:flutter/foundation.dart';
-import '../../../domain/models/evento_de_app.dart';
+
 import '../../../data/services/bus_de_eventos.dart';
+import '../../../domain/models/evento_de_app.dart';
 
 /// Estado y lógica de la pantalla Mis turnos.
 class MisTurnosViewModel extends ChangeNotifier {

@@ -52,7 +52,8 @@ void main() async {
   );
 
   runApp(
-    ClinicaVitalisApp(sesionViewModel: sesionViewModel, dependencias: dependencias),
+    ClinicaVitalisApp(
+        sesionViewModel: sesionViewModel, dependencias: dependencias),
   );
 }
 

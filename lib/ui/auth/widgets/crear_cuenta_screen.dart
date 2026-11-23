@@ -180,9 +180,10 @@ class _CrearCuentaScreenState extends State<CrearCuentaScreen> {
                         width: double.infinity,
                         height: 50,
                         child: ElevatedButton(
-                          onPressed: _viewModel.estadoCarga == EstadoCarga.cargando
-                              ? null
-                              : _registrar,
+                          onPressed:
+                              _viewModel.estadoCarga == EstadoCarga.cargando
+                                  ? null
+                                  : _registrar,
                           child: _viewModel.estadoCarga == EstadoCarga.cargando
                               ? const CircularProgressIndicator(
                                   color: Colors.white)

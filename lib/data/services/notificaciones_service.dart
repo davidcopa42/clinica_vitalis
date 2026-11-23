@@ -1,4 +1,3 @@
-
 import 'package:clinica_vitalis/domain/models/turno.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
@@ -16,12 +15,12 @@ class NotificacionesService {
   NotificacionesService._internal();
 
   static final NotificacionesService _instancia =
-  NotificacionesService._internal();
+      NotificacionesService._internal();
 
   factory NotificacionesService() => _instancia;
 
   final FlutterLocalNotificationsPlugin _notificaciones =
-  FlutterLocalNotificationsPlugin();
+      FlutterLocalNotificationsPlugin();
 
   Future<void> inicializar() async {
     tz_data.initializeTimeZones();
@@ -30,7 +29,7 @@ class NotificacionesService {
     tz.setLocalLocation(tz.getLocation(zonaHoraria.identifier));
 
     const configuracionAndroid =
-    AndroidInitializationSettings('@mipmap/ic_launcher');
+        AndroidInitializationSettings('@mipmap/ic_launcher');
 
     const configuracion = InitializationSettings(
       android: configuracionAndroid,
@@ -62,12 +61,11 @@ class NotificacionesService {
     if (turno.estado != EstadoTurno.confirmado) return;
 
     final fechaRecordatorio =
-    turno.fechaHora.subtract(_anticipacionRecordatorio);
+        turno.fechaHora.subtract(_anticipacionRecordatorio);
 
     if (!fechaRecordatorio.isAfter(DateTime.now())) return;
 
-    final fechaProgramada =
-    tz.TZDateTime.from(fechaRecordatorio, tz.local);
+    final fechaProgramada = tz.TZDateTime.from(fechaRecordatorio, tz.local);
 
     const detalles = NotificationDetails(
       android: AndroidNotificationDetails(
@@ -83,7 +81,7 @@ class NotificacionesService {
       id: turno.id!,
       title: 'Recordatorio de turno',
       body:
-      'Mañana tenés turno con ${turno.profesional} a las ${turno.horario}.',
+          'Mañana tenés turno con ${turno.profesional} a las ${turno.horario}.',
       scheduledDate: fechaProgramada,
       notificationDetails: detalles,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,

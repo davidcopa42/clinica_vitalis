@@ -10,5 +10,4 @@ abstract class PerfilRepository {
 
   /// Guarda (combinando con lo existente) los datos del perfil.
   Future<void> guardarPerfil(String uid, Map<String, dynamic> datosPerfil);
-
 }

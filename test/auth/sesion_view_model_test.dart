@@ -69,7 +69,6 @@ class FakePerfilRepository implements PerfilRepository {
   Future<void> guardarPerfil(
       String uid, Map<String, dynamic> datosPerfil) async {}
 
-
   @override
   Future<Paciente?> obtenerPerfil(String uid) async {
     if (datosPerfilSimulados == null) {

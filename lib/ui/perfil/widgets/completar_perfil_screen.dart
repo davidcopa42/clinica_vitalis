@@ -73,8 +73,7 @@ class _CompletarPerfilScreenState extends State<CompletarPerfilScreen> {
     if (seleccion != null && seleccion != _fechaSeleccionada) {
       setState(() {
         _fechaSeleccionada = seleccion;
-        _fechaNacimientoController.text =
-            formatearFecha(seleccion);
+        _fechaNacimientoController.text = formatearFecha(seleccion);
       });
     }
   }

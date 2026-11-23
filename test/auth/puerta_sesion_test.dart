@@ -37,7 +37,6 @@ class FakePerfilRepository implements PerfilRepository {
     String uid,
     Map<String, dynamic> datosPerfil,
   ) async {}
-
 }
 
 class FakeHistoriaClinicaRepository implements HistoriaClinicaRepository {

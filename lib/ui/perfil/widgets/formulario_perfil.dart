@@ -54,7 +54,6 @@ class FormularioPerfil extends StatelessWidget {
                 valor == null || valor.isEmpty ? 'Requerido' : null,
           ),
           const SizedBox(height: 16),
-
           TextFormField(
             controller: apellidoController,
             decoration: const InputDecoration(
@@ -66,7 +65,6 @@ class FormularioPerfil extends StatelessWidget {
                 valor == null || valor.isEmpty ? 'Requerido' : null,
           ),
           const SizedBox(height: 16),
-
           TextFormField(
             controller: dniController,
             keyboardType: TextInputType.number,
@@ -86,7 +84,6 @@ class FormularioPerfil extends StatelessWidget {
             },
           ),
           const SizedBox(height: 16),
-
           TextFormField(
             controller: fechaNacimientoController,
             readOnly: true,
@@ -100,7 +97,6 @@ class FormularioPerfil extends StatelessWidget {
                 valor == null || valor.isEmpty ? 'Requerido' : null,
           ),
           const SizedBox(height: 16),
-
           TextFormField(
             controller: telefonoController,
             keyboardType: TextInputType.phone,
@@ -120,7 +116,6 @@ class FormularioPerfil extends StatelessWidget {
             },
           ),
           const SizedBox(height: 16),
-
           DropdownButtonFormField<String>(
             initialValue: obraSocialValue,
             decoration: const InputDecoration(
@@ -135,7 +130,6 @@ class FormularioPerfil extends StatelessWidget {
             onChanged: onObraSocialChanged,
           ),
           const SizedBox(height: 16),
-
           if (obraSocialValue != obraSocialParticular)
             Padding(
               padding: const EdgeInsets.only(bottom: 16.0),
@@ -150,9 +144,7 @@ class FormularioPerfil extends StatelessWidget {
                     valor == null || valor.isEmpty ? 'Requerido' : null,
               ),
             ),
-
           const SizedBox(height: 8),
-
           SizedBox(
             width: double.infinity,
             height: 50,

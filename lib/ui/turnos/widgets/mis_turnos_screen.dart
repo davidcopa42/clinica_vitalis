@@ -46,7 +46,7 @@ class _MisTurnosScreenState extends State<MisTurnosScreen> {
           title: const Text('Cancelar turno'),
           content: Text(
             '¿Querés cancelar tu turno de ${turno.especialidad} '
-                'con ${turno.profesional}?',
+            'con ${turno.profesional}?',
           ),
           actions: [
             TextButton(
@@ -98,7 +98,7 @@ class _MisTurnosScreenState extends State<MisTurnosScreen> {
             case EstadoCarga.error:
               return MensajeError(
                 mensaje:
-                _viewModel.error ?? 'No se pudieron cargar tus turnos.',
+                    _viewModel.error ?? 'No se pudieron cargar tus turnos.',
                 alReintentar: () => _viewModel.cargar(widget.paciente.uid),
               );
 
@@ -210,10 +210,10 @@ class _TarjetaTurno extends StatelessWidget {
                 onPressed: cancelando ? null : onCancelar,
                 icon: cancelando
                     ? const SizedBox(
-                  width: 18,
-                  height: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
                     : const Icon(Icons.cancel_outlined),
                 label: const Text('Cancelar turno'),
               ),
@@ -224,4 +224,3 @@ class _TarjetaTurno extends StatelessWidget {
     );
   }
 }
-
