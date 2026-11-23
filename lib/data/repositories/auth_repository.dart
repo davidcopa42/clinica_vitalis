@@ -1,7 +1,22 @@
+import '../../domain/models/usuario_autenticado.dart';
+
 /// Error de autenticación con un mensaje listo para mostrar al usuario.
 class AuthException implements Exception {
-  AuthException(this.mensaje);
+  AuthException(
+    this.mensaje, {
+    this.codigo,
+    this.detalle,
+    this.textoOriginal,
+  });
+
   final String mensaje;
+
+  // Datos del error original del proveedor. Son transitorios: permiten que
+  // LoginViewModel conserve sus mensajes propios hasta unificarlos.
+  final String? codigo;
+  final String? detalle;
+  final String? textoOriginal;
+
   @override
   String toString() => mensaje;
 }
@@ -24,7 +39,8 @@ abstract class AuthRepository {
 
   Future<void> iniciarConCorreo(String correo, String contrasena);
 
-  Future<void> iniciarConGoogle();
+  /// Inicia sesión con Google. Devuelve null si el usuario canceló.
+  Future<UsuarioAutenticado?> iniciarConGoogle();
 
   Future<void> enviarVerificacion();
 

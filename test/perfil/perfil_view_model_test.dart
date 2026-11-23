@@ -1,6 +1,7 @@
 import 'package:clinica_vitalis/data/repositories/auth_repository.dart';
 import 'package:clinica_vitalis/data/repositories/perfil_repository.dart';
 import 'package:clinica_vitalis/domain/models/paciente.dart';
+import 'package:clinica_vitalis/domain/models/usuario_autenticado.dart';
 import 'package:clinica_vitalis/ui/perfil/view_models/perfil_view_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -66,7 +67,7 @@ class FakeAuthRepository implements AuthRepository {
   Future<void> iniciarConCorreo(String correo, String contrasena) async {}
 
   @override
-  Future<void> iniciarConGoogle() async {}
+  Future<UsuarioAutenticado?> iniciarConGoogle() async => null;
 
   @override
   Future<void> enviarVerificacion() async {}

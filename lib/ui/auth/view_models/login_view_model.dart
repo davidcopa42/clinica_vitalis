@@ -1,11 +1,16 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 
-import '../../../data/services/perfil_service.dart';
+import '../../../data/repositories/auth_repository.dart';
+import '../../../data/repositories/perfil_repository.dart';
 import '../../core/estado_carga.dart';
 
 class LoginViewModel extends ChangeNotifier {
+  LoginViewModel({
+    required AuthRepository authRepository,
+    required PerfilRepository perfilRepository,
+  })  : _authRepo = authRepository,
+        _perfilRepo = perfilRepository;
+
   EstadoCarga _estadoCarga = EstadoCarga.inicial;
   String? _mensajeError;
   bool _esNuevoUsuario = false;
@@ -14,9 +19,8 @@ class LoginViewModel extends ChangeNotifier {
   String? get mensajeError => _mensajeError;
   bool get esNuevoUsuario => _esNuevoUsuario;
 
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
-  final PerfilService _perfilService = PerfilService();
+  final AuthRepository _authRepo;
+  final PerfilRepository _perfilRepo;
 
   Future<void> iniciarSesion(String correo, String password) async {
     _estadoCarga = EstadoCarga.cargando;
@@ -24,15 +28,12 @@ class LoginViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await _auth.signInWithEmailAndPassword(
-        email: correo,
-        password: password,
-      );
+      await _authRepo.iniciarConCorreo(correo, password);
 
       _estadoCarga = EstadoCarga.exito;
-    } on FirebaseAuthException catch (e) {
+    } on AuthException catch (e) {
       _estadoCarga = EstadoCarga.error;
-      switch (e.code) {
+      switch (e.codigo) {
         case 'user-not-found':
           _mensajeError = 'No existe una cuenta con este correo.';
           break;
@@ -49,7 +50,7 @@ class LoginViewModel extends ChangeNotifier {
           _mensajeError = 'Credenciales inválidas. Verifique sus datos.';
           break;
         default:
-          _mensajeError = 'Error de autenticación: ${e.message}';
+          _mensajeError = 'Error de autenticación: ${e.detalle}';
       }
     } catch (e) {
       _estadoCarga = EstadoCarga.error;
@@ -65,44 +66,36 @@ class LoginViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      if (googleUser == null) {
+      final usuario = await _authRepo.iniciarConGoogle();
+      if (usuario == null) {
         _estadoCarga = EstadoCarga.inicial;
         notifyListeners();
         return;
       }
 
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
+      final perfilExistente =
+          await _perfilRepo.cargarPerfilUsuario(usuario.uid);
 
-      final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-
-      UserCredential userCredential =
-          await _auth.signInWithCredential(credential);
-      final user = userCredential.user;
-
-      if (user != null) {
-        final perfilExistente = await _perfilService.obtenerPerfil(user.uid);
-
-        if (perfilExistente == null || perfilExistente.isEmpty) {
-          _esNuevoUsuario = true;
-          await _perfilService.guardarPerfil(user.uid, {
-            'nombre': user.displayName ?? 'Sin nombre',
-            'correo': user.email ?? '',
-            'dni': '',
-            'fechaNacimiento': '',
-            'telefono': user.phoneNumber ?? '',
-            'obraSocial': '',
-          });
-        } else {
-          _esNuevoUsuario = false;
-        }
+      if (perfilExistente == null || perfilExistente.isEmpty) {
+        _esNuevoUsuario = true;
+        await _perfilRepo.guardarPerfil(usuario.uid, {
+          'nombre': usuario.nombreVisible ?? 'Sin nombre',
+          'correo': usuario.correo ?? '',
+          'dni': '',
+          'fechaNacimiento': '',
+          'telefono': usuario.telefono ?? '',
+          'obraSocial': '',
+        });
+      } else {
+        _esNuevoUsuario = false;
       }
 
       _estadoCarga = EstadoCarga.exito;
+    } on AuthException catch (e) {
+      // Conserva el texto que mostraba el error original de Firebase.
+      _estadoCarga = EstadoCarga.error;
+      _mensajeError =
+          'No se pudo iniciar sesión con Google: ${e.textoOriginal}';
     } catch (e) {
       _estadoCarga = EstadoCarga.error;
       _mensajeError = 'No se pudo iniciar sesión con Google: $e';

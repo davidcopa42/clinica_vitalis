@@ -8,13 +8,36 @@ import 'package:flutter_test/flutter_test.dart';
 
 /// Usuario de Firebase falso con solo los datos que lee el repositorio.
 class FakeUser extends Fake implements User {
-  FakeUser({required this.uid, this.emailVerified = false});
+  FakeUser({
+    required this.uid,
+    this.emailVerified = false,
+    this.displayName,
+    this.email,
+    this.phoneNumber,
+  });
 
   @override
   final String uid;
 
   @override
   final bool emailVerified;
+
+  @override
+  final String? displayName;
+
+  @override
+  final String? email;
+
+  @override
+  final String? phoneNumber;
+}
+
+/// Credencial falsa que solo expone el usuario.
+class FakeUserCredential extends Fake implements UserCredential {
+  FakeUserCredential(this.user);
+
+  @override
+  final User? user;
 }
 
 /// Servicio de autenticacion falso: registra llamadas y puede lanzar errores.
@@ -46,8 +69,11 @@ class FakeAuthService implements AuthService {
   @override
   Future<UserCredential?> iniciarConGoogle() async {
     await _registrar('google');
-    return null;
+    return credencialDeGoogle;
   }
+
+  /// Lo que devuelve iniciarConGoogle; null simula que el usuario canceló.
+  UserCredential? credencialDeGoogle;
 
   @override
   Future<void> enviarVerificacion() => _registrar('verificacion');
@@ -142,6 +168,58 @@ void main() {
       await expectLater(
         repositorio.actualizarNombreVisible('Ana López'),
         throwsA(isA<FirebaseAuthException>()),
+      );
+    });
+  });
+
+  group('iniciarConGoogle', () {
+    test('si el usuario cancela devuelve null', () async {
+      expect(await repositorio.iniciarConGoogle(), isNull);
+    });
+
+    test('devuelve los datos del usuario de Google', () async {
+      servicio.credencialDeGoogle = FakeUserCredential(
+        FakeUser(
+          uid: 'uid-google',
+          displayName: 'Ana López',
+          email: 'ana@gmail.com',
+          phoneNumber: '+54261',
+        ),
+      );
+
+      final usuario = await repositorio.iniciarConGoogle();
+
+      expect(usuario!.uid, 'uid-google');
+      expect(usuario.nombreVisible, 'Ana López');
+      expect(usuario.correo, 'ana@gmail.com');
+      expect(usuario.telefono, '+54261');
+    });
+  });
+
+  group('datos transitorios de AuthException', () {
+    test('conserva codigo, detalle y texto del error original', () async {
+      final original = FirebaseAuthException(
+        code: 'user-disabled',
+        message: 'The user account has been disabled.',
+      );
+      servicio.error = original;
+
+      await expectLater(
+        repositorio.iniciarConCorreo('a@b.com', 'clave'),
+        throwsA(
+          isA<AuthException>()
+              .having((e) => e.codigo, 'codigo', 'user-disabled')
+              .having(
+                (e) => e.detalle,
+                'detalle',
+                'The user account has been disabled.',
+              )
+              .having(
+                (e) => e.textoOriginal,
+                'textoOriginal',
+                original.toString(),
+              ),
+        ),
       );
     });
   });

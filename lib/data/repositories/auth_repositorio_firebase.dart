@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 
+import '../../domain/models/usuario_autenticado.dart';
 import '../services/auth_service.dart';
 import 'auth_repository.dart';
 
@@ -41,9 +42,17 @@ class AuthRepositorioFirebase implements AuthRepository {
   }
 
   @override
-  Future<void> iniciarConGoogle() async {
+  Future<UsuarioAutenticado?> iniciarConGoogle() async {
     try {
-      await _authService.iniciarConGoogle();
+      final credencial = await _authService.iniciarConGoogle();
+      final usuario = credencial?.user;
+      if (usuario == null) return null;
+      return UsuarioAutenticado(
+        uid: usuario.uid,
+        nombreVisible: usuario.displayName,
+        correo: usuario.email,
+        telefono: usuario.phoneNumber,
+      );
     } on FirebaseAuthException catch (e) {
       throw _traducirError(e);
     }
@@ -89,23 +98,32 @@ class AuthRepositorioFirebase implements AuthRepository {
   }
 
   AuthException _traducirError(FirebaseAuthException e) {
-    switch (e.code) {
+    return AuthException(
+      _mensajePara(e.code),
+      codigo: e.code,
+      detalle: e.message,
+      textoOriginal: e.toString(),
+    );
+  }
+
+  String _mensajePara(String codigo) {
+    switch (codigo) {
       case 'invalid-email':
-        return AuthException('El correo no es válido.');
+        return 'El correo no es válido.';
       case 'invalid-credential':
       case 'wrong-password':
       case 'user-not-found':
-        return AuthException('Correo o contraseña incorrectos.');
+        return 'Correo o contraseña incorrectos.';
       case 'email-already-in-use':
-        return AuthException('Ya existe una cuenta con ese correo.');
+        return 'Ya existe una cuenta con ese correo.';
       case 'weak-password':
-        return AuthException('La contraseña es muy débil.');
+        return 'La contraseña es muy débil.';
       case 'network-request-failed':
-        return AuthException('Sin conexión. Revisá internet.');
+        return 'Sin conexión. Revisá internet.';
       case 'too-many-requests':
-        return AuthException('Demasiados intentos. Probá en unos minutos.');
+        return 'Demasiados intentos. Probá en unos minutos.';
       default:
-        return AuthException('Ocurrió un error al autenticar.');
+        return 'Ocurrió un error al autenticar.';
     }
   }
 }
