@@ -122,6 +122,29 @@ void main() {
     });
 
     test(
+        'un perfil recien registrado (fechaNacimiento vacia) queda '
+        'incompleto pero con el paciente cargado', () async {
+      final authRepo = FakeAuthRepository(
+          uidSimulado: '123', correoVerificadoSimulado: true);
+      final perfilRepo = FakePerfilRepository(datosPerfilSimulados: {
+        'uid': '123',
+        'nombre': 'Ana',
+        'apellido': 'López',
+        'correo': 'ana@test.com',
+        'telefono': '',
+        'dni': '',
+        'fechaNacimiento': '',
+      });
+
+      final sesionViewModel =
+          SesionViewModel(authRepo: authRepo, perfilRepo: perfilRepo);
+      await Future.delayed(const Duration(milliseconds: 50));
+
+      expect(sesionViewModel.estadoSesion, EstadoSesion.perfilIncompleto);
+      expect(sesionViewModel.pacienteActual?.nombre, 'Ana');
+    });
+
+    test(
         'Debe retornar lista si el usuario está verificado y el perfil está completo',
         () async {
       final authRepo = FakeAuthRepository(

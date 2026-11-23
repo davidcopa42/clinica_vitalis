@@ -30,13 +30,23 @@ void main() {
       expect(paciente.nombreCompleto, 'Ana López');
     });
 
-    // Bug conocido (Fase D, bug 1): el registro y el primer login con Google
-    // guardan fechaNacimiento como '' y fromMap no lo tolera.
-    test('BUG CONOCIDO: fechaNacimiento vacia lanza FormatException', () {
-      expect(
-        () => Paciente.fromMap(const {'nombre': 'Ana', 'fechaNacimiento': ''}),
-        throwsFormatException,
+    // Bug 1: el registro y el primer login con Google guardan
+    // fechaNacimiento como ''.
+    test('fechaNacimiento vacia se lee como sin fecha', () {
+      final paciente =
+          Paciente.fromMap(const {'nombre': 'Ana', 'fechaNacimiento': ''});
+
+      expect(paciente.nombre, 'Ana');
+      expect(paciente.fechaNacimiento, isNull);
+      expect(paciente.perfilCompleto, isFalse);
+    });
+
+    test('fechaNacimiento con texto que no es fecha se lee como sin fecha', () {
+      final paciente = Paciente.fromMap(
+        const {'nombre': 'Ana', 'fechaNacimiento': 'no-es-fecha'},
       );
+
+      expect(paciente.fechaNacimiento, isNull);
     });
 
     // Bug conocido (Fase D, bug 2): el registro guarda la clave 'photoUrl'
