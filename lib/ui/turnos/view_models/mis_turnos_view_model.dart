@@ -71,28 +71,37 @@ class MisTurnosViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Cancela un turno y actualiza la lista.
+  /// Cancela un turno, lo saca de la lista y quita su recordatorio.
+  ///
+  /// Devuelve true si el turno quedó cancelado en el repositorio.
   Future<bool> cancelar(Turno turno) async {
-    if (turno.id == null) return false;
+    final id = turno.id;
+    if (id == null) return false;
 
-    _turnoCancelando = turno.id;
+    _turnoCancelando = id;
     _error = null;
     notifyListeners();
 
     try {
-      await _repositorio.cancelarTurno(turno.id!);
-      await _recordatorioRepository.cancelarRecordatorio(turno.id!);
-
-      _turnos =
-          _turnos.where((turnoActual) => turnoActual.id != turno.id).toList();
-
-      return true;
+      await _repositorio.cancelarTurno(id);
+      _turnos = _turnos.where((turnoActual) => turnoActual.id != id).toList();
     } catch (_) {
       _error = 'No se pudo cancelar el turno. Probá de nuevo.';
       return false;
     } finally {
       _turnoCancelando = null;
       notifyListeners();
+    }
+
+    await _cancelarRecordatorio(id);
+    return true;
+  }
+
+  Future<void> _cancelarRecordatorio(int turnoId) async {
+    try {
+      await _recordatorioRepository.cancelarRecordatorio(turnoId);
+    } catch (_) {
+      // El turno ya quedó cancelado; un recordatorio sin quitar no lo revierte.
     }
   }
 }

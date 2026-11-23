@@ -130,16 +130,19 @@ void main() {
     });
 
     test(
-        'si falla quitar el recordatorio devuelve false aunque el turno '
-        'ya se cancelo en el repositorio', () async {
+        'si falla quitar el recordatorio igual refleja la cancelacion '
+        'que ya se hizo en el repositorio', () async {
       await viewModel.cargar('paciente-1');
       recordatorios.errorAlCancelar = Exception('falla');
 
       final cancelado = await viewModel.cancelar(viewModel.turnos.first);
 
-      expect(cancelado, isFalse);
+      expect(cancelado, isTrue);
       expect(repositorio.turnosCancelados, [1]);
-      expect(viewModel.turnos.map((turno) => turno.id), [1, 2]);
+      expect(recordatorios.recordatoriosCancelados, [1]);
+      expect(viewModel.turnos.map((turno) => turno.id), [2]);
+      expect(viewModel.error, isNull);
+      expect(viewModel.estaCancelando(viewModel.turnos.first), isFalse);
     });
   });
 
