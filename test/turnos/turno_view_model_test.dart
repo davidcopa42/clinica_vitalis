@@ -423,14 +423,17 @@ void main() {
     });
 
     test(
-        'si falla el recordatorio el error se propaga, pero el turno ya '
-        'quedo guardado, sin borrador y con el evento publicado', () async {
+        'si falla el recordatorio igual devuelve el turno guardado, '
+        'sin borrador y con el evento publicado', () async {
       await completarFormulario();
       recordatorios.errorAlProgramar = Exception('sin permiso');
 
-      await expectLater(viewModel.confirmar(paciente), throwsException);
+      final turno = await viewModel.confirmar(paciente);
       await pumpEventQueue();
 
+      expect(turno, isNotNull);
+      expect(turno!.id, isNotNull);
+      expect(recordatorios.turnosProgramados, [turno]);
       expect(repositorio.turnosGuardados, hasLength(1));
       expect(viewModel.guardando, isFalse);
       expect(viewModel.error, isNull);

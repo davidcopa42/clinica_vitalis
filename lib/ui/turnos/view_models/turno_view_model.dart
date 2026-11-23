@@ -157,7 +157,7 @@ class TurnoViewModel extends ChangeNotifier {
 
   /// Valida y guarda el turno, y programa su recordatorio.
   ///
-  /// Devuelve el turno guardado, o null si falló
+  /// Devuelve el turno guardado, o null si no se pudo guardar.
   Future<Turno?> confirmar(Paciente paciente) async {
     if (_especialidadSeleccionada == null ||
         _profesionalSeleccionado == null ||
@@ -206,9 +206,16 @@ class TurnoViewModel extends ChangeNotifier {
       notifyListeners();
     }
 
-    // Fuera del try: si falla, el error se propaga a la vista como antes.
-    await _recordatorioRepository.programarRecordatorio(turnoGuardado);
+    await _programarRecordatorio(turnoGuardado);
     return turnoGuardado;
+  }
+
+  Future<void> _programarRecordatorio(Turno turno) async {
+    try {
+      await _recordatorioRepository.programarRecordatorio(turno);
+    } catch (_) {
+      // El turno ya quedó guardado; sin recordatorio sigue siendo válido.
+    }
   }
 
   /// Restaura del borrador lo que siga siendo válido, en orden:
