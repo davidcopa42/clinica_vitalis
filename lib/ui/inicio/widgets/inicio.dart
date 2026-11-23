@@ -10,6 +10,8 @@ import '../../informacion/widgets/informacion_page.dart';
 import '../../perfil/view_models/perfil_view_model.dart';
 import '../../perfil/widgets/perfil.dart';
 import '../../sintomas/widgets/sintomas_page.dart';
+import '../../turnos/view_models/mis_turnos_view_model.dart';
+import '../../turnos/view_models/turno_view_model.dart';
 import '../../turnos/widgets/mis_turnos.dart';
 import '../../turnos/widgets/solicitar_turno.dart';
 import '../view_models/inicio_view_model.dart';
@@ -52,6 +54,46 @@ class _InicioPageState extends State<InicioPage> {
     );
     _conectividadViewModel = ConectividadViewModel(
       repositorio: dependencias.conectividadRepository,
+    );
+  }
+
+  /// Crea el ViewModel de Solicitar turno y abre la pantalla.
+  void _abrirSolicitarTurno() {
+    final dependencias = widget.dependencias;
+    final viewModel = TurnoViewModel(
+      repositorio: dependencias.turnoRepository,
+      borradorRepository: dependencias.borradorRepository,
+      recordatorioRepository: dependencias.recordatorioRepository,
+      busDeEventos: dependencias.busDeEventos,
+    );
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TurnoPage(
+          paciente: widget.paciente,
+          viewModel: viewModel,
+        ),
+      ),
+    );
+  }
+
+  /// Crea el ViewModel de Mis turnos y abre la pantalla.
+  void _abrirMisTurnos() {
+    final dependencias = widget.dependencias;
+    final viewModel = MisTurnosViewModel(
+      repositorio: dependencias.turnoRepository,
+      recordatorioRepository: dependencias.recordatorioRepository,
+      busDeEventos: dependencias.busDeEventos,
+      pacienteUid: widget.paciente.uid,
+    );
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MisTurnosPage(
+          paciente: widget.paciente,
+          viewModel: viewModel,
+        ),
+      ),
     );
   }
 
@@ -209,17 +251,7 @@ class _InicioPageState extends State<InicioPage> {
                       trailing: const Icon(
                         Icons.chevron_right,
                       ),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => TurnoPage(
-                              paciente: widget.paciente,
-                              busDeEventos: widget.dependencias.busDeEventos,
-                            ),
-                          ),
-                        );
-                      },
+                      onTap: _abrirSolicitarTurno,
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -229,17 +261,7 @@ class _InicioPageState extends State<InicioPage> {
                       title: const Text('Mis turnos'),
                       subtitle: const Text('Consultá y cancelá tus turnos.'),
                       trailing: const Icon(Icons.chevron_right),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => MisTurnosPage(
-                              paciente: widget.paciente,
-                              busDeEventos: widget.dependencias.busDeEventos,
-                            ),
-                          ),
-                        );
-                      },
+                      onTap: _abrirMisTurnos,
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -256,17 +278,7 @@ class _InicioPageState extends State<InicioPage> {
                           context,
                           MaterialPageRoute(
                             builder: (context) => SintomasPage(
-                              onSolicitarTurno: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => TurnoPage(
-                                      paciente: widget.paciente,
-                                      busDeEventos: widget.dependencias.busDeEventos,
-                                    ),
-                                  ),
-                                );
-                              },
+                              onSolicitarTurno: _abrirSolicitarTurno,
                             ),
                           ),
                         );

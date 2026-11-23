@@ -1,8 +1,3 @@
-import 'package:clinica_vitalis/data/repositories/recordatorio_repositorio_local.dart';
-import 'package:clinica_vitalis/data/repositories/turno_repositorio_local.dart';
-import 'package:clinica_vitalis/data/services/base_datos_service.dart';
-import 'package:clinica_vitalis/data/services/bus_de_eventos.dart';
-import 'package:clinica_vitalis/data/services/notificaciones_service.dart';
 import 'package:clinica_vitalis/domain/models/paciente.dart';
 import 'package:clinica_vitalis/domain/models/turno.dart';
 import 'package:clinica_vitalis/ui/core/estado_carga.dart';
@@ -15,31 +10,24 @@ class MisTurnosPage extends StatefulWidget {
   const MisTurnosPage({
     super.key,
     required this.paciente,
-    required this.busDeEventos,
+    required this.viewModel,
   });
 
   final Paciente paciente;
-  final BusDeEventos busDeEventos;
+
+  /// Lo crea quien abre la pantalla; la pantalla lo descarta al cerrarse.
+  final MisTurnosViewModel viewModel;
 
   @override
   State<MisTurnosPage> createState() => _MisTurnosPageState();
 }
 
 class _MisTurnosPageState extends State<MisTurnosPage> {
-  late final MisTurnosViewModel _viewModel;
+  MisTurnosViewModel get _viewModel => widget.viewModel;
 
   @override
   void initState() {
     super.initState();
-    _viewModel = MisTurnosViewModel(
-      repositorio: TurnoRepositorioLocal(baseDatos: BaseDatosService()),
-      recordatorioRepository: RecordatorioRepositorioLocal(
-        notificacionesService: NotificacionesService(),
-      ),
-      busDeEventos: widget.busDeEventos,
-      pacienteUid: widget.paciente.uid, // Pasamos el UID al ViewModel
-    );
-
     _viewModel.cargar(widget.paciente.uid);
   }
 

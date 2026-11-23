@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 
-import '../../../data/services/bus_de_eventos.dart';
+import '../../../dependencias.dart';
 import '../../../domain/models/paciente.dart';
+import '../../turnos/view_models/turno_view_model.dart';
 import '../../turnos/widgets/solicitar_turno.dart';
 
 class RegistroPage extends StatefulWidget {
-  const RegistroPage({super.key, required this.busDeEventos});
+  const RegistroPage({super.key, required this.dependencias});
 
-  final BusDeEventos busDeEventos;
+  final Dependencias dependencias;
 
   @override
   State<RegistroPage> createState() => _RegistroPageState();
@@ -103,12 +104,20 @@ class _RegistroPageState extends State<RegistroPage> {
                 if (_codigoController.text == '1234') {
                   Navigator.pop(dialogContext);
 
+                  final dependencias = widget.dependencias;
+                  final viewModel = TurnoViewModel(
+                    repositorio: dependencias.turnoRepository,
+                    borradorRepository: dependencias.borradorRepository,
+                    recordatorioRepository:
+                        dependencias.recordatorioRepository,
+                    busDeEventos: dependencias.busDeEventos,
+                  );
                   Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => TurnoPage(
                         paciente: paciente,
-                        busDeEventos: widget.busDeEventos,
+                        viewModel: viewModel,
                       ),
                     ),
                   );

@@ -1,10 +1,3 @@
-import 'package:clinica_vitalis/data/repositories/borrador_repositorio_local.dart';
-import 'package:clinica_vitalis/data/repositories/recordatorio_repositorio_local.dart';
-import 'package:clinica_vitalis/data/repositories/turno_repositorio_local.dart';
-import 'package:clinica_vitalis/data/services/base_datos_service.dart';
-import 'package:clinica_vitalis/data/services/borrador_service.dart';
-import 'package:clinica_vitalis/data/services/bus_de_eventos.dart';
-import 'package:clinica_vitalis/data/services/notificaciones_service.dart';
 import 'package:clinica_vitalis/domain/models/paciente.dart';
 import 'package:clinica_vitalis/ui/core/estado_carga.dart';
 import 'package:clinica_vitalis/ui/core/formato.dart';
@@ -16,32 +9,26 @@ class TurnoPage extends StatefulWidget {
   const TurnoPage({
     super.key,
     required this.paciente,
-    required this.busDeEventos,
+    required this.viewModel,
   });
 
   final Paciente paciente;
-  final BusDeEventos busDeEventos;
+
+  /// Lo crea quien abre la pantalla; la pantalla lo descarta al cerrarse.
+  final TurnoViewModel viewModel;
 
   @override
   State<TurnoPage> createState() => _TurnoPageState();
 }
 
 class _TurnoPageState extends State<TurnoPage> {
-  late final TurnoViewModel _viewModel;
   late final AppLifecycleListener _cicloDeVida;
+
+  TurnoViewModel get _viewModel => widget.viewModel;
 
   @override
   void initState() {
     super.initState();
-    _viewModel = TurnoViewModel(
-      repositorio: TurnoRepositorioLocal(baseDatos: BaseDatosService()),
-      borradorRepository:
-          BorradorRepositorioLocal(borradorService: BorradorService()),
-      recordatorioRepository: RecordatorioRepositorioLocal(
-        notificacionesService: NotificacionesService(),
-      ),
-      busDeEventos: widget.busDeEventos,
-    );
     _viewModel.cargar();
 
     // Vinculamos los eventos del ciclo de vida a los métodos del ViewModel
