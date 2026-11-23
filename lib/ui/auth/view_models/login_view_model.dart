@@ -5,6 +5,9 @@ import '../../../data/repositories/perfil_repository.dart';
 import '../../core/estado_carga.dart';
 
 class LoginViewModel extends ChangeNotifier {
+  /// Nombre del perfil cuando la cuenta de Google no informa uno.
+  static const _nombrePorDefecto = 'Sin nombre';
+
   LoginViewModel({
     required AuthRepository authRepository,
     required PerfilRepository perfilRepository,
@@ -61,7 +64,7 @@ class LoginViewModel extends ChangeNotifier {
       if (perfilExistente == null || perfilExistente.isEmpty) {
         _esNuevoUsuario = true;
         await _perfilRepo.guardarPerfil(usuario.uid, {
-          'nombre': usuario.nombreVisible ?? 'Sin nombre',
+          'nombre': usuario.nombreVisible ?? _nombrePorDefecto,
           'correo': usuario.correo ?? '',
           'dni': '',
           'fechaNacimiento': '',

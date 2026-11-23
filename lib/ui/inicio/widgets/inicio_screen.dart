@@ -5,6 +5,7 @@ import '../../../domain/models/paciente.dart';
 import '../../auth/view_models/sesion_view_model.dart';
 import '../../conectividad/view_models/conectividad_view_model.dart';
 import '../../conectividad/widgets/aviso_sin_conexion.dart';
+import '../../core/duraciones.dart';
 import '../../historia_clinica/view_models/historia_clinica_view_model.dart';
 import '../../historia_clinica/widgets/historia_clinica_screen.dart';
 import '../../informacion/widgets/informacion_screen.dart';
@@ -137,7 +138,7 @@ class _InicioScreenState extends State<InicioScreen> {
       SnackBar(
         content: Text(aviso),
         backgroundColor: Colors.green,
-        duration: const Duration(seconds: 4),
+        duration: duracionAvisoLargo,
       ),
     );
     _inicioViewModel.descartarAviso();

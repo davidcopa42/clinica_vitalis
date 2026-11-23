@@ -14,6 +14,8 @@ class CrearCuentaScreen extends StatefulWidget {
 }
 
 class _CrearCuentaScreenState extends State<CrearCuentaScreen> {
+  static const _longitudMinimaContrasena = 8;
+
   final _formKey = GlobalKey<FormState>();
   final _nombreController = TextEditingController();
   final _apellidoController = TextEditingController();
@@ -58,7 +60,7 @@ class _CrearCuentaScreenState extends State<CrearCuentaScreen> {
     if (valor == null || valor.isEmpty) {
       return 'Ingrese su contraseña';
     }
-    if (valor.length < 8) {
+    if (valor.length < _longitudMinimaContrasena) {
       return 'Debe tener al menos 8 caracteres';
     }
     if (!valor.contains(RegExp(r'[a-zA-Z]'))) {

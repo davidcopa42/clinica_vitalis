@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/duraciones.dart';
 import '../view_models/recuperar_contrasena_view_model.dart';
 
 class RecuperarContrasenaScreen extends StatefulWidget {
@@ -32,7 +33,7 @@ class _RecuperarContrasenaScreenState extends State<RecuperarContrasenaScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Si el correo está registrado, te llegará un enlace'),
-            duration: Duration(seconds: 4),
+            duration: duracionAvisoLargo,
           ),
         );
         Navigator.pop(context);

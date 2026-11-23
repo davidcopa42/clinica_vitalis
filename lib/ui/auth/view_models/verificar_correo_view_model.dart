@@ -9,6 +9,10 @@ import '../../../data/repositories/auth_repository.dart';
 /// Revisa periódicamente si el usuario ya verificó su correo y controla
 /// la espera para volver a reenviar el enlace.
 class VerificarCorreoViewModel extends ChangeNotifier {
+  static const _intervaloVerificacion = Duration(seconds: 3);
+  static const _segundosEsperaReenvio = 60;
+  static const _intervaloCuentaRegresiva = Duration(seconds: 1);
+
   VerificarCorreoViewModel({
     required AuthRepository authRepository,
     required void Function() alVerificarCorreo,
@@ -30,7 +34,7 @@ class VerificarCorreoViewModel extends ChangeNotifier {
   /// Empieza a revisar cada 3 segundos si el correo ya fue verificado.
   void iniciarVerificacionAutomatica() {
     _timerVerificacionAutomatica = Timer.periodic(
-      const Duration(seconds: 3),
+      _intervaloVerificacion,
       (_) => comprobarVerificacion(),
     );
   }
@@ -64,10 +68,10 @@ class VerificarCorreoViewModel extends ChangeNotifier {
 
   void _iniciarTemporizadorReenvio() {
     _puedeReenviar = false;
-    _segundosRestantes = 60;
+    _segundosRestantes = _segundosEsperaReenvio;
     notifyListeners();
 
-    _timerReenvio = Timer.periodic(const Duration(seconds: 1), (timer) {
+    _timerReenvio = Timer.periodic(_intervaloCuentaRegresiva, (timer) {
       if (_segundosRestantes > 0) {
         _segundosRestantes--;
       } else {

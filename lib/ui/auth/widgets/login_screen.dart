@@ -25,6 +25,8 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  static const _longitudMinimaContrasena = 6;
+
   final _formKey = GlobalKey<FormState>();
   final _correoController = TextEditingController();
   final _contrasenaController = TextEditingController();
@@ -144,7 +146,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           if (valor == null || valor.isEmpty) {
                             return 'Por favor ingrese su contraseña';
                           }
-                          if (valor.length < 6) {
+                          if (valor.length < _longitudMinimaContrasena) {
                             return 'Debe tener al menos 6 caracteres';
                           }
                           return null;
