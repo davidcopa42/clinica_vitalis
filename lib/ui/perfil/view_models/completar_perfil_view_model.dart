@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import '../../../data/repositories/auth_repository.dart';
 import '../../../data/repositories/perfil_repository.dart';
 import '../../../domain/models/obra_social.dart';
+import '../../../domain/models/paciente.dart';
 import '../../core/estado_carga.dart';
 
 /// Estado y lógica de la pantalla Completar perfil.
@@ -52,17 +53,19 @@ class CompletarPerfilViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await _perfilRepo.guardarPerfil(uid, {
-        'nombre': nombre.trim(),
-        'apellido': apellido.trim(),
-        'correo': correo,
-        'dni': dni.trim(),
-        'fechaNacimiento': fechaNacimiento?.toIso8601String() ?? '',
-        'telefono': telefono.trim(),
-        'obraSocial': obraSocial,
-        'numeroAfiliado':
+      final paciente = Paciente(
+        uid: uid,
+        nombre: nombre.trim(),
+        apellido: apellido.trim(),
+        correo: correo,
+        dni: dni.trim(),
+        fechaNacimiento: fechaNacimiento,
+        telefono: telefono.trim(),
+        obraSocial: obraSocial,
+        numeroAfiliado:
             obraSocial == obraSocialParticular ? '' : numeroAfiliado.trim(),
-      });
+      );
+      await _perfilRepo.guardarPerfil(uid, paciente.toMap());
       _estado = EstadoCarga.exito;
       return null;
     } catch (error) {

@@ -105,14 +105,16 @@ void main() {
       expect(error, isNull);
       expect(perfiles.uidGuardado, 'uid-1');
       expect(perfiles.datosGuardados, {
+        'uid': 'uid-1',
         'nombre': 'Ana',
         'apellido': 'López',
         'correo': 'ana@test.com',
+        'telefono': '261555',
         'dni': '30111222',
         'fechaNacimiento': fecha.toIso8601String(),
-        'telefono': '261555',
         'obraSocial': 'OSDE',
         'numeroAfiliado': '9876',
+        'fotoUrl': null,
       });
       expect(guardando, [true, false]);
       expect(viewModel.estado, EstadoCarga.exito);
@@ -124,10 +126,10 @@ void main() {
       expect(perfiles.datosGuardados!['numeroAfiliado'], '');
     });
 
-    test('sin fecha de nacimiento guarda texto vacio', () async {
+    test('sin fecha de nacimiento la guarda como null', () async {
       await guardar();
 
-      expect(perfiles.datosGuardados!['fechaNacimiento'], '');
+      expect(perfiles.datosGuardados!['fechaNacimiento'], isNull);
     });
 
     test('si falla devuelve el mensaje de error', () async {

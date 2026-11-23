@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../data/repositories/auth_repository.dart';
 import '../../../data/repositories/perfil_repository.dart';
 import '../../../domain/models/obra_social.dart';
+import '../../../domain/models/paciente.dart';
 import '../../core/estado_carga.dart';
 
 class CrearCuentaViewModel extends ChangeNotifier {
@@ -40,17 +41,16 @@ class CrearCuentaViewModel extends ChangeNotifier {
       final uid = _authRepo.uidActual;
 
       if (uid != null) {
-        await _perfilRepo.guardarPerfil(uid, {
-          'nombre': nombre.trim(),
-          'apellido': apellido.trim(),
-          'correo': correo.trim(),
-          'telefono': '',
-          'dni': '',
-          'fechaNacimiento': '',
-          'obraSocial': obraSocialParticular,
-          'numeroAfiliado': '',
-          'fotoUrl': '',
-        });
+        final pacienteNuevo = Paciente(
+          uid: uid,
+          nombre: nombre.trim(),
+          apellido: apellido.trim(),
+          correo: correo.trim(),
+          obraSocial: obraSocialParticular,
+          numeroAfiliado: '',
+          fotoUrl: '',
+        );
+        await _perfilRepo.guardarPerfil(uid, pacienteNuevo.toMap());
 
         await _authRepo.enviarVerificacion();
       }

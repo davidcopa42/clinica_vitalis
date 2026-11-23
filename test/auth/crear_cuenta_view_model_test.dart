@@ -146,13 +146,16 @@ void main() {
 
       // fechaNacimiento '' se lee como sin fecha (bug 1) y la foto usa la
       // misma clave que lee Paciente, fotoUrl (bug 2).
+      // Formato de Paciente.toMap: incluye el uid y la fecha sin cargar
+      // queda en null.
       expect(perfiles.perfilGuardado, {
+        'uid': 'uid-nuevo',
         'nombre': 'Ana',
         'apellido': 'López',
         'correo': 'ana@test.com',
         'telefono': '',
         'dni': '',
-        'fechaNacimiento': '',
+        'fechaNacimiento': null,
         'obraSocial': 'Particular',
         'numeroAfiliado': '',
         'fotoUrl': '',

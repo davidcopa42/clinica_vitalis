@@ -182,13 +182,19 @@ void main() {
       expect(perfiles.consultados, ['uid-google']);
       final (uid, datos) = perfiles.guardados.single;
       expect(uid, 'uid-google');
+      // Formato de Paciente.toMap: el perfil queda incompleto hasta que el
+      // paciente lo termine de cargar.
       expect(datos, {
+        'uid': 'uid-google',
         'nombre': 'Ana López',
+        'apellido': '',
         'correo': 'ana@gmail.com',
-        'dni': '',
-        'fechaNacimiento': '',
         'telefono': '+54261',
+        'dni': '',
+        'fechaNacimiento': null,
         'obraSocial': '',
+        'numeroAfiliado': null,
+        'fotoUrl': null,
       });
       expect(viewModel.esNuevoUsuario, isTrue);
       expect(estados, [EstadoCarga.cargando, EstadoCarga.exito]);
@@ -203,6 +209,17 @@ void main() {
       expect(datos['nombre'], 'Sin nombre');
       expect(datos['correo'], '');
       expect(datos['telefono'], '');
+    });
+
+    test('el perfil creado con Google se lee como Paciente incompleto',
+        () async {
+      await viewModel.iniciarSesionConGoogle();
+
+      final (_, datos) = perfiles.guardados.single;
+      final paciente = Paciente.fromMap(datos);
+      expect(paciente.uid, 'uid-google');
+      expect(paciente.nombre, 'Ana López');
+      expect(paciente.perfilCompleto, isFalse);
     });
 
     test('un perfil vacio cuenta como primer ingreso', () async {

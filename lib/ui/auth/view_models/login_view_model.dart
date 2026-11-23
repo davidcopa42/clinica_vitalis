@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../data/repositories/auth_repository.dart';
 import '../../../data/repositories/perfil_repository.dart';
+import '../../../domain/models/paciente.dart';
 import '../../core/estado_carga.dart';
 
 class LoginViewModel extends ChangeNotifier {
@@ -63,14 +64,15 @@ class LoginViewModel extends ChangeNotifier {
 
       if (perfilExistente == null || perfilExistente.isEmpty) {
         _esNuevoUsuario = true;
-        await _perfilRepo.guardarPerfil(usuario.uid, {
-          'nombre': usuario.nombreVisible ?? _nombrePorDefecto,
-          'correo': usuario.correo ?? '',
-          'dni': '',
-          'fechaNacimiento': '',
-          'telefono': usuario.telefono ?? '',
-          'obraSocial': '',
-        });
+        final pacienteNuevo = Paciente(
+          uid: usuario.uid,
+          nombre: usuario.nombreVisible ?? _nombrePorDefecto,
+          apellido: '',
+          correo: usuario.correo ?? '',
+          telefono: usuario.telefono ?? '',
+          obraSocial: '',
+        );
+        await _perfilRepo.guardarPerfil(usuario.uid, pacienteNuevo.toMap());
       } else {
         _esNuevoUsuario = false;
       }
