@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 
 import '../../../data/repositories/auth_repository.dart';
 import '../../../data/repositories/perfil_repository.dart';
+import '../../../domain/models/obra_social.dart';
 import '../../core/estado_carga.dart';
 
 /// Estado y lógica de la pantalla Completar perfil.
@@ -60,7 +61,7 @@ class CompletarPerfilViewModel extends ChangeNotifier {
         'telefono': telefono.trim(),
         'obraSocial': obraSocial,
         'numeroAfiliado':
-            obraSocial == 'Particular' ? '' : numeroAfiliado.trim(),
+            obraSocial == obraSocialParticular ? '' : numeroAfiliado.trim(),
       });
       _estado = EstadoCarga.exito;
       return null;

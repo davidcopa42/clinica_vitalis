@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../../domain/models/obra_social.dart';
 import '../view_models/completar_perfil_view_model.dart';
 import 'formulario_perfil.dart';
+import 'limites_fecha_nacimiento.dart';
 
 class CompletarPerfilScreen extends StatefulWidget {
   /// Lo crea y lo descarta PuertaSesion.
@@ -34,7 +36,7 @@ class _CompletarPerfilScreenState extends State<CompletarPerfilScreen> {
   final _telefonoController = TextEditingController();
   final _numeroAfiliadoController = TextEditingController();
 
-  String _obraSocialSeleccionada = 'Particular';
+  String _obraSocialSeleccionada = obraSocialParticular;
   DateTime? _fechaSeleccionada;
 
   CompletarPerfilViewModel get _viewModel => widget.viewModel;
@@ -62,8 +64,8 @@ class _CompletarPerfilScreenState extends State<CompletarPerfilScreen> {
   Future<void> _seleccionarFecha(BuildContext context) async {
     final DateTime? seleccion = await showDatePicker(
       context: context,
-      initialDate: DateTime.now().subtract(const Duration(days: 365 * 18)),
-      firstDate: DateTime(1900),
+      initialDate: DateTime.now().subtract(antiguedadSugeridaNacimiento),
+      firstDate: primeraFechaNacimiento,
       lastDate: DateTime.now(),
     );
 

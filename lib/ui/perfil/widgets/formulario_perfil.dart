@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 
+import '../../../domain/models/obra_social.dart';
+
 class FormularioPerfil extends StatelessWidget {
+  static final _patronDni = RegExp(r'^\d{7,8}$');
+  static final _patronTelefono = RegExp(r'^\d{8,15}$');
+
   final GlobalKey<FormState> formKey;
   final TextEditingController nombreController;
   final TextEditingController apellidoController;
@@ -77,7 +82,7 @@ class FormularioPerfil extends StatelessWidget {
               if (valor == null || valor.isEmpty) {
                 return 'Ingrese su DNI';
               }
-              if (!RegExp(r'^\d{7,8}$').hasMatch(valor)) {
+              if (!_patronDni.hasMatch(valor)) {
                 return 'Debe tener 7 u 8 dígitos';
               }
               return null;
@@ -113,7 +118,7 @@ class FormularioPerfil extends StatelessWidget {
               if (valor == null || valor.isEmpty) {
                 return 'Ingrese su teléfono';
               }
-              if (!RegExp(r'^\d{8,15}$').hasMatch(valor)) {
+              if (!_patronTelefono.hasMatch(valor)) {
                 return 'Debe tener entre 8 y 15 dígitos';
               }
               return null;
@@ -130,7 +135,10 @@ class FormularioPerfil extends StatelessWidget {
               prefixIcon: Icon(Icons.medical_services),
             ),
             items: const [
-              DropdownMenuItem(value: 'Particular', child: Text('Particular')),
+              DropdownMenuItem(
+                value: obraSocialParticular,
+                child: Text(obraSocialParticular),
+              ),
               DropdownMenuItem(value: 'OSDE', child: Text('OSDE')),
               DropdownMenuItem(
                   value: 'Swiss Medical', child: Text('Swiss Medical')),
@@ -144,7 +152,7 @@ class FormularioPerfil extends StatelessWidget {
           const SizedBox(height: 16),
 
           // Número de Afiliado (Solo aparece si no es Particular)
-          if (obraSocialValue != 'Particular')
+          if (obraSocialValue != obraSocialParticular)
             Padding(
               padding: const EdgeInsets.only(bottom: 16.0),
               child: TextFormField(

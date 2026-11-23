@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../../domain/models/obra_social.dart';
 import '../view_models/perfil_view_model.dart';
 import 'formulario_perfil.dart';
+import 'limites_fecha_nacimiento.dart';
 
 class EditarPerfilScreen extends StatefulWidget {
   final String uid;
@@ -47,9 +49,9 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
         text: widget.datosActuales['numeroAfiliado'] ?? '');
 
     _obraSocialSeleccionada =
-        widget.datosActuales['obraSocial'] ?? 'Particular';
+        widget.datosActuales['obraSocial'] ?? obraSocialParticular;
     const obrasValidas = [
-      'Particular',
+      obraSocialParticular,
       'OSDE',
       'Swiss Medical',
       'Galeno',
@@ -58,7 +60,7 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
       'Otra'
     ];
     if (!obrasValidas.contains(_obraSocialSeleccionada)) {
-      _obraSocialSeleccionada = 'Particular';
+      _obraSocialSeleccionada = obraSocialParticular;
     }
 
     final fechaStr = widget.datosActuales['fechaNacimiento'] as String?;
@@ -89,8 +91,8 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
     final DateTime? seleccion = await showDatePicker(
       context: context,
       initialDate: _fechaSeleccionada ??
-          DateTime.now().subtract(const Duration(days: 365 * 18)),
-      firstDate: DateTime(1900),
+          DateTime.now().subtract(antiguedadSugeridaNacimiento),
+      firstDate: primeraFechaNacimiento,
       lastDate: DateTime.now(),
     );
 
@@ -119,7 +121,7 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
                 '',
             'telefono': _telefonoController.text.trim(),
             'obraSocial': _obraSocialSeleccionada,
-            'numeroAfiliado': _obraSocialSeleccionada == 'Particular'
+            'numeroAfiliado': _obraSocialSeleccionada == obraSocialParticular
                 ? ''
                 : _numeroAfiliadoController.text.trim(),
           },

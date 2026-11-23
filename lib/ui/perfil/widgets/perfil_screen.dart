@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../../domain/models/obra_social.dart';
 import '../view_models/perfil_view_model.dart';
 import 'editar_perfil_screen.dart';
 
@@ -39,7 +40,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
     if (obraSocial == null || obraSocial.isEmpty) {
       return 'No registrado';
     }
-    if (obraSocial != 'Particular' &&
+    if (obraSocial != obraSocialParticular &&
         numeroAfiliado != null &&
         numeroAfiliado.isNotEmpty) {
       return '$obraSocial (Nº $numeroAfiliado)';

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../data/repositories/auth_repository.dart';
 import '../../../data/repositories/perfil_repository.dart';
+import '../../../domain/models/obra_social.dart';
 import '../../core/estado_carga.dart';
 
 class CrearCuentaViewModel extends ChangeNotifier {
@@ -46,7 +47,7 @@ class CrearCuentaViewModel extends ChangeNotifier {
           'telefono': '',
           'dni': '',
           'fechaNacimiento': '',
-          'obraSocial': 'Particular',
+          'obraSocial': obraSocialParticular,
           'numeroAfiliado': '',
           'photoUrl': '',
         });
