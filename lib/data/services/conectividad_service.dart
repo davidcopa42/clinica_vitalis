@@ -1,7 +1,7 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 
 /// Define la interfaz o contrato para la conectividad
-abstract class ServicioDeConectividad {
+abstract class ConectividadService {
   Stream<bool> get cambios;
   Future<bool> hayRed();
 }
@@ -10,7 +10,7 @@ abstract class ServicioDeConectividad {
 bool _hayAlgunaRed(List<ConnectivityResult> resultados) =>
     resultados.any((r) => r != ConnectivityResult.none);
 
-class ConectividadConPlus implements ServicioDeConectividad {
+class ConectividadConPlus implements ConectividadService {
   final Connectivity _connectivity = Connectivity();
 
   @override

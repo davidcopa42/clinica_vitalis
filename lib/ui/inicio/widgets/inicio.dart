@@ -4,6 +4,7 @@ import 'package:clinica_vitalis/data/services/perfil_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../../../data/repositories/conectividad_repositorio_local.dart';
 import '../../../data/services/conectividad_service.dart';
 import '../../../domain/models/paciente.dart';
 import '../../auth/view_models/sesion_view_model.dart';
@@ -49,7 +50,11 @@ class _InicioPageState extends State<InicioPage> {
     _perfilViewModel = PerfilViewModel(
       repository: PerfilRepositorioFirestore(perfilService: PerfilService()),
     );
-    _conectividadViewModel = ConectividadViewModel(servicio: ConectividadConPlus());
+    _conectividadViewModel = ConectividadViewModel(
+      repositorio: ConectividadRepositorioLocal(
+        conectividadService: ConectividadConPlus(),
+      ),
+    );
 
     // 5. Nos suscribimos a la "radio" para escuchar eventos en vivo
     _suscripcionEventos = widget.busDeEventos.stream.listen((evento) {
