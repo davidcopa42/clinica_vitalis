@@ -52,12 +52,12 @@ void main() async {
   );
 
   runApp(
-    MyApp(sesionViewModel: sesionViewModel, dependencias: dependencias),
+    ClinicaVitalisApp(sesionViewModel: sesionViewModel, dependencias: dependencias),
   );
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({
+class ClinicaVitalisApp extends StatelessWidget {
+  const ClinicaVitalisApp({
     super.key,
     required this.sesionViewModel,
     required this.dependencias,
