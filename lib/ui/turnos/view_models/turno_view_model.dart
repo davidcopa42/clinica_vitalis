@@ -56,11 +56,11 @@ class TurnoViewModel extends ChangeNotifier {
 
   /// Especialidades sin repetir.
   List<String> get especialidades =>
-      _profesionales.map((p) => p.especialidad).toSet().toList();
+      _profesionales.map((profesional) => profesional.especialidad).toSet().toList();
 
   /// Profesionales de la especialidad elegida.
   List<Profesional> get profesionalesDisponibles => _profesionales
-      .where((p) => p.especialidad == _especialidadSeleccionada)
+      .where((profesional) => profesional.especialidad == _especialidadSeleccionada)
       .toList();
 
   /// El horario se elige recién con profesional y fecha.
@@ -102,18 +102,18 @@ class TurnoViewModel extends ChangeNotifier {
 
       // 2. Leemos el borrador guardado
       final borrador = await _borradorRepository.obtenerBorradorTurno();
-      final espGuardada = borrador.especialidad;
-      final profGuardado = borrador.profesional;
+      final especialidadGuardada = borrador.especialidad;
+      final profesionalGuardado = borrador.profesional;
       final fechaGuardada = borrador.fecha;
       final horarioGuardado = borrador.horario;
 
       // 3. Restauramos la especialidad si es válida
-      if (espGuardada != null && especialidades.contains(espGuardada)) {
-        _especialidadSeleccionada = espGuardada;
+      if (especialidadGuardada != null && especialidades.contains(especialidadGuardada)) {
+        _especialidadSeleccionada = especialidadGuardada;
 
         // 4. Restauramos el profesional si existe
-        if (profGuardado != null && profesionalesDisponibles.any((p) => p.nombre == profGuardado)) {
-          _profesionalSeleccionado = profGuardado;
+        if (profesionalGuardado != null && profesionalesDisponibles.any((profesional) => profesional.nombre == profesionalGuardado)) {
+          _profesionalSeleccionado = profesionalGuardado;
 
           // 5. Restauramos la fecha si está guardada
           if (fechaGuardada != null) {

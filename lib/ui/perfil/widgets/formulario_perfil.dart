@@ -46,8 +46,8 @@ class FormularioPerfil extends StatelessWidget {
               border: OutlineInputBorder(),
               prefixIcon: Icon(Icons.person),
             ),
-            validator: (value) =>
-                value == null || value.isEmpty ? 'Requerido' : null,
+            validator: (valor) =>
+                valor == null || valor.isEmpty ? 'Requerido' : null,
           ),
           const SizedBox(height: 16),
 
@@ -59,8 +59,8 @@ class FormularioPerfil extends StatelessWidget {
               border: OutlineInputBorder(),
               prefixIcon: Icon(Icons.person_outline),
             ),
-            validator: (value) =>
-                value == null || value.isEmpty ? 'Requerido' : null,
+            validator: (valor) =>
+                valor == null || valor.isEmpty ? 'Requerido' : null,
           ),
           const SizedBox(height: 16),
 
@@ -73,11 +73,11 @@ class FormularioPerfil extends StatelessWidget {
               border: OutlineInputBorder(),
               prefixIcon: Icon(Icons.badge),
             ),
-            validator: (value) {
-              if (value == null || value.isEmpty) {
+            validator: (valor) {
+              if (valor == null || valor.isEmpty) {
                 return 'Ingrese su DNI';
               }
-              if (!RegExp(r'^\d{7,8}$').hasMatch(value)) {
+              if (!RegExp(r'^\d{7,8}$').hasMatch(valor)) {
                 return 'Debe tener 7 u 8 dígitos';
               }
               return null;
@@ -95,8 +95,8 @@ class FormularioPerfil extends StatelessWidget {
               border: OutlineInputBorder(),
               prefixIcon: Icon(Icons.calendar_today),
             ),
-            validator: (value) =>
-                value == null || value.isEmpty ? 'Requerido' : null,
+            validator: (valor) =>
+                valor == null || valor.isEmpty ? 'Requerido' : null,
           ),
           const SizedBox(height: 16),
 
@@ -109,11 +109,11 @@ class FormularioPerfil extends StatelessWidget {
               border: OutlineInputBorder(),
               prefixIcon: Icon(Icons.phone),
             ),
-            validator: (value) {
-              if (value == null || value.isEmpty) {
+            validator: (valor) {
+              if (valor == null || valor.isEmpty) {
                 return 'Ingrese su teléfono';
               }
-              if (!RegExp(r'^\d{8,15}$').hasMatch(value)) {
+              if (!RegExp(r'^\d{8,15}$').hasMatch(valor)) {
                 return 'Debe tener entre 8 y 15 dígitos';
               }
               return null;
@@ -154,8 +154,8 @@ class FormularioPerfil extends StatelessWidget {
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.credit_card),
                 ),
-                validator: (value) =>
-                    value == null || value.isEmpty ? 'Requerido' : null,
+                validator: (valor) =>
+                    valor == null || valor.isEmpty ? 'Requerido' : null,
               ),
             ),
 

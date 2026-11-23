@@ -8,7 +8,7 @@ abstract class ConectividadService {
 
 /// Implementación usando el plugin connectivity_plus
 bool _hayAlgunaRed(List<ConnectivityResult> resultados) =>
-    resultados.any((r) => r != ConnectivityResult.none);
+    resultados.any((resultado) => resultado != ConnectivityResult.none);
 
 class ConectividadConPlus implements ConectividadService {
   final Connectivity _connectivity = Connectivity();

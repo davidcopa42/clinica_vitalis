@@ -53,8 +53,8 @@ class VerificarCorreoViewModel extends ChangeNotifier {
       await _authRepo.enviarVerificacion();
       _iniciarTemporizadorReenvio();
       return null;
-    } catch (e) {
-      return 'Error al reenviar: $e';
+    } catch (error) {
+      return 'Error al reenviar: $error';
     }
   }
 

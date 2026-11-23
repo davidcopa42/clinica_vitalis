@@ -33,8 +33,8 @@ class PerfilViewModel extends ChangeNotifier {
 
     try {
       _datosPerfil = await _perfilRepo.cargarPerfilUsuario(uid);
-    } catch (e) {
-      debugPrint('Error al cargar perfil: $e');
+    } catch (error) {
+      debugPrint('Error al cargar perfil: $error');
     } finally {
       _estaCargando = false;
       notifyListeners();

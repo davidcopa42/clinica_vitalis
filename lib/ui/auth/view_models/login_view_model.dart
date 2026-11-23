@@ -31,12 +31,12 @@ class LoginViewModel extends ChangeNotifier {
       await _authRepo.iniciarConCorreo(correo, contrasena);
 
       _estadoCarga = EstadoCarga.exito;
-    } on AuthException catch (e) {
+    } on AuthException catch (error) {
       _estadoCarga = EstadoCarga.error;
-      _mensajeError = e.mensaje;
-    } catch (e) {
+      _mensajeError = error.mensaje;
+    } catch (error) {
       _estadoCarga = EstadoCarga.error;
-      _mensajeError = 'Ocurrió un error inesperado: $e';
+      _mensajeError = 'Ocurrió un error inesperado: $error';
     } finally {
       notifyListeners();
     }
@@ -73,12 +73,12 @@ class LoginViewModel extends ChangeNotifier {
       }
 
       _estadoCarga = EstadoCarga.exito;
-    } on AuthException catch (e) {
+    } on AuthException catch (error) {
       _estadoCarga = EstadoCarga.error;
-      _mensajeError = 'No se pudo iniciar sesión con Google: ${e.mensaje}';
-    } catch (e) {
+      _mensajeError = 'No se pudo iniciar sesión con Google: ${error.mensaje}';
+    } catch (error) {
       _estadoCarga = EstadoCarga.error;
-      _mensajeError = 'No se pudo iniciar sesión con Google: $e';
+      _mensajeError = 'No se pudo iniciar sesión con Google: $error';
     } finally {
       notifyListeners();
     }

@@ -75,15 +75,15 @@ class SintomasViewModel extends ChangeNotifier {
   Future<void> _cargarBorrador() async {
     final borrador = await _borradorRepository.obtenerBorradorSintomas();
     final sintomasGuardados = borrador.sintomas;
-    final descGuardada = borrador.descripcion;
+    final descripcionGuardada = borrador.descripcion;
     final duracionGuardada = borrador.duracion;
     final intensidadGuardada = borrador.intensidad;
 
     if (sintomasGuardados != null) {
       _sintomasSeleccionados.addAll(sintomasGuardados);
     }
-    if (descGuardada != null) {
-      _descripcion = descGuardada;
+    if (descripcionGuardada != null) {
+      _descripcion = descripcionGuardada;
     }
     if (duracionGuardada != null) {
       _duracion = duracionGuardada;

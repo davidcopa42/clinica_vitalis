@@ -14,7 +14,7 @@ class AuthRepositorioFirebase implements AuthRepository {
 
   @override
   Stream<String?> get cambiosDeSesion =>
-      _authService.cambiosDeUsuario.map((user) => user?.uid);
+      _authService.cambiosDeUsuario.map((usuario) => usuario?.uid);
 
   @override
   String? get uidActual => _authService.usuarioActual?.uid;
@@ -33,8 +33,8 @@ class AuthRepositorioFirebase implements AuthRepository {
   Future<void> registrarConCorreo(String correo, String contrasena) async {
     try {
       await _authService.registrarConCorreo(correo, contrasena);
-    } on FirebaseAuthException catch (e) {
-      throw _traducirError(e);
+    } on FirebaseAuthException catch (error) {
+      throw _traducirError(error);
     }
   }
 
@@ -42,8 +42,8 @@ class AuthRepositorioFirebase implements AuthRepository {
   Future<void> iniciarConCorreo(String correo, String contrasena) async {
     try {
       await _authService.iniciarConCorreo(correo, contrasena);
-    } on FirebaseAuthException catch (e) {
-      throw _traducirError(e);
+    } on FirebaseAuthException catch (error) {
+      throw _traducirError(error);
     }
   }
 
@@ -54,8 +54,8 @@ class AuthRepositorioFirebase implements AuthRepository {
       final usuario = credencial?.user;
       if (usuario == null) return null;
       return _aUsuarioAutenticado(usuario);
-    } on FirebaseAuthException catch (e) {
-      throw _traducirError(e);
+    } on FirebaseAuthException catch (error) {
+      throw _traducirError(error);
     }
   }
 
@@ -63,8 +63,8 @@ class AuthRepositorioFirebase implements AuthRepository {
   Future<void> enviarVerificacion() async {
     try {
       await _authService.enviarVerificacion();
-    } on FirebaseAuthException catch (e) {
-      throw _traducirError(e);
+    } on FirebaseAuthException catch (error) {
+      throw _traducirError(error);
     }
   }
 
@@ -72,8 +72,8 @@ class AuthRepositorioFirebase implements AuthRepository {
   Future<void> recargarUsuario() async {
     try {
       await _authService.recargarUsuario();
-    } on FirebaseAuthException catch (e) {
-      throw _traducirError(e);
+    } on FirebaseAuthException catch (error) {
+      throw _traducirError(error);
     }
   }
 
@@ -88,8 +88,8 @@ class AuthRepositorioFirebase implements AuthRepository {
   Future<void> recuperarContrasena(String correo) async {
     try {
       await _authService.recuperarContrasena(correo);
-    } on FirebaseAuthException catch (e) {
-      throw _traducirError(e);
+    } on FirebaseAuthException catch (error) {
+      throw _traducirError(error);
     }
   }
 
@@ -108,8 +108,8 @@ class AuthRepositorioFirebase implements AuthRepository {
     );
   }
 
-  AuthException _traducirError(FirebaseAuthException e) {
-    return AuthException(_mensajePara(e.code));
+  AuthException _traducirError(FirebaseAuthException error) {
+    return AuthException(_mensajePara(error.code));
   }
 
   String _mensajePara(String codigo) {

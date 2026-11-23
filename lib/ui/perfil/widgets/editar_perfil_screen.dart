@@ -131,10 +131,10 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
             const SnackBar(content: Text('Perfil actualizado correctamente')),
           );
         }
-      } catch (e) {
+      } catch (error) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error al actualizar el perfil: $e')),
+            SnackBar(content: Text('Error al actualizar el perfil: $error')),
           );
         }
       } finally {

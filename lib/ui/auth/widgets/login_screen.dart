@@ -121,11 +121,11 @@ class _LoginScreenState extends State<LoginScreen> {
                           border: OutlineInputBorder(),
                           prefixIcon: Icon(Icons.email),
                         ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
+                        validator: (valor) {
+                          if (valor == null || valor.isEmpty) {
                             return 'Por favor ingrese su correo';
                           }
-                          if (!value.contains('@')) {
+                          if (!valor.contains('@')) {
                             return 'Correo inválido';
                           }
                           return null;
@@ -140,11 +140,11 @@ class _LoginScreenState extends State<LoginScreen> {
                           border: OutlineInputBorder(),
                           prefixIcon: Icon(Icons.lock),
                         ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
+                        validator: (valor) {
+                          if (valor == null || valor.isEmpty) {
                             return 'Por favor ingrese su contraseña';
                           }
-                          if (value.length < 6) {
+                          if (valor.length < 6) {
                             return 'Debe tener al menos 6 caracteres';
                           }
                           return null;

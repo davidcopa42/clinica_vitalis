@@ -76,7 +76,7 @@ class HistoriaClinicaRepositorioSimulado implements HistoriaClinicaRepository {
     ];
 
     registros.sort(
-      (a, b) => b.fecha.compareTo(a.fecha),
+      (primero, segundo) => segundo.fecha.compareTo(primero.fecha),
     );
 
     return registros;

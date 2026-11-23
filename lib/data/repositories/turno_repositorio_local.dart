@@ -34,7 +34,8 @@ class TurnoRepositorioLocal implements TurnoRepository {
         .where((turno) => turno.fechaHora.isAfter(ahora))
         .toList();
 
-    turnos.sort((a, b) => a.fechaHora.compareTo(b.fechaHora));
+    turnos.sort(
+        (primero, segundo) => primero.fechaHora.compareTo(segundo.fechaHora));
     return turnos;
   }
 
@@ -64,7 +65,8 @@ class TurnoRepositorioLocal implements TurnoRepository {
     DateTime fecha,
   ) async {
     final profesionales = await obtenerProfesionales();
-    final elegido = profesionales.where((p) => p.nombre == profesional);
+    final elegido =
+        profesionales.where((candidato) => candidato.nombre == profesional);
     if (elegido.isEmpty) return [];
 
     final filas = await _baseDatos.consultar(

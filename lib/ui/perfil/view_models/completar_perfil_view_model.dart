@@ -64,9 +64,9 @@ class CompletarPerfilViewModel extends ChangeNotifier {
       });
       _estado = EstadoCarga.exito;
       return null;
-    } catch (e) {
+    } catch (error) {
       _estado = EstadoCarga.error;
-      return 'Error al guardar el perfil: $e';
+      return 'Error al guardar el perfil: $error';
     } finally {
       notifyListeners();
     }

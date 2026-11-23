@@ -54,17 +54,17 @@ class _CrearCuentaScreenState extends State<CrearCuentaScreen> {
     }
   }
 
-  String? _validarContrasena(String? value) {
-    if (value == null || value.isEmpty) {
+  String? _validarContrasena(String? valor) {
+    if (valor == null || valor.isEmpty) {
       return 'Ingrese su contraseña';
     }
-    if (value.length < 8) {
+    if (valor.length < 8) {
       return 'Debe tener al menos 8 caracteres';
     }
-    if (!value.contains(RegExp(r'[a-zA-Z]'))) {
+    if (!valor.contains(RegExp(r'[a-zA-Z]'))) {
       return 'Debe contener al menos una letra';
     }
-    if (!value.contains(RegExp(r'[0-9]'))) {
+    if (!valor.contains(RegExp(r'[0-9]'))) {
       return 'Debe contener al menos un número';
     }
     return null;
@@ -100,7 +100,7 @@ class _CrearCuentaScreenState extends State<CrearCuentaScreen> {
                           border: OutlineInputBorder(),
                           prefixIcon: Icon(Icons.person),
                         ),
-                        validator: (value) => value == null || value.isEmpty
+                        validator: (valor) => valor == null || valor.isEmpty
                             ? 'Ingrese su nombre'
                             : null,
                       ),
@@ -112,7 +112,7 @@ class _CrearCuentaScreenState extends State<CrearCuentaScreen> {
                           border: OutlineInputBorder(),
                           prefixIcon: Icon(Icons.person_outline),
                         ),
-                        validator: (value) => value == null || value.isEmpty
+                        validator: (valor) => valor == null || valor.isEmpty
                             ? 'Ingrese su apellido'
                             : null,
                       ),
@@ -125,11 +125,11 @@ class _CrearCuentaScreenState extends State<CrearCuentaScreen> {
                           border: OutlineInputBorder(),
                           prefixIcon: Icon(Icons.email),
                         ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
+                        validator: (valor) {
+                          if (valor == null || valor.isEmpty) {
                             return 'Ingrese su correo';
                           }
-                          if (!value.contains('@')) {
+                          if (!valor.contains('@')) {
                             return 'Correo inválido';
                           }
                           return null;
@@ -155,11 +155,11 @@ class _CrearCuentaScreenState extends State<CrearCuentaScreen> {
                           border: OutlineInputBorder(),
                           prefixIcon: Icon(Icons.lock_outline),
                         ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
+                        validator: (valor) {
+                          if (valor == null || valor.isEmpty) {
                             return 'Confirme su contraseña';
                           }
-                          if (value != _contrasenaController.text) {
+                          if (valor != _contrasenaController.text) {
                             return 'Las contraseñas no coinciden';
                           }
                           return null;

@@ -23,15 +23,15 @@ class _PerfilScreenState extends State<PerfilScreen> {
     }
   }
 
-  String _formatearFecha(String? fechaStr) {
-    if (fechaStr == null || fechaStr.isEmpty) {
+  String _formatearFecha(String? textoFecha) {
+    if (textoFecha == null || textoFecha.isEmpty) {
       return 'No registrado';
     }
     try {
-      final dt = DateTime.parse(fechaStr);
-      return DateFormat('dd/MM/yyyy').format(dt);
+      final fecha = DateTime.parse(textoFecha);
+      return DateFormat('dd/MM/yyyy').format(fecha);
     } catch (_) {
-      return fechaStr;
+      return textoFecha;
     }
   }
 
@@ -211,21 +211,21 @@ class _PerfilScreenState extends State<PerfilScreen> {
     );
   }
 
-  Widget _buildInfoRow(IconData icon, String label, String? value) {
-    final displayValue =
-        (value == null || value.isEmpty) ? 'No registrado' : value;
+  Widget _buildInfoRow(IconData icono, String etiqueta, String? valor) {
+    final valorMostrado =
+        (valor == null || valor.isEmpty) ? 'No registrado' : valor;
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
       child: Row(
         children: [
-          Icon(icon, color: Colors.blue, size: 28),
+          Icon(icono, color: Colors.blue, size: 28),
           const SizedBox(width: 16),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(label,
+              Text(etiqueta,
                   style: const TextStyle(fontSize: 14, color: Colors.grey)),
-              Text(displayValue,
+              Text(valorMostrado,
                   style: const TextStyle(
                       fontSize: 16, fontWeight: FontWeight.w500)),
             ],

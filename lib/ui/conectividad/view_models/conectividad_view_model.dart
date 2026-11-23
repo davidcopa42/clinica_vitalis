@@ -18,9 +18,9 @@ class ConectividadViewModel extends ChangeNotifier {
 
   bool get hayConexion => _hayConexion;
 
-  void _actualizar(bool hay) {
-    if (hay == _hayConexion) return;
-    _hayConexion = hay;
+  void _actualizar(bool conectado) {
+    if (conectado == _hayConexion) return;
+    _hayConexion = conectado;
     notifyListeners(); // Notifica a la interfaz para que redibuje el aviso si cambia
   }
 

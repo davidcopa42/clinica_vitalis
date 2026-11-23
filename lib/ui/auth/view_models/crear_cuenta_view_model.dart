@@ -55,10 +55,10 @@ class CrearCuentaViewModel extends ChangeNotifier {
       }
 
       _estadoCarga = EstadoCarga.exito;
-    } on AuthException catch (e) {
+    } on AuthException catch (error) {
       _estadoCarga = EstadoCarga.error;
-      _mensajeError = e.mensaje;
-    } catch (e) {
+      _mensajeError = error.mensaje;
+    } catch (error) {
       _estadoCarga = EstadoCarga.error;
       _mensajeError = 'Ocurrió un error inesperado al registrarse.';
     } finally {

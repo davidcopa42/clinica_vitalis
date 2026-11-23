@@ -67,11 +67,11 @@ class _RecuperarContrasenaScreenState extends State<RecuperarContrasenaScreen> {
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.email),
                 ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
+                validator: (valor) {
+                  if (valor == null || valor.isEmpty) {
                     return 'Ingresa tu correo';
                   }
-                  if (!value.contains('@')) {
+                  if (!valor.contains('@')) {
                     return 'Correo inválido';
                   }
                   return null;

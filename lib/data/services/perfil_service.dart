@@ -11,8 +11,8 @@ class PerfilService {
         return doc.data() as Map<String, dynamic>;
       }
       return null;
-    } catch (e) {
-      throw Exception('Error al obtener el perfil: $e');
+    } catch (error) {
+      throw Exception('Error al obtener el perfil: $error');
     }
   }
 
@@ -23,8 +23,8 @@ class PerfilService {
             datosPerfil,
             SetOptions(merge: true),
           );
-    } catch (e) {
-      throw Exception('Error al guardar el perfil: $e');
+    } catch (error) {
+      throw Exception('Error al guardar el perfil: $error');
     }
   }
 }
