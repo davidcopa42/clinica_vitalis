@@ -1,4 +1,4 @@
-import 'package:clinica_vitalis/data/repositories/historia_clinica_repository.dart';
+import 'package:clinica_vitalis/data/repositories/historia_clinica_repositorio_simulado.dart';
 import 'package:clinica_vitalis/domain/models/registro_clinico.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -6,8 +6,8 @@ void main() {
   group('HistoriaClinicaRepository (simulado)', () {
     test('devuelve 7 registros ordenados del mas reciente al mas antiguo',
         () async {
-      final registros =
-          await HistoriaClinicaRepository().obtenerRegistros('paciente-1');
+      final registros = await HistoriaClinicaRepositorioSimulado()
+          .obtenerRegistros('paciente-1');
 
       expect(registros, hasLength(7));
       expect(registros.first.titulo, 'Hemograma completo');
@@ -22,8 +22,8 @@ void main() {
     });
 
     test('incluye los tres tipos de registro', () async {
-      final registros =
-          await HistoriaClinicaRepository().obtenerRegistros('paciente-1');
+      final registros = await HistoriaClinicaRepositorioSimulado()
+          .obtenerRegistros('paciente-1');
 
       expect(
         registros.map((registro) => registro.tipo).toSet(),
@@ -33,7 +33,7 @@ void main() {
 
     test('con simularError lanza una excepcion', () async {
       await expectLater(
-        HistoriaClinicaRepository(simularError: true)
+        HistoriaClinicaRepositorioSimulado(simularError: true)
             .obtenerRegistros('paciente-1'),
         throwsException,
       );

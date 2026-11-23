@@ -13,9 +13,6 @@ class FakeHistoriaClinicaRepository implements HistoriaClinicaRepository {
   Object? error;
 
   @override
-  bool get simularError => error != null;
-
-  @override
   Future<List<RegistroClinico>> obtenerRegistros(String pacienteUid) async {
     pacientesConsultados.add(pacienteUid);
     if (error != null) throw error!;

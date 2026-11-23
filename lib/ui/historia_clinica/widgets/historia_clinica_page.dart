@@ -1,4 +1,4 @@
-import 'package:clinica_vitalis/data/repositories/historia_clinica_repository.dart';
+import 'package:clinica_vitalis/data/repositories/historia_clinica_repositorio_simulado.dart';
 import 'package:clinica_vitalis/domain/models/paciente.dart';
 import 'package:clinica_vitalis/domain/models/registro_clinico.dart';
 import 'package:clinica_vitalis/ui/core/estado_carga.dart';
@@ -27,7 +27,7 @@ class _HistoriaClinicaPageState extends State<HistoriaClinicaPage> {
     super.initState();
 
     _viewModel = HistoriaClinicaViewModel(
-      repositorio: HistoriaClinicaRepository(),
+      repositorio: HistoriaClinicaRepositorioSimulado(),
     );
 
     _viewModel.cargar(widget.paciente.uid);
