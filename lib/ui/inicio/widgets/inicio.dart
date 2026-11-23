@@ -1,5 +1,7 @@
 import 'dart:async'; // 1. Agregamos este import para la suscripción
+import 'package:clinica_vitalis/data/repositories/auth_repositorio_firebase.dart';
 import 'package:clinica_vitalis/data/repositories/perfil_repositorio_firestore.dart';
+import 'package:clinica_vitalis/data/services/auth_service.dart';
 import 'package:clinica_vitalis/data/services/perfil_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -49,6 +51,7 @@ class _InicioPageState extends State<InicioPage> {
     super.initState();
     _perfilViewModel = PerfilViewModel(
       repository: PerfilRepositorioFirestore(perfilService: PerfilService()),
+      authRepository: AuthRepositorioFirebase(authService: AuthService()),
     );
     _conectividadViewModel = ConectividadViewModel(
       repositorio: ConectividadRepositorioLocal(
