@@ -209,8 +209,7 @@ void main() {
       expect(viewModel.descripcion, 'Cambiado afuera');
     });
 
-    test('suma los sintomas guardados a los seleccionados, sin reemplazar',
-        () async {
+    test('reemplaza los sintomas seleccionados por los guardados', () async {
       viewModel.cambiarSintoma('Tos');
       await pumpEventQueue();
       final preferencias = await SharedPreferences.getInstance();
@@ -218,7 +217,7 @@ void main() {
 
       await viewModel.refrescar();
 
-      expect(viewModel.sintomasSeleccionados, {'Tos', 'Fiebre'});
+      expect(viewModel.sintomasSeleccionados, {'Fiebre'});
     });
   });
 }

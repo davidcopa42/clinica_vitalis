@@ -100,7 +100,9 @@ class SintomasViewModel extends ChangeNotifier {
     final intensidadGuardada = borrador.intensidad;
 
     if (sintomasGuardados != null) {
-      _sintomasSeleccionados.addAll(sintomasGuardados);
+      _sintomasSeleccionados
+        ..clear()
+        ..addAll(sintomasGuardados);
     }
     if (descripcionGuardada != null) {
       _descripcion = descripcionGuardada;
