@@ -1,6 +1,7 @@
 import 'package:clinica_vitalis/domain/models/paciente.dart';
 import 'package:clinica_vitalis/domain/models/registro_clinico.dart';
 import 'package:clinica_vitalis/ui/core/estado_carga.dart';
+import 'package:clinica_vitalis/ui/core/mensaje_error.dart';
 import 'package:clinica_vitalis/ui/historia_clinica/view_models/historia_clinica_view_model.dart';
 import 'package:clinica_vitalis/ui/historia_clinica/widgets/detalle_registro_screen.dart';
 import 'package:flutter/material.dart';
@@ -62,26 +63,9 @@ class _HistoriaClinicaScreenState extends State<HistoriaClinicaScreen> {
         );
 
       case EstadoCarga.error:
-        return Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(
-                Icons.error_outline,
-                size: 50,
-                color: Colors.red,
-              ),
-              const SizedBox(height: 12),
-              Text(
-                _viewModel.mensajeError ?? 'Ocurrió un error.',
-              ),
-              const SizedBox(height: 12),
-              ElevatedButton(
-                onPressed: _viewModel.reintentar,
-                child: const Text('Reintentar'),
-              ),
-            ],
-          ),
+        return MensajeError(
+          mensaje: _viewModel.mensajeError ?? 'Ocurrió un error.',
+          alReintentar: _viewModel.reintentar,
         );
 
       case EstadoCarga.exito:

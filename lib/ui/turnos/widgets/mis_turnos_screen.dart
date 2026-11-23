@@ -2,6 +2,7 @@ import 'package:clinica_vitalis/domain/models/paciente.dart';
 import 'package:clinica_vitalis/domain/models/turno.dart';
 import 'package:clinica_vitalis/ui/core/estado_carga.dart';
 import 'package:clinica_vitalis/ui/core/formato.dart';
+import 'package:clinica_vitalis/ui/core/mensaje_error.dart';
 import 'package:clinica_vitalis/ui/turnos/view_models/mis_turnos_view_model.dart';
 import 'package:flutter/material.dart';
 
@@ -95,7 +96,7 @@ class _MisTurnosScreenState extends State<MisTurnosScreen> {
               );
 
             case EstadoCarga.error:
-              return _Error(
+              return MensajeError(
                 mensaje:
                 _viewModel.error ?? 'No se pudieron cargar tus turnos.',
                 alReintentar: () => _viewModel.cargar(widget.paciente.uid),
@@ -224,38 +225,3 @@ class _TarjetaTurno extends StatelessWidget {
   }
 }
 
-class _Error extends StatelessWidget {
-  const _Error({
-    required this.mensaje,
-    required this.alReintentar,
-  });
-
-  final String mensaje;
-  final VoidCallback alReintentar;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(
-              Icons.error_outline,
-              size: 56,
-              color: Colors.red,
-            ),
-            const SizedBox(height: 16),
-            Text(mensaje),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: alReintentar,
-              child: const Text('Reintentar'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}

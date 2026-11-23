@@ -1,6 +1,7 @@
 import 'package:clinica_vitalis/domain/models/paciente.dart';
 import 'package:clinica_vitalis/ui/core/estado_carga.dart';
 import 'package:clinica_vitalis/ui/core/formato.dart';
+import 'package:clinica_vitalis/ui/core/mensaje_error.dart';
 import 'package:clinica_vitalis/ui/turnos/view_models/turno_view_model.dart';
 import 'package:clinica_vitalis/ui/turnos/widgets/turno_confirmado_screen.dart';
 import 'package:flutter/material.dart';
@@ -93,7 +94,10 @@ class _SolicitarTurnoScreenState extends State<SolicitarTurnoScreen> {
             case EstadoCarga.cargando:
               return const Center(child: CircularProgressIndicator());
             case EstadoCarga.error:
-              return _Error(alReintentar: _viewModel.cargar);
+              return MensajeError(
+                mensaje: 'No se pudieron cargar los profesionales.',
+                alReintentar: _viewModel.cargar,
+              );
             case EstadoCarga.exito:
               return _formulario();
           }
@@ -232,26 +236,3 @@ class _SolicitarTurnoScreenState extends State<SolicitarTurnoScreen> {
   }
 }
 
-/// Mensaje de error con botón para reintentar.
-class _Error extends StatelessWidget {
-  const _Error({required this.alReintentar});
-
-  final VoidCallback alReintentar;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Text('No se pudieron cargar los profesionales.'),
-          const SizedBox(height: 12),
-          ElevatedButton(
-            onPressed: alReintentar,
-            child: const Text('Reintentar'),
-          ),
-        ],
-      ),
-    );
-  }
-}
