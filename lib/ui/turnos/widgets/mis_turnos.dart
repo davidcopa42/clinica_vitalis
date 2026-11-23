@@ -1,4 +1,5 @@
-import 'package:clinica_vitalis/data/repositories/turno_repository.dart';
+import 'package:clinica_vitalis/data/repositories/turno_repositorio_local.dart';
+import 'package:clinica_vitalis/data/services/base_datos_service.dart';
 import 'package:clinica_vitalis/data/services/notificaciones_service.dart';
 import 'package:clinica_vitalis/domain/models/paciente.dart';
 import 'package:clinica_vitalis/domain/models/turno.dart';
@@ -27,7 +28,7 @@ class _MisTurnosPageState extends State<MisTurnosPage> {
   void initState() {
     super.initState();
     _viewModel = MisTurnosViewModel(
-      repositorio: TurnoRepository(),
+      repositorio: TurnoRepositorioLocal(baseDatos: BaseDatosService()),
       notificacionesService: NotificacionesService(),
       pacienteUid: widget.paciente.uid, // Pasamos el UID al ViewModel
     );

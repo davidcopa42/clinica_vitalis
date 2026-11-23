@@ -1,4 +1,5 @@
-import 'package:clinica_vitalis/data/repositories/turno_repository.dart';
+import 'package:clinica_vitalis/data/repositories/turno_repositorio_local.dart';
+import 'package:clinica_vitalis/data/services/base_datos_service.dart';
 import 'package:clinica_vitalis/data/services/notificaciones_service.dart';
 import 'package:clinica_vitalis/domain/models/paciente.dart';
 import 'package:clinica_vitalis/ui/core/estado_carga.dart';
@@ -27,7 +28,9 @@ class _TurnoPageState extends State<TurnoPage> {
   @override
   void initState() {
     super.initState();
-    _viewModel = TurnoViewModel(repositorio: TurnoRepository());
+    _viewModel = TurnoViewModel(
+      repositorio: TurnoRepositorioLocal(baseDatos: BaseDatosService()),
+    );
     _viewModel.cargar();
 
     // Vinculamos los eventos del ciclo de vida a los métodos del ViewModel

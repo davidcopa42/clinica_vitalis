@@ -1,3 +1,4 @@
+import 'package:clinica_vitalis/data/repositories/turno_repositorio_local.dart';
 import 'package:clinica_vitalis/data/repositories/turno_repository.dart';
 import 'package:clinica_vitalis/data/services/base_datos_service.dart';
 import 'package:clinica_vitalis/data/services/datos_ejemplo.dart';
@@ -51,7 +52,7 @@ void main() {
   const horariosDelProfesional = ['08:00', '08:40', '09:20', '10:00'];
 
   late FakeBaseDatosService baseDatos;
-  late TurnoRepository repositorio;
+  late TurnoRepositorioLocal repositorio;
 
   final hoy = DateTime.now();
   final fechaFutura = DateTime(hoy.year, hoy.month, hoy.day + 30);
@@ -73,7 +74,7 @@ void main() {
 
   setUp(() {
     baseDatos = FakeBaseDatosService();
-    repositorio = TurnoRepository(baseDatos: baseDatos);
+    repositorio = TurnoRepositorioLocal(baseDatos: baseDatos);
   });
 
   group('obtenerProfesionales', () {
