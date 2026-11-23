@@ -37,6 +37,9 @@ class FakeAuthRepository implements AuthRepository {
   String? get uidActual => null;
 
   @override
+  UsuarioAutenticado? get usuarioActual => null;
+
+  @override
   bool get correoVerificado => false;
 
   @override

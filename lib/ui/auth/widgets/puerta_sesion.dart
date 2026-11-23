@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../../../data/repositories/auth_repositorio_firebase.dart';
@@ -64,11 +63,11 @@ class _PuertaSesionState extends State<PuertaSesion> {
             );
 
           case EstadoSesion.perfilIncompleto:
-            final userActual = FirebaseAuth.instance.currentUser;
+            final usuarioActual = _sesionVM.usuarioActual;
             return CompletarPerfilScreen(
-              uid: userActual?.uid ?? '',
-              correoInicial: userActual?.email ?? '',
-              nombreInicial: userActual?.displayName ?? '',
+              uid: usuarioActual?.uid ?? '',
+              correoInicial: usuarioActual?.correo ?? '',
+              nombreInicial: usuarioActual?.nombreVisible ?? '',
               onPerfilCompletado: () async {
                 await _sesionVM.recargarYCalcular();
               },

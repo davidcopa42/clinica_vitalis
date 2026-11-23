@@ -14,6 +14,7 @@ class FakeUser extends Fake implements User {
     this.displayName,
     this.email,
     this.phoneNumber,
+    this.photoURL,
   });
 
   @override
@@ -30,6 +31,9 @@ class FakeUser extends Fake implements User {
 
   @override
   final String? phoneNumber;
+
+  @override
+  final String? photoURL;
 }
 
 /// Credencial falsa que solo expone el usuario.
@@ -111,6 +115,28 @@ void main() {
     test('sin usuario no hay uid y el correo no esta verificado', () {
       expect(repositorio.uidActual, isNull);
       expect(repositorio.correoVerificado, isFalse);
+    });
+
+    test('usuarioActual devuelve los datos de la cuenta', () {
+      servicio.usuario = FakeUser(
+        uid: 'abc',
+        displayName: 'Ana López',
+        email: 'ana@test.com',
+        phoneNumber: '+54261',
+        photoURL: 'https://foto.com/ana.png',
+      );
+
+      final usuario = repositorio.usuarioActual!;
+
+      expect(usuario.uid, 'abc');
+      expect(usuario.nombreVisible, 'Ana López');
+      expect(usuario.correo, 'ana@test.com');
+      expect(usuario.telefono, '+54261');
+      expect(usuario.fotoUrl, 'https://foto.com/ana.png');
+    });
+
+    test('sin usuario usuarioActual es null', () {
+      expect(repositorio.usuarioActual, isNull);
     });
 
     test('con usuario expone su uid y si verifico el correo', () {

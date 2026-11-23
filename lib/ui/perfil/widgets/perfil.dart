@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -78,9 +77,8 @@ class _PerfilScreenState extends State<PerfilScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final userActual = FirebaseAuth.instance.currentUser;
-    final fotoUrl = userActual?.photoURL;
-    final correoActual = userActual?.email ?? 'Sin correo electrónico';
+    final fotoUrl = widget.viewModel.fotoUrl;
+    final correoActual = widget.viewModel.correoActual;
 
     return Scaffold(
       appBar: AppBar(

@@ -18,6 +18,13 @@ class PerfilViewModel extends ChangeNotifier {
   Map<String, dynamic>? get perfilData => _perfilData;
   bool get isLoading => _isLoading;
 
+  /// Foto de la cuenta, o null si no tiene.
+  String? get fotoUrl => _authRepo.usuarioActual?.fotoUrl;
+
+  /// Correo de la cuenta para mostrar.
+  String get correoActual =>
+      _authRepo.usuarioActual?.correo ?? 'Sin correo electrónico';
+
   Future<void> cargarPerfil(String uid) async {
     if (_perfilData == null) {
       _isLoading = true;

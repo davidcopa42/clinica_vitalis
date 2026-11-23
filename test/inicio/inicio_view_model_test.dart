@@ -1,8 +1,11 @@
 import 'package:clinica_vitalis/data/services/bus_de_eventos.dart';
 import 'package:clinica_vitalis/domain/models/evento_de_app.dart';
 import 'package:clinica_vitalis/domain/models/paciente.dart';
+import 'package:clinica_vitalis/domain/models/usuario_autenticado.dart';
 import 'package:clinica_vitalis/ui/inicio/view_models/inicio_view_model.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import '../fakes/fake_auth_repository.dart';
 
 const paciente = Paciente(
   uid: 'uid-1',
@@ -13,12 +16,18 @@ const paciente = Paciente(
 
 void main() {
   late BusDeEventos busDeEventos;
+  late FakeAuthRepository auth;
   late InicioViewModel viewModel;
   var viewModelDescartado = false;
 
   setUp(() {
     busDeEventos = BusDeEventos();
-    viewModel = InicioViewModel(busDeEventos: busDeEventos, paciente: paciente);
+    auth = FakeAuthRepository();
+    viewModel = InicioViewModel(
+      busDeEventos: busDeEventos,
+      authRepository: auth,
+      paciente: paciente,
+    );
     viewModelDescartado = false;
   });
 
@@ -45,11 +54,39 @@ void main() {
     test('sin nombre saluda como Paciente', () {
       final sinNombre = InicioViewModel(
         busDeEventos: busDeEventos,
+        authRepository: auth,
         paciente: paciente.copyWith(nombre: ''),
       );
       addTearDown(sinNombre.dispose);
 
       expect(sinNombre.nombreUsuario, 'Paciente');
+    });
+  });
+
+  group('fotoUrl', () {
+    test('usa la foto de la cuenta si tiene', () {
+      auth.usuario = const UsuarioAutenticado(
+        uid: 'uid-1',
+        fotoUrl: 'https://foto.com/cuenta.png',
+      );
+
+      expect(viewModel.fotoUrl, 'https://foto.com/cuenta.png');
+    });
+
+    test('si la cuenta no tiene foto usa la del perfil del paciente', () {
+      final conFotoDePerfil = InicioViewModel(
+        busDeEventos: busDeEventos,
+        authRepository: auth,
+        paciente: paciente.copyWith(fotoUrl: 'https://foto.com/perfil.png'),
+      );
+      addTearDown(conFotoDePerfil.dispose);
+      auth.usuario = const UsuarioAutenticado(uid: 'uid-1');
+
+      expect(conFotoDePerfil.fotoUrl, 'https://foto.com/perfil.png');
+    });
+
+    test('sin ninguna foto es null', () {
+      expect(viewModel.fotoUrl, isNull);
     });
   });
 

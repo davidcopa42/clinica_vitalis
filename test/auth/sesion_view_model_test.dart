@@ -18,6 +18,11 @@ class FakeAuthRepository implements AuthRepository {
   @override
   String? get uidActual => _uidSimulado;
 
+  UsuarioAutenticado? usuario;
+
+  @override
+  UsuarioAutenticado? get usuarioActual => usuario;
+
   @override
   bool get correoVerificado => _correoVerificadoSimulado;
 
@@ -140,6 +145,24 @@ void main() {
       await Future.delayed(const Duration(milliseconds: 50));
 
       expect(sesionVM.estadoSesion, EstadoSesion.lista);
+    });
+
+    test('usuarioActual expone los datos de la cuenta del repositorio', () {
+      final authRepo = FakeAuthRepository(uidSimulado: '123')
+        ..usuario = const UsuarioAutenticado(
+          uid: '123',
+          nombreVisible: 'Ana López',
+          correo: 'ana@test.com',
+        );
+
+      final sesionVM = SesionViewModel(
+        authRepo: authRepo,
+        perfilRepo: FakePerfilRepository(),
+      );
+      addTearDown(sesionVM.dispose);
+
+      expect(sesionVM.usuarioActual!.correo, 'ana@test.com');
+      expect(sesionVM.usuarioActual!.nombreVisible, 'Ana López');
     });
   });
 }

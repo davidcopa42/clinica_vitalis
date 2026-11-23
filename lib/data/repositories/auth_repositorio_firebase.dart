@@ -20,6 +20,12 @@ class AuthRepositorioFirebase implements AuthRepository {
   String? get uidActual => _authService.usuarioActual?.uid;
 
   @override
+  UsuarioAutenticado? get usuarioActual {
+    final usuario = _authService.usuarioActual;
+    return usuario == null ? null : _aUsuarioAutenticado(usuario);
+  }
+
+  @override
   bool get correoVerificado =>
       _authService.usuarioActual?.emailVerified ?? false;
 
@@ -47,12 +53,7 @@ class AuthRepositorioFirebase implements AuthRepository {
       final credencial = await _authService.iniciarConGoogle();
       final usuario = credencial?.user;
       if (usuario == null) return null;
-      return UsuarioAutenticado(
-        uid: usuario.uid,
-        nombreVisible: usuario.displayName,
-        correo: usuario.email,
-        telefono: usuario.phoneNumber,
-      );
+      return _aUsuarioAutenticado(usuario);
     } on FirebaseAuthException catch (e) {
       throw _traducirError(e);
     }
@@ -95,6 +96,16 @@ class AuthRepositorioFirebase implements AuthRepository {
   @override
   Future<void> cerrarSesion() async {
     await _authService.cerrarSesion();
+  }
+
+  UsuarioAutenticado _aUsuarioAutenticado(User usuario) {
+    return UsuarioAutenticado(
+      uid: usuario.uid,
+      nombreVisible: usuario.displayName,
+      correo: usuario.email,
+      telefono: usuario.phoneNumber,
+      fotoUrl: usuario.photoURL,
+    );
   }
 
   AuthException _traducirError(FirebaseAuthException e) {

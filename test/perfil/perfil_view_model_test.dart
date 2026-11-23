@@ -57,6 +57,11 @@ class FakeAuthRepository implements AuthRepository {
   @override
   String? get uidActual => null;
 
+  UsuarioAutenticado? usuario;
+
+  @override
+  UsuarioAutenticado? get usuarioActual => usuario;
+
   @override
   bool get correoVerificado => false;
 
@@ -175,5 +180,24 @@ void main() {
     await viewModel.cerrarSesion();
 
     expect(auth.cierresDeSesion, 1);
+  });
+
+  group('datos de la cuenta', () {
+    test('sin usuario no hay foto y el correo dice "Sin correo electronico"',
+        () {
+      expect(viewModel.fotoUrl, isNull);
+      expect(viewModel.correoActual, 'Sin correo electrónico');
+    });
+
+    test('con usuario expone su foto y su correo', () {
+      auth.usuario = const UsuarioAutenticado(
+        uid: 'uid-1',
+        correo: 'ana@test.com',
+        fotoUrl: 'https://foto.com/ana.png',
+      );
+
+      expect(viewModel.fotoUrl, 'https://foto.com/ana.png');
+      expect(viewModel.correoActual, 'ana@test.com');
+    });
   });
 }

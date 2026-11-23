@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../data/repositories/auth_repository.dart';
 import '../../../data/repositories/perfil_repository.dart';
 import '../../../domain/models/paciente.dart';
+import '../../../domain/models/usuario_autenticado.dart';
 
 enum EstadoSesion { sinSesion, correoSinVerificar, perfilIncompleto, lista }
 
@@ -22,6 +23,9 @@ class SesionViewModel extends ChangeNotifier {
   String? get uidActual => _uidActual;
   Paciente? get pacienteActual => _pacienteActual;
   bool get isCargando => _isCargando;
+
+  /// Datos de la cuenta con sesión iniciada, o null si no hay sesión.
+  UsuarioAutenticado? get usuarioActual => _authRepo.usuarioActual;
 
   SesionViewModel({
     required AuthRepository authRepo,

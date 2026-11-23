@@ -5,10 +5,12 @@ class UsuarioAutenticado {
     this.nombreVisible,
     this.correo,
     this.telefono,
+    this.fotoUrl,
   });
 
   final String uid;
   final String? nombreVisible;
   final String? correo;
   final String? telefono;
+  final String? fotoUrl;
 }

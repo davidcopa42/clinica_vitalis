@@ -21,6 +21,9 @@ abstract class AuthRepository {
   /// Uid del usuario actual, o null si no hay sesión.
   String? get uidActual;
 
+  /// Datos de la cuenta del usuario actual, o null si no hay sesión.
+  UsuarioAutenticado? get usuarioActual;
+
   /// Si el usuario actual verificó su correo.
   bool get correoVerificado;
 

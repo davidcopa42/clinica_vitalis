@@ -7,6 +7,7 @@ import 'package:clinica_vitalis/domain/models/usuario_autenticado.dart';
 /// metodo cuando se configuran.
 class FakeAuthRepository implements AuthRepository {
   String? uid;
+  UsuarioAutenticado? usuario;
   bool verificado = false;
   final List<String> llamadas = [];
   final Map<String, Object> errores = {};
@@ -25,6 +26,9 @@ class FakeAuthRepository implements AuthRepository {
 
   @override
   String? get uidActual => uid;
+
+  @override
+  UsuarioAutenticado? get usuarioActual => usuario;
 
   @override
   bool get correoVerificado => verificado;

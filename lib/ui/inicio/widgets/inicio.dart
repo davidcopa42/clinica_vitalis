@@ -2,7 +2,6 @@ import 'package:clinica_vitalis/data/repositories/auth_repositorio_firebase.dart
 import 'package:clinica_vitalis/data/repositories/perfil_repositorio_firestore.dart';
 import 'package:clinica_vitalis/data/services/auth_service.dart';
 import 'package:clinica_vitalis/data/services/perfil_service.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../../../data/repositories/conectividad_repositorio_local.dart';
@@ -46,14 +45,16 @@ class _InicioPageState extends State<InicioPage> {
   @override
   void initState() {
     super.initState();
+    final authRepository = AuthRepositorioFirebase(authService: AuthService());
     _inicioViewModel = InicioViewModel(
       busDeEventos: widget.busDeEventos,
+      authRepository: authRepository,
       paciente: widget.paciente,
     );
     _inicioViewModel.addListener(_mostrarAvisoPendiente);
     _perfilViewModel = PerfilViewModel(
       repository: PerfilRepositorioFirestore(perfilService: PerfilService()),
-      authRepository: AuthRepositorioFirebase(authService: AuthService()),
+      authRepository: authRepository,
     );
     _conectividadViewModel = ConectividadViewModel(
       repositorio: ConectividadRepositorioLocal(
@@ -125,8 +126,7 @@ class _InicioPageState extends State<InicioPage> {
   }
 
   Widget _buildContenidoInicio(BuildContext context) {
-    final userAuth = FirebaseAuth.instance.currentUser;
-    final fotoUrl = userAuth?.photoURL ?? widget.paciente.fotoUrl;
+    final fotoUrl = _inicioViewModel.fotoUrl;
     final nombreUsuario = _inicioViewModel.nombreUsuario;
     final uidActual = widget.paciente.uid;
 

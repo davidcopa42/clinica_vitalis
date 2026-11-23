@@ -41,6 +41,9 @@ class FakeAuthRepository implements AuthRepository {
   Stream<String?> get cambiosDeSesion => const Stream.empty();
 
   @override
+  UsuarioAutenticado? get usuarioActual => null;
+
+  @override
   bool get correoVerificado => false;
 
   @override

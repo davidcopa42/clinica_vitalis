@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
+import '../../../data/repositories/auth_repository.dart';
 import '../../../data/services/bus_de_eventos.dart';
 import '../../../domain/models/evento_de_app.dart';
 import '../../../domain/models/paciente.dart';
@@ -13,11 +14,14 @@ import '../../../domain/models/paciente.dart';
 class InicioViewModel extends ChangeNotifier {
   InicioViewModel({
     required BusDeEventos busDeEventos,
+    required AuthRepository authRepository,
     required Paciente paciente,
-  }) : _paciente = paciente {
+  })  : _authRepo = authRepository,
+        _paciente = paciente {
     _suscripcionEventos = busDeEventos.stream.listen(_manejarEvento);
   }
 
+  final AuthRepository _authRepo;
   final Paciente _paciente;
   late final StreamSubscription<EventoDeApp> _suscripcionEventos;
 
@@ -29,6 +33,9 @@ class InicioViewModel extends ChangeNotifier {
   /// Nombre para el saludo; 'Paciente' si todavía no tiene nombre.
   String get nombreUsuario =>
       _paciente.nombre.isNotEmpty ? _paciente.nombre : 'Paciente';
+
+  /// Foto de la cuenta; si no tiene, la del perfil del paciente.
+  String? get fotoUrl => _authRepo.usuarioActual?.fotoUrl ?? _paciente.fotoUrl;
 
   /// La pantalla lo llama después de mostrar el aviso.
   void descartarAviso() {
