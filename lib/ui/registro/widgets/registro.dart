@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../dependencias.dart';
 import '../../../domain/models/paciente.dart';
 import '../../turnos/view_models/turno_view_model.dart';
-import '../../turnos/widgets/solicitar_turno.dart';
+import '../../turnos/widgets/solicitar_turno_screen.dart';
 
 class RegistroPage extends StatefulWidget {
   const RegistroPage({super.key, required this.dependencias});
@@ -115,7 +115,7 @@ class _RegistroPageState extends State<RegistroPage> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => TurnoPage(
+                      builder: (context) => SolicitarTurnoScreen(
                         paciente: paciente,
                         viewModel: viewModel,
                       ),

@@ -2,11 +2,11 @@ import 'package:clinica_vitalis/domain/models/paciente.dart';
 import 'package:clinica_vitalis/ui/core/estado_carga.dart';
 import 'package:clinica_vitalis/ui/core/formato.dart';
 import 'package:clinica_vitalis/ui/turnos/view_models/turno_view_model.dart';
-import 'package:clinica_vitalis/ui/turnos/widgets/turno_confirmado.dart';
+import 'package:clinica_vitalis/ui/turnos/widgets/turno_confirmado_screen.dart';
 import 'package:flutter/material.dart';
 
-class TurnoPage extends StatefulWidget {
-  const TurnoPage({
+class SolicitarTurnoScreen extends StatefulWidget {
+  const SolicitarTurnoScreen({
     super.key,
     required this.paciente,
     required this.viewModel,
@@ -18,10 +18,10 @@ class TurnoPage extends StatefulWidget {
   final TurnoViewModel viewModel;
 
   @override
-  State<TurnoPage> createState() => _TurnoPageState();
+  State<SolicitarTurnoScreen> createState() => _SolicitarTurnoScreenState();
 }
 
-class _TurnoPageState extends State<TurnoPage> {
+class _SolicitarTurnoScreenState extends State<SolicitarTurnoScreen> {
   late final AppLifecycleListener _cicloDeVida;
 
   TurnoViewModel get _viewModel => widget.viewModel;
@@ -68,7 +68,7 @@ class _TurnoPageState extends State<TurnoPage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => TurnoConfirmadoPage(
+        builder: (context) => TurnoConfirmadoScreen(
           paciente: widget.paciente,
           turno: turno,
         ),

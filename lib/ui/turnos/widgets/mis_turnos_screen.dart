@@ -6,8 +6,8 @@ import 'package:clinica_vitalis/ui/turnos/view_models/mis_turnos_view_model.dart
 import 'package:flutter/material.dart';
 
 /// Pantalla con los turnos confirmados y futuros del paciente.
-class MisTurnosPage extends StatefulWidget {
-  const MisTurnosPage({
+class MisTurnosScreen extends StatefulWidget {
+  const MisTurnosScreen({
     super.key,
     required this.paciente,
     required this.viewModel,
@@ -19,10 +19,10 @@ class MisTurnosPage extends StatefulWidget {
   final MisTurnosViewModel viewModel;
 
   @override
-  State<MisTurnosPage> createState() => _MisTurnosPageState();
+  State<MisTurnosScreen> createState() => _MisTurnosScreenState();
 }
 
-class _MisTurnosPageState extends State<MisTurnosPage> {
+class _MisTurnosScreenState extends State<MisTurnosScreen> {
   MisTurnosViewModel get _viewModel => widget.viewModel;
 
   @override

@@ -14,8 +14,8 @@ import '../../sintomas/view_models/sintomas_view_model.dart';
 import '../../sintomas/widgets/sintomas_screen.dart';
 import '../../turnos/view_models/mis_turnos_view_model.dart';
 import '../../turnos/view_models/turno_view_model.dart';
-import '../../turnos/widgets/mis_turnos.dart';
-import '../../turnos/widgets/solicitar_turno.dart';
+import '../../turnos/widgets/mis_turnos_screen.dart';
+import '../../turnos/widgets/solicitar_turno_screen.dart';
 import '../view_models/inicio_view_model.dart';
 
 class InicioScreen extends StatefulWidget {
@@ -68,7 +68,7 @@ class _InicioScreenState extends State<InicioScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => TurnoPage(
+        builder: (context) => SolicitarTurnoScreen(
           paciente: widget.paciente,
           viewModel: viewModel,
         ),
@@ -88,7 +88,7 @@ class _InicioScreenState extends State<InicioScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => MisTurnosPage(
+        builder: (context) => MisTurnosScreen(
           paciente: widget.paciente,
           viewModel: viewModel,
         ),

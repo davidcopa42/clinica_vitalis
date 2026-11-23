@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../domain/models/paciente.dart';
 import '../../../domain/models/turno.dart';
 
-class TurnoConfirmadoPage extends StatelessWidget {
-  const TurnoConfirmadoPage({
+class TurnoConfirmadoScreen extends StatelessWidget {
+  const TurnoConfirmadoScreen({
     super.key,
     required this.paciente,
     required this.turno,
