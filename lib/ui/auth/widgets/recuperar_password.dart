@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../data/repositories/auth_repositorio_firebase.dart';
 import '../../../data/services/auth_service.dart';
+import '../view_models/recuperar_contrasena_view_model.dart';
 
 class RecuperarPasswordScreen extends StatefulWidget {
   const RecuperarPasswordScreen({super.key});
@@ -13,36 +14,35 @@ class RecuperarPasswordScreen extends StatefulWidget {
 class _RecuperarPasswordScreenState extends State<RecuperarPasswordScreen> {
   final _formKey = GlobalKey<FormState>();
   final _correoController = TextEditingController();
-  bool _isLoading = false;
+  late final RecuperarContrasenaViewModel _viewModel;
+
+  @override
+  void initState() {
+    super.initState();
+    _viewModel = RecuperarContrasenaViewModel(
+      authRepository: AuthRepositorioFirebase(authService: AuthService()),
+    );
+  }
 
   @override
   void dispose() {
     _correoController.dispose();
+    _viewModel.dispose();
     super.dispose();
   }
 
   void _enviarCorreo() async {
     if (_formKey.currentState?.validate() ?? false) {
-      setState(() => _isLoading = true);
+      await _viewModel.enviarEnlace(_correoController.text.trim());
 
-      try {
-        await AuthRepositorioFirebase(authService: AuthService())
-            .recuperarContrasena(_correoController.text.trim());
-      } catch (e) {
-        debugPrint('Error al recuperar: $e');
-      } finally {
-        if (mounted) {
-          setState(() => _isLoading = false);
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content:
-                  Text('Si el correo está registrado, te llegará un enlace'),
-              duration: Duration(seconds: 4),
-            ),
-          );
-          Navigator.pop(context);
-        }
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Si el correo está registrado, te llegará un enlace'),
+            duration: Duration(seconds: 4),
+          ),
+        );
+        Navigator.pop(context);
       }
     }
   }
@@ -88,12 +88,19 @@ class _RecuperarPasswordScreenState extends State<RecuperarPasswordScreen> {
               SizedBox(
                 width: double.infinity,
                 height: 50,
-                child: ElevatedButton(
-                  onPressed: _isLoading ? null : _enviarCorreo,
-                  child: _isLoading
-                      ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text('Enviar enlace',
-                          style: TextStyle(fontSize: 16)),
+                child: ListenableBuilder(
+                  listenable: _viewModel,
+                  builder: (context, _) {
+                    return ElevatedButton(
+                      onPressed:
+                          _viewModel.estaEnviando ? null : _enviarCorreo,
+                      child: _viewModel.estaEnviando
+                          ? const CircularProgressIndicator(
+                              color: Colors.white)
+                          : const Text('Enviar enlace',
+                              style: TextStyle(fontSize: 16)),
+                    );
+                  },
                 ),
               ),
             ],
