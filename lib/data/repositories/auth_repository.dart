@@ -30,6 +30,9 @@ abstract class AuthRepository {
 
   Future<void> recargarUsuario();
 
+  /// Cambia el nombre que muestra la cuenta del usuario actual.
+  Future<void> actualizarNombreVisible(String nombre);
+
   Future<void> recuperarContrasena(String correo);
 
   Future<void> cerrarSesion();

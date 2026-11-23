@@ -67,6 +67,13 @@ class AuthRepositorioFirebase implements AuthRepository {
     }
   }
 
+  /// No traduce errores: se conserva el comportamiento previo, en el que
+  /// la llamada a Firebase se hacía directo desde el ViewModel.
+  @override
+  Future<void> actualizarNombreVisible(String nombre) async {
+    await _authService.actualizarNombreVisible(nombre);
+  }
+
   @override
   Future<void> recuperarContrasena(String correo) async {
     try {

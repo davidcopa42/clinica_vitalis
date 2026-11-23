@@ -39,6 +39,10 @@ class AuthService {
     await _auth.currentUser?.reload();
   }
 
+  Future<void> actualizarNombreVisible(String nombre) async {
+    await _auth.currentUser?.updateDisplayName(nombre);
+  }
+
   Future<void> recuperarContrasena(String correo) async {
     await _auth.sendPasswordResetEmail(email: correo);
   }

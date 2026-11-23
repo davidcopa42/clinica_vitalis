@@ -56,6 +56,10 @@ class FakeAuthService implements AuthService {
   Future<void> recargarUsuario() => _registrar('recargar');
 
   @override
+  Future<void> actualizarNombreVisible(String nombre) =>
+      _registrar('nombre:$nombre');
+
+  @override
   Future<void> recuperarContrasena(String correo) =>
       _registrar('recuperar:$correo');
 
@@ -123,6 +127,22 @@ void main() {
         'recuperar:a@b.com',
         'cerrar',
       ]);
+    });
+
+    test('actualizarNombreVisible pasa el nombre al servicio', () async {
+      await repositorio.actualizarNombreVisible('Ana López');
+
+      expect(servicio.llamadas, ['nombre:Ana López']);
+    });
+
+    test('actualizarNombreVisible no traduce los errores de Firebase',
+        () async {
+      servicio.error = FirebaseAuthException(code: 'network-request-failed');
+
+      await expectLater(
+        repositorio.actualizarNombreVisible('Ana López'),
+        throwsA(isA<FirebaseAuthException>()),
+      );
     });
   });
 

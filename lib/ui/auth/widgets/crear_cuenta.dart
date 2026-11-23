@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../../../data/repositories/auth_repositorio_firebase.dart';
+import '../../../data/repositories/perfil_repositorio_firestore.dart';
+import '../../../data/services/auth_service.dart';
+import '../../../data/services/perfil_service.dart';
 import '../../core/estado_carga.dart';
 import '../view_models/crear_cuenta_view_model.dart';
 
@@ -23,7 +27,11 @@ class _CrearCuentaScreenState extends State<CrearCuentaScreen> {
   @override
   void initState() {
     super.initState();
-    _vm = CrearCuentaViewModel();
+    _vm = CrearCuentaViewModel(
+      authRepository: AuthRepositorioFirebase(authService: AuthService()),
+      perfilRepository:
+          PerfilRepositorioFirestore(perfilService: PerfilService()),
+    );
   }
 
   @override

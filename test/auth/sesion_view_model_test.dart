@@ -39,6 +39,9 @@ class FakeAuthRepository implements AuthRepository {
   Future<void> recargarUsuario() async {}
 
   @override
+  Future<void> actualizarNombreVisible(String nombre) async {}
+
+  @override
   Future<void> recuperarContrasena(String correo) async {}
 
   @override
