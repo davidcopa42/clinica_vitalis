@@ -1,10 +1,15 @@
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../../data/repositories/borrador_repository.dart';
+import '../../../domain/models/borrador_sintomas.dart';
 
 class SintomasViewModel extends ChangeNotifier {
-  SintomasViewModel() {
+  SintomasViewModel({required BorradorRepository borradorRepository})
+      : _borradorRepository = borradorRepository {
     _cargarBorrador();
   }
+
+  final BorradorRepository _borradorRepository;
 
   static const List<String> _sintomasDisponibles = [
     'Dolor de cabeza',
@@ -53,23 +58,26 @@ class SintomasViewModel extends ChangeNotifier {
         _intensidad >= 9;
   }
 
-  /// Guarda el borrador actual al instante en SharedPreferences
+  /// Guarda el borrador actual al instante.
   Future<void> guardarBorrador() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList('borrador_sintomas_lista', _sintomasSeleccionados.toList());
-    await prefs.setString('borrador_sintomas_desc', _descripcion);
-    await prefs.setString('borrador_sintomas_duracion', _duracion);
-    await prefs.setDouble('borrador_sintomas_intensidad', _intensidad);
+    await _borradorRepository.guardarBorradorSintomas(
+      BorradorSintomas(
+        sintomas: _sintomasSeleccionados.toList(),
+        descripcion: _descripcion,
+        duracion: _duracion,
+        intensidad: _intensidad,
+      ),
+    );
     debugPrint('Ciclo de vida - Borrador de síntomas guardado.');
   }
 
   /// Carga el borrador guardado al abrir la pantalla
   Future<void> _cargarBorrador() async {
-    final prefs = await SharedPreferences.getInstance();
-    final sintomasGuardados = prefs.getStringList('borrador_sintomas_lista');
-    final descGuardada = prefs.getString('borrador_sintomas_desc');
-    final duracionGuardada = prefs.getString('borrador_sintomas_duracion');
-    final intensidadGuardada = prefs.getDouble('borrador_sintomas_intensidad');
+    final borrador = await _borradorRepository.obtenerBorradorSintomas();
+    final sintomasGuardados = borrador.sintomas;
+    final descGuardada = borrador.descripcion;
+    final duracionGuardada = borrador.duracion;
+    final intensidadGuardada = borrador.intensidad;
 
     if (sintomasGuardados != null) {
       _sintomasSeleccionados.addAll(sintomasGuardados);
@@ -130,10 +138,6 @@ class SintomasViewModel extends ChangeNotifier {
     notifyListeners();
 
     // Limpiamos el borrador al registrarse con éxito
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('borrador_sintomas_lista');
-    await prefs.remove('borrador_sintomas_desc');
-    await prefs.remove('borrador_sintomas_duracion');
-    await prefs.remove('borrador_sintomas_intensidad');
+    await _borradorRepository.borrarBorradorSintomas();
   }
 }

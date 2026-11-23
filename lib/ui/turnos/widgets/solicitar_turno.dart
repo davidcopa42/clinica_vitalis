@@ -1,5 +1,7 @@
+import 'package:clinica_vitalis/data/repositories/borrador_repositorio_local.dart';
 import 'package:clinica_vitalis/data/repositories/turno_repositorio_local.dart';
 import 'package:clinica_vitalis/data/services/base_datos_service.dart';
+import 'package:clinica_vitalis/data/services/borrador_service.dart';
 import 'package:clinica_vitalis/data/services/bus_de_eventos.dart';
 import 'package:clinica_vitalis/data/services/notificaciones_service.dart';
 import 'package:clinica_vitalis/domain/models/paciente.dart';
@@ -33,6 +35,8 @@ class _TurnoPageState extends State<TurnoPage> {
     super.initState();
     _viewModel = TurnoViewModel(
       repositorio: TurnoRepositorioLocal(baseDatos: BaseDatosService()),
+      borradorRepository:
+          BorradorRepositorioLocal(borradorService: BorradorService()),
       busDeEventos: widget.busDeEventos,
     );
     _viewModel.cargar();

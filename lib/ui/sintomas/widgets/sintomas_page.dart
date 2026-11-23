@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+
+import '../../../data/repositories/borrador_repositorio_local.dart';
+import '../../../data/services/borrador_service.dart';
 import '../view_models/sintomas_view_model.dart';
 
 /// Pantalla para registrar los síntomas del paciente.
@@ -22,7 +25,10 @@ class _SintomasPageState extends State<SintomasPage> {
   @override
   void initState() {
     super.initState();
-    _viewModel = SintomasViewModel();
+    _viewModel = SintomasViewModel(
+      borradorRepository:
+          BorradorRepositorioLocal(borradorService: BorradorService()),
+    );
     _descripcionController = TextEditingController();
 
     _viewModel.addListener(_sincronizarControlador);

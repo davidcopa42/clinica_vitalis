@@ -1,3 +1,5 @@
+import 'package:clinica_vitalis/data/repositories/borrador_repositorio_local.dart';
+import 'package:clinica_vitalis/data/services/borrador_service.dart';
 import 'package:clinica_vitalis/ui/sintomas/view_models/sintomas_view_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -14,7 +16,10 @@ void main() {
 
   /// Crea el ViewModel y espera a que termine de leer el borrador.
   Future<SintomasViewModel> crearViewModel() async {
-    final nuevo = SintomasViewModel();
+    final nuevo = SintomasViewModel(
+      borradorRepository:
+          BorradorRepositorioLocal(borradorService: BorradorService()),
+    );
     await pumpEventQueue();
     return nuevo;
   }

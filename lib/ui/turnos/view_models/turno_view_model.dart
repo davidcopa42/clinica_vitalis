@@ -1,10 +1,11 @@
+import 'package:clinica_vitalis/data/repositories/borrador_repository.dart';
 import 'package:clinica_vitalis/data/repositories/turno_repository.dart';
+import 'package:clinica_vitalis/domain/models/borrador_turno.dart';
 import 'package:clinica_vitalis/domain/models/paciente.dart';
 import 'package:clinica_vitalis/domain/models/profesional.dart';
 import 'package:clinica_vitalis/domain/models/turno.dart';
 import 'package:clinica_vitalis/ui/core/estado_carga.dart';
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../domain/models/evento_de_app.dart';
 import '../../../data/services/bus_de_eventos.dart';
@@ -13,11 +14,14 @@ import '../../../data/services/bus_de_eventos.dart';
 class TurnoViewModel extends ChangeNotifier {
   TurnoViewModel({
     required TurnoRepository repositorio,
+    required BorradorRepository borradorRepository,
     required BusDeEventos busDeEventos,
   })  : _repositorio = repositorio,
+        _borradorRepository = borradorRepository,
         _busDeEventos = busDeEventos;
 
   final TurnoRepository _repositorio;
+  final BorradorRepository _borradorRepository;
   final BusDeEventos _busDeEventos;
 
   // ---------- Estado privado ----------
@@ -63,33 +67,16 @@ class TurnoViewModel extends ChangeNotifier {
 
   // ---------- Acciones de Persistencia Local (Borrador) ----------
 
-  /// Guarda los datos actuales de forma inmediata en SharedPreferences
+  /// Guarda los datos actuales de forma inmediata en el borrador.
   Future<void> guardarBorrador() async {
-    final prefs = await SharedPreferences.getInstance();
-
-    if (_especialidadSeleccionada != null) {
-      await prefs.setString('borrador_especialidad', _especialidadSeleccionada!);
-    } else {
-      await prefs.remove('borrador_especialidad');
-    }
-
-    if (_profesionalSeleccionado != null) {
-      await prefs.setString('borrador_profesional', _profesionalSeleccionado!);
-    } else {
-      await prefs.remove('borrador_profesional');
-    }
-
-    if (_fechaSeleccionada != null) {
-      await prefs.setString('borrador_fecha', _fechaSeleccionada!.toIso8601String());
-    } else {
-      await prefs.remove('borrador_fecha');
-    }
-
-    if (_horarioSeleccionado != null) {
-      await prefs.setString('borrador_horario', _horarioSeleccionado!);
-    } else {
-      await prefs.remove('borrador_horario');
-    }
+    await _borradorRepository.guardarBorradorTurno(
+      BorradorTurno(
+        especialidad: _especialidadSeleccionada,
+        profesional: _profesionalSeleccionado,
+        fecha: _fechaSeleccionada,
+        horario: _horarioSeleccionado,
+      ),
+    );
 
     debugPrint('Ciclo de vida - Borrador actualizado en SharedPreferences.');
   }
@@ -109,12 +96,12 @@ class TurnoViewModel extends ChangeNotifier {
       // 1. Primero obtenemos la lista de profesionales del repositorio
       _profesionales = await _repositorio.obtenerProfesionales();
 
-      // 2. Leemos el borrador guardado en SharedPreferences
-      final prefs = await SharedPreferences.getInstance();
-      final espGuardada = prefs.getString('borrador_especialidad');
-      final profGuardado = prefs.getString('borrador_profesional');
-      final fechaGuardadaStr = prefs.getString('borrador_fecha');
-      final horarioGuardado = prefs.getString('borrador_horario');
+      // 2. Leemos el borrador guardado
+      final borrador = await _borradorRepository.obtenerBorradorTurno();
+      final espGuardada = borrador.especialidad;
+      final profGuardado = borrador.profesional;
+      final fechaGuardada = borrador.fecha;
+      final horarioGuardado = borrador.horario;
 
       // 3. Restauramos la especialidad si es válida
       if (espGuardada != null && especialidades.contains(espGuardada)) {
@@ -125,8 +112,8 @@ class TurnoViewModel extends ChangeNotifier {
           _profesionalSeleccionado = profGuardado;
 
           // 5. Restauramos la fecha si está guardada
-          if (fechaGuardadaStr != null) {
-            _fechaSeleccionada = DateTime.parse(fechaGuardadaStr);
+          if (fechaGuardada != null) {
+            _fechaSeleccionada = fechaGuardada;
           }
 
           // 6. SOLUCIÓN CLAVE: Si ya tenemos profesional y fecha, cargamos los horarios de forma sincrónica/esperada
@@ -217,12 +204,8 @@ class TurnoViewModel extends ChangeNotifier {
         ),
       );
 
-      // Limpiamos el borrador de SharedPreferences al confirmar el turno con éxito
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.remove('borrador_especialidad');
-      await prefs.remove('borrador_profesional');
-      await prefs.remove('borrador_fecha');
-      await prefs.remove('borrador_horario');
+      // Limpiamos el borrador al confirmar el turno con éxito
+      await _borradorRepository.borrarBorradorTurno();
 
       // ---> 2. PUBLICAMOS EL EVENTO EN EL STREAM (El Micrófono) <---
       _busDeEventos.publicar(

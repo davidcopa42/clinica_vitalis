@@ -1,6 +1,8 @@
 import 'dart:async';
 
+import 'package:clinica_vitalis/data/repositories/borrador_repositorio_local.dart';
 import 'package:clinica_vitalis/data/repositories/turno_repository.dart';
+import 'package:clinica_vitalis/data/services/borrador_service.dart';
 import 'package:clinica_vitalis/data/services/bus_de_eventos.dart';
 import 'package:clinica_vitalis/domain/models/evento_de_app.dart';
 import 'package:clinica_vitalis/domain/models/paciente.dart';
@@ -64,6 +66,8 @@ void main() {
     busDeEventos = BusDeEventos();
     viewModel = TurnoViewModel(
       repositorio: repositorio,
+      borradorRepository:
+          BorradorRepositorioLocal(borradorService: BorradorService()),
       busDeEventos: busDeEventos,
     );
     eventosPublicados = [];
