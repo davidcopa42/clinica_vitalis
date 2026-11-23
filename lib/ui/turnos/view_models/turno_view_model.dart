@@ -6,6 +6,7 @@ import 'package:clinica_vitalis/domain/models/paciente.dart';
 import 'package:clinica_vitalis/domain/models/profesional.dart';
 import 'package:clinica_vitalis/domain/models/turno.dart';
 import 'package:clinica_vitalis/ui/core/estado_carga.dart';
+import 'package:clinica_vitalis/ui/core/formato.dart';
 import 'package:flutter/foundation.dart';
 
 import '../../../domain/models/evento_de_app.dart';
@@ -71,6 +72,21 @@ class TurnoViewModel extends ChangeNotifier {
       _profesionalSeleccionado != null &&
           _fechaSeleccionada != null &&
           !_cargandoHorarios;
+
+  /// El profesional se elige recién con especialidad.
+  bool get puedeElegirProfesional => _especialidadSeleccionada != null;
+
+  /// Fecha elegida con formato dd/mm/aaaa, o la invitación a elegirla.
+  String get fechaTexto {
+    final fecha = _fechaSeleccionada;
+    return fecha == null ? 'Seleccionar fecha' : formatearFecha(fecha);
+  }
+
+  /// Aviso cuando ya se puede elegir horario pero no queda ninguno libre.
+  String? get avisoSinHorarios =>
+      puedeElegirHorario && _horariosDisponibles.isEmpty
+          ? 'No hay horarios libres ese día.'
+          : null;
 
   // ---------- Acciones de Persistencia Local (Borrador) ----------
 

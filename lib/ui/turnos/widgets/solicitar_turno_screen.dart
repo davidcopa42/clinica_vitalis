@@ -1,8 +1,8 @@
 import 'package:clinica_vitalis/domain/models/paciente.dart';
 import 'package:clinica_vitalis/ui/core/estado_carga.dart';
-import 'package:clinica_vitalis/ui/core/formato.dart';
 import 'package:clinica_vitalis/ui/core/mensaje_error.dart';
 import 'package:clinica_vitalis/ui/turnos/view_models/turno_view_model.dart';
+import 'package:clinica_vitalis/ui/turnos/widgets/formulario_turno.dart';
 import 'package:clinica_vitalis/ui/turnos/widgets/turno_confirmado_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -99,140 +99,14 @@ class _SolicitarTurnoScreenState extends State<SolicitarTurnoScreen> {
                 alReintentar: _viewModel.cargar,
               );
             case EstadoCarga.exito:
-              return _formulario();
+              return FormularioTurno(
+                viewModel: _viewModel,
+                alElegirFecha: _elegirFecha,
+                alConfirmar: _confirmar,
+              );
           }
         },
       ),
     );
   }
-
-  Widget _formulario() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Solicitar turno',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 25),
-          DropdownButtonFormField<String>(
-            key: ValueKey('especialidad-${_viewModel.especialidadSeleccionada}'),
-            initialValue: _viewModel.especialidadSeleccionada,
-            decoration: const InputDecoration(
-              labelText: 'Especialidad',
-              border: OutlineInputBorder(),
-            ),
-            items: _viewModel.especialidades.map((especialidad) {
-              return DropdownMenuItem(
-                value: especialidad,
-                child: Text(especialidad),
-              );
-            }).toList(),
-            onChanged: _viewModel.seleccionarEspecialidad,
-          ),
-          const SizedBox(height: 20),
-          DropdownButtonFormField<String>(
-            key: ValueKey(
-              'profesional-${_viewModel.especialidadSeleccionada}-'
-                  '${_viewModel.profesionalSeleccionado}',
-            ),
-            initialValue: _viewModel.profesionalSeleccionado,
-            decoration: const InputDecoration(
-              labelText: 'Profesional',
-              border: OutlineInputBorder(),
-            ),
-            items: _viewModel.profesionalesDisponibles.map((profesional) {
-              return DropdownMenuItem(
-                value: profesional.nombre,
-                child: Text(profesional.nombre),
-              );
-            }).toList(),
-            onChanged: _viewModel.especialidadSeleccionada == null
-                ? null
-                : _viewModel.seleccionarProfesional,
-          ),
-          const SizedBox(height: 20),
-          const Text(
-            'Fecha',
-            style: TextStyle(fontSize: 16),
-          ),
-          const SizedBox(height: 8),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: _elegirFecha,
-              icon: const Icon(Icons.calendar_month),
-              label: Text(
-                _viewModel.fechaSeleccionada == null
-                    ? 'Seleccionar fecha'
-                    : formatearFecha(_viewModel.fechaSeleccionada!),
-              ),
-            ),
-          ),
-          const SizedBox(height: 20),
-          DropdownButtonFormField<String>(
-            key: ValueKey(
-              'horario-${_viewModel.profesionalSeleccionado}-'
-                  '${_viewModel.fechaSeleccionada}-${_viewModel.horarioSeleccionado}',
-            ),
-            initialValue: _viewModel.horarioSeleccionado,
-            decoration: InputDecoration(
-              labelText: 'Horario',
-              border: const OutlineInputBorder(),
-              helperText:
-              _viewModel.puedeElegirHorario && _viewModel.horariosDisponibles.isEmpty
-                  ? 'No hay horarios libres ese día.'
-                  : null,
-              suffixIcon: _viewModel.cargandoHorarios
-                  ? const Padding(
-                padding: EdgeInsets.all(12),
-                child: SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                ),
-              )
-                  : null,
-            ),
-            items: _viewModel.horariosDisponibles.map((horario) {
-              return DropdownMenuItem(
-                value: horario,
-                child: Text(horario),
-              );
-            }).toList(),
-            onChanged: _viewModel.puedeElegirHorario ? _viewModel.seleccionarHorario : null,
-          ),
-          if (_viewModel.error != null) ...[
-            const SizedBox(height: 20),
-            Text(
-              _viewModel.error!,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.error,
-              ),
-            ),
-          ],
-          const SizedBox(height: 35),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: _viewModel.guardando ? null : _confirmar,
-              child: _viewModel.guardando
-                  ? const SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              )
-                  : const Text('Confirmar turno'),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
-

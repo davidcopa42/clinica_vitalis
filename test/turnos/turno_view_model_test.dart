@@ -292,6 +292,38 @@ void main() {
     });
   });
 
+  group('textos y permisos para el formulario', () {
+    test('sin especialidad no se puede elegir profesional', () async {
+      await viewModel.cargar();
+
+      expect(viewModel.puedeElegirProfesional, isFalse);
+
+      viewModel.seleccionarEspecialidad('Cardiología');
+
+      expect(viewModel.puedeElegirProfesional, isTrue);
+    });
+
+    test('fechaTexto invita a elegir o muestra la fecha formateada', () async {
+      await viewModel.cargar();
+      expect(viewModel.fechaTexto, 'Seleccionar fecha');
+
+      await viewModel.seleccionarFecha(fecha);
+      expect(viewModel.fechaTexto, '15/03/2030');
+    });
+
+    test('avisa solo cuando ya se puede elegir horario y no hay libres',
+        () async {
+      repositorio.horarios = [];
+      await viewModel.cargar();
+      viewModel.seleccionarEspecialidad('Cardiología');
+      await viewModel.seleccionarProfesional('Dr. Juan Pérez');
+      expect(viewModel.avisoSinHorarios, isNull);
+
+      await viewModel.seleccionarFecha(fecha);
+      expect(viewModel.avisoSinHorarios, 'No hay horarios libres ese día.');
+    });
+  });
+
   group('confirmar', () {
     test('con datos incompletos no llama al repositorio y marca error',
         () async {
