@@ -64,6 +64,21 @@ class SintomasViewModel extends ChangeNotifier {
         _intensidad >= _intensidadDeAlarma;
   }
 
+  /// Intensidad redondeada, para la etiqueta del control deslizante.
+  String get intensidadEtiqueta => _intensidad.round().toString();
+
+  /// Intensidad sobre 10, por ejemplo "Intensidad: 4 / 10".
+  String get intensidadTexto => 'Intensidad: $intensidadEtiqueta / 10';
+
+  /// Ya registrado y sin alarma: se recomienda pedir turno.
+  bool get mostrarRecomendacionDeTurno => _registrado && !tieneSignosAlarma;
+
+  /// Ya registrado y con alarma: solo se confirma el registro.
+  bool get mostrarRegistroConAlarma => _registrado && tieneSignosAlarma;
+
+  /// Con signos de alarma no se ofrece pedir turno: se indica la guardia.
+  bool get puedeSolicitarTurno => !tieneSignosAlarma;
+
   /// Guarda el borrador actual al instante.
   Future<void> guardarBorrador() async {
     await _borradorRepository.guardarBorradorSintomas(

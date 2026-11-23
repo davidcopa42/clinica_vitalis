@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../view_models/sintomas_view_model.dart';
+import 'aviso_alarma.dart';
+import 'recomendacion_turno.dart';
+import 'seleccion_sintomas.dart';
 
 /// Pantalla para registrar los síntomas del paciente.
 class SintomasScreen extends StatefulWidget {
@@ -34,7 +37,8 @@ class _SintomasScreenState extends State<SintomasScreen> {
     _cicloDeVida = AppLifecycleListener(
       onHide: _viewModel.guardarBorrador,
       onResume: _viewModel.refrescar,
-      onStateChange: (estado) => debugPrint('Estado app (Síntomas): ${estado.name}'),
+      onStateChange: (estado) =>
+          debugPrint('Estado app (Síntomas): ${estado.name}'),
     );
   }
 
@@ -82,7 +86,11 @@ class _SintomasScreenState extends State<SintomasScreen> {
                       'Seleccioná los síntomas que estás experimentando.',
                     ),
                     const SizedBox(height: 16),
-                    _construirSeleccionSintomas(),
+                    SeleccionSintomas(
+                      disponibles: _viewModel.sintomasDisponibles,
+                      seleccionados: _viewModel.sintomasSeleccionados,
+                      alCambiar: _viewModel.cambiarSintoma,
+                    ),
                     const SizedBox(height: 20),
                     const Text(
                       'Descripción adicional',
@@ -134,14 +142,12 @@ class _SintomasScreenState extends State<SintomasScreen> {
                       min: 1,
                       max: 10,
                       divisions: 9,
-                      label: _viewModel.intensidad.round().toString(),
+                      label: _viewModel.intensidadEtiqueta,
                       onChanged: _viewModel.cambiarIntensidad,
                     ),
-                    Text(
-                      'Intensidad: ${_viewModel.intensidad.round()} / 10',
-                    ),
+                    Text(_viewModel.intensidadTexto),
                     const SizedBox(height: 20),
-                    if (_viewModel.tieneSignosAlarma) _construirAvisoAlarma(),
+                    if (_viewModel.tieneSignosAlarma) const AvisoAlarma(),
                     const SizedBox(height: 16),
                     SizedBox(
                       width: double.infinity,
@@ -150,9 +156,9 @@ class _SintomasScreenState extends State<SintomasScreen> {
                         child: const Text('Registrar síntomas'),
                       ),
                     ),
-                    if (_viewModel.registrado && !_viewModel.tieneSignosAlarma)
-                      _construirConfirmacion(),
-                    if (_viewModel.registrado && _viewModel.tieneSignosAlarma)
+                    if (_viewModel.mostrarRecomendacionDeTurno)
+                      const RecomendacionTurno(),
+                    if (_viewModel.mostrarRegistroConAlarma)
                       const Padding(
                         padding: EdgeInsets.only(top: 12),
                         child: Text(
@@ -161,7 +167,7 @@ class _SintomasScreenState extends State<SintomasScreen> {
                         ),
                       ),
                     const SizedBox(height: 16),
-                    if (!_viewModel.tieneSignosAlarma)
+                    if (_viewModel.puedeSolicitarTurno)
                       SizedBox(
                         width: double.infinity,
                         child: OutlinedButton(
@@ -172,7 +178,7 @@ class _SintomasScreenState extends State<SintomasScreen> {
                     const SizedBox(height: 20),
                     const Text(
                       'Esta herramienta no reemplaza la consulta médica '
-                          'ni brinda diagnósticos.',
+                      'ni brinda diagnósticos.',
                       textAlign: TextAlign.center,
                     ),
                   ],
@@ -181,63 +187,6 @@ class _SintomasScreenState extends State<SintomasScreen> {
             ),
           );
         },
-      ),
-    );
-  }
-
-  Widget _construirSeleccionSintomas() {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: _viewModel.sintomasDisponibles.map((sintoma) {
-        return FilterChip(
-          label: Text(sintoma),
-          selected: _viewModel.sintomasSeleccionados.contains(sintoma),
-          onSelected: (_) {
-            _viewModel.cambiarSintoma(sintoma);
-          },
-        );
-      }).toList(),
-    );
-  }
-
-  Widget _construirAvisoAlarma() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.red.shade50,
-        border: Border.all(color: Colors.red),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: const Column(
-        children: [
-          Icon(
-            Icons.warning_amber,
-            color: Colors.red,
-            size: 40,
-          ),
-          SizedBox(height: 8),
-          Text(
-            'Acudí a la guardia ahora o llamá al 107.',
-            style: TextStyle(
-              color: Colors.red,
-              fontWeight: FontWeight.bold,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _construirConfirmacion() {
-    return const Padding(
-      padding: EdgeInsets.only(top: 12),
-      child: Text(
-        'La información quedó registrada en esta sesión. '
-            'Te recomendamos solicitar un turno.',
-        textAlign: TextAlign.center,
       ),
     );
   }

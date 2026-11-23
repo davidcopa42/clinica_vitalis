@@ -166,6 +166,38 @@ void main() {
     });
   });
 
+  group('textos y estados para la pantalla', () {
+    test('la intensidad se muestra redondeada y sobre 10', () {
+      viewModel.cambiarIntensidad(4.4);
+
+      expect(viewModel.intensidadEtiqueta, '4');
+      expect(viewModel.intensidadTexto, 'Intensidad: 4 / 10');
+    });
+
+    test('sin registrar no muestra ninguna confirmacion', () {
+      expect(viewModel.mostrarRecomendacionDeTurno, isFalse);
+      expect(viewModel.mostrarRegistroConAlarma, isFalse);
+      expect(viewModel.puedeSolicitarTurno, isTrue);
+    });
+
+    test('registrado sin alarma recomienda turno', () async {
+      viewModel.cambiarSintoma('Tos');
+      await viewModel.registrarSintomas();
+
+      expect(viewModel.mostrarRecomendacionDeTurno, isTrue);
+      expect(viewModel.mostrarRegistroConAlarma, isFalse);
+    });
+
+    test('registrado con alarma solo confirma y no ofrece turno', () async {
+      viewModel.cambiarSintoma('Dolor de pecho');
+      await viewModel.registrarSintomas();
+
+      expect(viewModel.mostrarRecomendacionDeTurno, isFalse);
+      expect(viewModel.mostrarRegistroConAlarma, isTrue);
+      expect(viewModel.puedeSolicitarTurno, isFalse);
+    });
+  });
+
   group('refrescar', () {
     test('vuelve a aplicar los valores guardados en SharedPreferences',
         () async {
