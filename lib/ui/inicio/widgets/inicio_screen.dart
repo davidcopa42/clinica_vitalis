@@ -11,7 +11,7 @@ import '../../informacion/widgets/informacion_screen.dart';
 import '../../perfil/view_models/perfil_view_model.dart';
 import '../../perfil/widgets/perfil.dart';
 import '../../sintomas/view_models/sintomas_view_model.dart';
-import '../../sintomas/widgets/sintomas_page.dart';
+import '../../sintomas/widgets/sintomas_screen.dart';
 import '../../turnos/view_models/mis_turnos_view_model.dart';
 import '../../turnos/view_models/turno_view_model.dart';
 import '../../turnos/widgets/mis_turnos.dart';
@@ -104,7 +104,7 @@ class _InicioScreenState extends State<InicioScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => SintomasPage(
+        builder: (context) => SintomasScreen(
           viewModel: viewModel,
           onSolicitarTurno: _abrirSolicitarTurno,
         ),

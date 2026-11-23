@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import '../view_models/sintomas_view_model.dart';
 
 /// Pantalla para registrar los síntomas del paciente.
-class SintomasPage extends StatefulWidget {
-  const SintomasPage({
+class SintomasScreen extends StatefulWidget {
+  const SintomasScreen({
     super.key,
     required this.viewModel,
     this.onSolicitarTurno,
@@ -16,10 +16,10 @@ class SintomasPage extends StatefulWidget {
   final SintomasViewModel viewModel;
 
   @override
-  State<SintomasPage> createState() => _SintomasPageState();
+  State<SintomasScreen> createState() => _SintomasScreenState();
 }
 
-class _SintomasPageState extends State<SintomasPage> {
+class _SintomasScreenState extends State<SintomasScreen> {
   SintomasViewModel get _viewModel => widget.viewModel;
   late final AppLifecycleListener _cicloDeVida;
   late final TextEditingController _descripcionController;
