@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import '../../../data/repositories/auth_repositorio_firebase.dart';
-import '../../../data/services/auth_service.dart';
 import '../view_models/recuperar_contrasena_view_model.dart';
 
 class RecuperarPasswordScreen extends StatefulWidget {
-  const RecuperarPasswordScreen({super.key});
+  const RecuperarPasswordScreen({super.key, required this.viewModel});
+
+  /// Lo crea quien abre la pantalla; la pantalla lo descarta al cerrarse.
+  final RecuperarContrasenaViewModel viewModel;
 
   @override
   State<RecuperarPasswordScreen> createState() =>
@@ -14,15 +15,7 @@ class RecuperarPasswordScreen extends StatefulWidget {
 class _RecuperarPasswordScreenState extends State<RecuperarPasswordScreen> {
   final _formKey = GlobalKey<FormState>();
   final _correoController = TextEditingController();
-  late final RecuperarContrasenaViewModel _viewModel;
-
-  @override
-  void initState() {
-    super.initState();
-    _viewModel = RecuperarContrasenaViewModel(
-      authRepository: AuthRepositorioFirebase(authService: AuthService()),
-    );
-  }
+  RecuperarContrasenaViewModel get _viewModel => widget.viewModel;
 
   @override
   void dispose() {

@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
-import '../../../data/repositories/auth_repositorio_firebase.dart';
-import '../../../data/repositories/perfil_repositorio_firestore.dart';
-import '../../../data/services/auth_service.dart';
-import '../../../data/services/perfil_service.dart';
+import '../../../dependencias.dart';
 import '../../core/estado_carga.dart';
+import '../view_models/crear_cuenta_view_model.dart';
 import '../view_models/login_view_model.dart';
+import '../view_models/recuperar_contrasena_view_model.dart';
 import 'crear_cuenta.dart';
 import 'recuperar_password.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  const LoginScreen({super.key, required this.dependencias});
+
+  /// Para armar los ViewModels de las pantallas que se abren desde acá.
+  final Dependencias dependencias;
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -26,9 +28,35 @@ class _LoginScreenState extends State<LoginScreen> {
   void initState() {
     super.initState();
     _loginVM = LoginViewModel(
-      authRepository: AuthRepositorioFirebase(authService: AuthService()),
-      perfilRepository:
-          PerfilRepositorioFirestore(perfilService: PerfilService()),
+      authRepository: widget.dependencias.authRepository,
+      perfilRepository: widget.dependencias.perfilRepository,
+    );
+  }
+
+  /// Crea el ViewModel de Recuperar contraseña y abre la pantalla.
+  void _abrirRecuperarContrasena() {
+    final viewModel = RecuperarContrasenaViewModel(
+      authRepository: widget.dependencias.authRepository,
+    );
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => RecuperarPasswordScreen(viewModel: viewModel),
+      ),
+    );
+  }
+
+  /// Crea el ViewModel de Crear cuenta y abre la pantalla.
+  void _abrirCrearCuenta() {
+    final viewModel = CrearCuentaViewModel(
+      authRepository: widget.dependencias.authRepository,
+      perfilRepository: widget.dependencias.perfilRepository,
+    );
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => CrearCuentaScreen(viewModel: viewModel),
+      ),
     );
   }
 
@@ -164,33 +192,15 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const SizedBox(height: 16),
                       TextButton(
-                        onPressed: isLoading
-                            ? null
-                            : () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) =>
-                                        const RecuperarPasswordScreen(),
-                                  ),
-                                );
-                              },
+                        onPressed:
+                            isLoading ? null : _abrirRecuperarContrasena,
                         child: const Text(
                           '¿Olvidaste tu contraseña?',
                           style: TextStyle(fontSize: 15),
                         ),
                       ),
                       TextButton(
-                        onPressed: isLoading
-                            ? null
-                            : () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => const CrearCuentaScreen(),
-                                  ),
-                                );
-                              },
+                        onPressed: isLoading ? null : _abrirCrearCuenta,
                         child: const Text(
                           '¿No tienes cuenta? Regístrate aquí',
                           style: TextStyle(fontSize: 15),

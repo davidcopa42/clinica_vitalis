@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 
-import '../../../data/repositories/auth_repositorio_firebase.dart';
-import '../../../data/repositories/perfil_repositorio_firestore.dart';
-import '../../../data/services/auth_service.dart';
-import '../../../data/services/perfil_service.dart';
 import '../../core/estado_carga.dart';
 import '../view_models/crear_cuenta_view_model.dart';
 
 class CrearCuentaScreen extends StatefulWidget {
-  const CrearCuentaScreen({super.key});
+  const CrearCuentaScreen({super.key, required this.viewModel});
+
+  /// Lo crea quien abre la pantalla; la pantalla lo descarta al cerrarse.
+  final CrearCuentaViewModel viewModel;
 
   @override
   State<CrearCuentaScreen> createState() => _CrearCuentaScreenState();
@@ -22,17 +21,7 @@ class _CrearCuentaScreenState extends State<CrearCuentaScreen> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
-  late final CrearCuentaViewModel _vm;
-
-  @override
-  void initState() {
-    super.initState();
-    _vm = CrearCuentaViewModel(
-      authRepository: AuthRepositorioFirebase(authService: AuthService()),
-      perfilRepository:
-          PerfilRepositorioFirestore(perfilService: PerfilService()),
-    );
-  }
+  CrearCuentaViewModel get _vm => widget.viewModel;
 
   @override
   void dispose() {

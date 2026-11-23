@@ -49,7 +49,7 @@ class _PuertaSesionState extends State<PuertaSesion> {
 
         switch (_sesionVM.estadoSesion) {
           case EstadoSesion.sinSesion:
-            return const LoginScreen();
+            return LoginScreen(dependencias: widget.dependencias);
 
           case EstadoSesion.correoSinVerificar:
             return VerificarCorreoScreen(
