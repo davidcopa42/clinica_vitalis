@@ -1,5 +1,6 @@
 import 'dart:async'; // 1. Agregamos este import para la suscripción
-import 'package:clinica_vitalis/data/repositories/perfil_repository.dart';
+import 'package:clinica_vitalis/data/repositories/perfil_repositorio_firestore.dart';
+import 'package:clinica_vitalis/data/services/perfil_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -43,7 +44,9 @@ class _InicioPageState extends State<InicioPage> {
   @override
   void initState() {
     super.initState();
-    _perfilViewModel = PerfilViewModel(repository: PerfilRepository());
+    _perfilViewModel = PerfilViewModel(
+      repository: PerfilRepositorioFirestore(perfilService: PerfilService()),
+    );
     _conectividadViewModel = ConectividadViewModel(servicio: ConectividadConPlus());
 
     // 5. Nos suscribimos a la "radio" para escuchar eventos en vivo
