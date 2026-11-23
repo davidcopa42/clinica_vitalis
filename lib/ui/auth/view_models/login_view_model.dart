@@ -38,9 +38,9 @@ class LoginViewModel extends ChangeNotifier {
     } on AuthException catch (error) {
       _estadoCarga = EstadoCarga.error;
       _mensajeError = error.mensaje;
-    } catch (error) {
+    } catch (_) {
       _estadoCarga = EstadoCarga.error;
-      _mensajeError = 'Ocurrió un error inesperado: $error';
+      _mensajeError = 'Ocurrió un error inesperado. Probá de nuevo.';
     } finally {
       notifyListeners();
     }
@@ -81,9 +81,9 @@ class LoginViewModel extends ChangeNotifier {
     } on AuthException catch (error) {
       _estadoCarga = EstadoCarga.error;
       _mensajeError = 'No se pudo iniciar sesión con Google: ${error.mensaje}';
-    } catch (error) {
+    } catch (_) {
       _estadoCarga = EstadoCarga.error;
-      _mensajeError = 'No se pudo iniciar sesión con Google: $error';
+      _mensajeError = 'No se pudo iniciar sesión con Google. Probá de nuevo.';
     } finally {
       notifyListeners();
     }

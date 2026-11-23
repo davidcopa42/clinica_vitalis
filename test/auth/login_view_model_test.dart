@@ -129,16 +129,18 @@ void main() {
       expect(viewModel.mensajeError, 'Correo o contraseña incorrectos.');
     });
 
-    test('un error que no es de autenticacion muestra su texto', () async {
+    test(
+        'un error que no es de autenticacion muestra un mensaje generico '
+        'sin el texto crudo', () async {
       auth.errorAlIngresar = Exception('falla');
 
       await viewModel.iniciarSesion('ana@test.com', 'clave123');
 
       expect(viewModel.estadoCarga, EstadoCarga.error);
       expect(
-          viewModel.mensajeError,
-          'Ocurrió un error inesperado: '
-          'Exception: falla');
+        viewModel.mensajeError,
+        'Ocurrió un error inesperado. Probá de nuevo.',
+      );
     });
 
     test('un nuevo intento limpia el error anterior', () async {
@@ -245,14 +247,15 @@ void main() {
       );
     });
 
-    test('cualquier otro error muestra su texto', () async {
+    test('cualquier otro error muestra un mensaje generico sin el texto crudo',
+        () async {
       auth.errorConGoogle = Exception('sin Google Play');
 
       await viewModel.iniciarSesionConGoogle();
 
       expect(
         viewModel.mensajeError,
-        'No se pudo iniciar sesión con Google: Exception: sin Google Play',
+        'No se pudo iniciar sesión con Google. Probá de nuevo.',
       );
     });
   });
