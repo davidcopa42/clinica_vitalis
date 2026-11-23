@@ -1,4 +1,3 @@
-import 'package:clinica_vitalis/data/repositories/historia_clinica_repositorio_simulado.dart';
 import 'package:clinica_vitalis/domain/models/paciente.dart';
 import 'package:clinica_vitalis/domain/models/registro_clinico.dart';
 import 'package:clinica_vitalis/ui/core/estado_carga.dart';
@@ -11,24 +10,24 @@ class HistoriaClinicaPage extends StatefulWidget {
   const HistoriaClinicaPage({
     super.key,
     required this.paciente,
+    required this.viewModel,
   });
 
   final Paciente paciente;
+
+  /// Lo crea quien abre la pantalla; la pantalla lo descarta al cerrarse.
+  final HistoriaClinicaViewModel viewModel;
 
   @override
   State<HistoriaClinicaPage> createState() => _HistoriaClinicaPageState();
 }
 
 class _HistoriaClinicaPageState extends State<HistoriaClinicaPage> {
-  late final HistoriaClinicaViewModel _viewModel;
+  HistoriaClinicaViewModel get _viewModel => widget.viewModel;
 
   @override
   void initState() {
     super.initState();
-
-    _viewModel = HistoriaClinicaViewModel(
-      repositorio: HistoriaClinicaRepositorioSimulado(),
-    );
 
     _viewModel.cargar(widget.paciente.uid);
   }

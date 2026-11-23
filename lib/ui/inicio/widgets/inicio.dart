@@ -5,10 +5,12 @@ import '../../../domain/models/paciente.dart';
 import '../../auth/view_models/sesion_view_model.dart';
 import '../../conectividad/view_models/conectividad_view_model.dart';
 import '../../conectividad/widgets/aviso_sin_conexion.dart';
+import '../../historia_clinica/view_models/historia_clinica_view_model.dart';
 import '../../historia_clinica/widgets/historia_clinica_page.dart';
 import '../../informacion/widgets/informacion_page.dart';
 import '../../perfil/view_models/perfil_view_model.dart';
 import '../../perfil/widgets/perfil.dart';
+import '../../sintomas/view_models/sintomas_view_model.dart';
 import '../../sintomas/widgets/sintomas_page.dart';
 import '../../turnos/view_models/mis_turnos_view_model.dart';
 import '../../turnos/view_models/turno_view_model.dart';
@@ -90,6 +92,38 @@ class _InicioPageState extends State<InicioPage> {
       context,
       MaterialPageRoute(
         builder: (context) => MisTurnosPage(
+          paciente: widget.paciente,
+          viewModel: viewModel,
+        ),
+      ),
+    );
+  }
+
+  /// Crea el ViewModel de Registro de síntomas y abre la pantalla.
+  void _abrirSintomas() {
+    final viewModel = SintomasViewModel(
+      borradorRepository: widget.dependencias.borradorRepository,
+    );
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SintomasPage(
+          viewModel: viewModel,
+          onSolicitarTurno: _abrirSolicitarTurno,
+        ),
+      ),
+    );
+  }
+
+  /// Crea el ViewModel de Historia clínica y abre la pantalla.
+  void _abrirHistoriaClinica() {
+    final viewModel = HistoriaClinicaViewModel(
+      repositorio: widget.dependencias.historiaClinicaRepository,
+    );
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => HistoriaClinicaPage(
           paciente: widget.paciente,
           viewModel: viewModel,
         ),
@@ -273,16 +307,7 @@ class _InicioPageState extends State<InicioPage> {
                         'Contanos cómo te sentís y recibí una recomendación.',
                       ),
                       trailing: const Icon(Icons.chevron_right),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => SintomasPage(
-                              onSolicitarTurno: _abrirSolicitarTurno,
-                            ),
-                          ),
-                        );
-                      },
+                      onTap: _abrirSintomas,
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -300,16 +325,7 @@ class _InicioPageState extends State<InicioPage> {
                       trailing: const Icon(
                         Icons.chevron_right,
                       ),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => HistoriaClinicaPage(
-                              paciente: widget.paciente,
-                            ),
-                          ),
-                        );
-                      },
+                      onTap: _abrirHistoriaClinica,
                     ),
                   ),
                 ],

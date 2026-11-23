@@ -1,34 +1,32 @@
 import 'package:flutter/material.dart';
 
-import '../../../data/repositories/borrador_repositorio_local.dart';
-import '../../../data/services/borrador_service.dart';
 import '../view_models/sintomas_view_model.dart';
 
 /// Pantalla para registrar los síntomas del paciente.
 class SintomasPage extends StatefulWidget {
   const SintomasPage({
     super.key,
+    required this.viewModel,
     this.onSolicitarTurno,
   });
 
   final VoidCallback? onSolicitarTurno;
+
+  /// Lo crea quien abre la pantalla; la pantalla lo descarta al cerrarse.
+  final SintomasViewModel viewModel;
 
   @override
   State<SintomasPage> createState() => _SintomasPageState();
 }
 
 class _SintomasPageState extends State<SintomasPage> {
-  late final SintomasViewModel _viewModel;
+  SintomasViewModel get _viewModel => widget.viewModel;
   late final AppLifecycleListener _cicloDeVida;
   late final TextEditingController _descripcionController;
 
   @override
   void initState() {
     super.initState();
-    _viewModel = SintomasViewModel(
-      borradorRepository:
-          BorradorRepositorioLocal(borradorService: BorradorService()),
-    );
     _descripcionController = TextEditingController();
 
     _viewModel.addListener(_sincronizarControlador);
