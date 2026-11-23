@@ -27,7 +27,7 @@ class BorradorRepositorioLocal implements BorradorRepository {
     return BorradorTurno(
       especialidad: await _servicio.leerTexto(_claveEspecialidad),
       profesional: await _servicio.leerTexto(_claveProfesional),
-      fecha: fecha == null ? null : DateTime.parse(fecha),
+      fecha: fecha == null ? null : DateTime.tryParse(fecha),
       horario: await _servicio.leerTexto(_claveHorario),
     );
   }

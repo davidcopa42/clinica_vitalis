@@ -47,6 +47,21 @@ void main() {
       expect(borrador.horario, '08:40');
     });
 
+    test('una fecha guardada invalida se ignora y el resto se recupera',
+        () async {
+      SharedPreferences.setMockInitialValues({
+        'borrador_especialidad': 'Cardiología',
+        'borrador_fecha': 'no-es-una-fecha',
+        'borrador_horario': '08:40',
+      });
+
+      final borrador = await repositorio.obtenerBorradorTurno();
+
+      expect(borrador.especialidad, 'Cardiología');
+      expect(borrador.fecha, isNull);
+      expect(borrador.horario, '08:40');
+    });
+
     test('un campo en null borra su clave', () async {
       SharedPreferences.setMockInitialValues({
         'borrador_especialidad': 'Cardiología',
