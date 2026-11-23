@@ -34,8 +34,20 @@ class InicioViewModel extends ChangeNotifier {
   String get nombreUsuario =>
       _paciente.nombre.isNotEmpty ? _paciente.nombre : 'Paciente';
 
+  /// Saludo de la pantalla, por ejemplo "Hola, Ana".
+  String get saludo => 'Hola, $nombreUsuario';
+
   /// Foto de la cuenta; si no tiene, la del perfil del paciente.
   String? get fotoUrl => _authRepo.usuarioActual?.fotoUrl ?? _paciente.fotoUrl;
+
+  /// Foto para el avatar, o null si no hay ninguna que mostrar.
+  String? get fotoParaMostrar {
+    final foto = fotoUrl;
+    return (foto == null || foto.isEmpty) ? null : foto;
+  }
+
+  /// El perfil se puede abrir solo si el paciente está identificado.
+  bool get puedeAbrirPerfil => _paciente.uid.isNotEmpty;
 
   /// La pantalla lo llama después de mostrar el aviso.
   void descartarAviso() {

@@ -90,6 +90,39 @@ void main() {
     });
   });
 
+  group('textos y permisos para la pantalla', () {
+    test('saludo usa el nombre del paciente', () {
+      expect(viewModel.saludo, 'Hola, Ana');
+    });
+
+    test('fotoParaMostrar descarta una foto vacia', () {
+      auth.usuario = const UsuarioAutenticado(uid: 'uid-1', fotoUrl: '');
+
+      expect(viewModel.fotoParaMostrar, isNull);
+    });
+
+    test('fotoParaMostrar devuelve la foto si hay una', () {
+      auth.usuario = const UsuarioAutenticado(
+        uid: 'uid-1',
+        fotoUrl: 'https://foto.com/ana.png',
+      );
+
+      expect(viewModel.fotoParaMostrar, 'https://foto.com/ana.png');
+    });
+
+    test('puedeAbrirPerfil depende de que el paciente tenga uid', () {
+      final sinUid = InicioViewModel(
+        busDeEventos: busDeEventos,
+        authRepository: auth,
+        paciente: paciente.copyWith(uid: ''),
+      );
+      addTearDown(sinUid.dispose);
+
+      expect(viewModel.puedeAbrirPerfil, isTrue);
+      expect(sinUid.puedeAbrirPerfil, isFalse);
+    });
+  });
+
   group('aviso de turno confirmado', () {
     test('al principio no hay aviso', () {
       expect(viewModel.avisoPendiente, isNull);
