@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:clinica_vitalis/data/repositories/turno_repository.dart';
 import 'package:clinica_vitalis/domain/models/profesional.dart';
 import 'package:clinica_vitalis/domain/models/turno.dart';
@@ -21,6 +23,9 @@ class FakeTurnoRepository implements TurnoRepository {
   Object? errorAlObtenerHorarios;
   Object? errorAlGuardar;
   Object? errorAlCancelar;
+
+  /// Si no es null, [cancelarTurno] espera a que se complete.
+  Completer<void>? bloqueoAlCancelar;
 
   final List<String> pacientesConsultados = [];
   final List<(String, DateTime)> consultasDeHorarios = [];
@@ -62,6 +67,7 @@ class FakeTurnoRepository implements TurnoRepository {
   @override
   Future<void> cancelarTurno(int id) async {
     turnosCancelados.add(id);
+    await bloqueoAlCancelar?.future;
     if (errorAlCancelar != null) throw errorAlCancelar!;
   }
 }

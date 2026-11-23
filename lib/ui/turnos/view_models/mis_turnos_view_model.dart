@@ -35,7 +35,10 @@ class MisTurnosViewModel extends ChangeNotifier {
   EstadoCarga get estado => _estado;
   List<Turno> get turnos => List.unmodifiable(_turnos);
   String? get error => _error;
-  bool get estaCancelando => _turnoCancelando != null;
+
+  /// Si [turno] es el que se está cancelando en este momento.
+  bool estaCancelando(Turno turno) =>
+      turno.id != null && turno.id == _turnoCancelando;
 
   /// Recarga la lista cuando se confirma un turno nuevo.
   void _manejarEventosApp(EventoDeApp evento) {

@@ -94,19 +94,25 @@ void main() {
         'cancela en el repositorio, quita el recordatorio y lo saca de la lista',
         () async {
       await viewModel.cargar('paciente-1');
-      final estadosCancelando = <bool>[];
+      final [primero, segundo] = viewModel.turnos;
+      final estadosCancelando = <(bool, bool)>[];
       viewModel.addListener(
-        () => estadosCancelando.add(viewModel.estaCancelando),
+        () => estadosCancelando.add(
+          (
+            viewModel.estaCancelando(primero),
+            viewModel.estaCancelando(segundo)
+          ),
+        ),
       );
 
-      final cancelado = await viewModel.cancelar(viewModel.turnos.first);
+      final cancelado = await viewModel.cancelar(primero);
 
       expect(cancelado, isTrue);
       expect(repositorio.turnosCancelados, [1]);
       expect(recordatorios.recordatoriosCancelados, [1]);
       expect(viewModel.turnos.map((turno) => turno.id), [2]);
-      expect(estadosCancelando, [true, false]);
-      expect(viewModel.estaCancelando, isFalse);
+      expect(estadosCancelando, [(true, false), (false, false)]);
+      expect(viewModel.estaCancelando(primero), isFalse);
     });
 
     test('si el repositorio falla devuelve false y conserva el turno',
@@ -120,7 +126,7 @@ void main() {
       expect(viewModel.error, 'No se pudo cancelar el turno. Probá de nuevo.');
       expect(viewModel.turnos.map((turno) => turno.id), [1, 2]);
       expect(recordatorios.recordatoriosCancelados, isEmpty);
-      expect(viewModel.estaCancelando, isFalse);
+      expect(viewModel.estaCancelando(viewModel.turnos.first), isFalse);
     });
 
     test(

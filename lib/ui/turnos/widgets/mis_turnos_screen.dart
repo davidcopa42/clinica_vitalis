@@ -115,7 +115,7 @@ class _MisTurnosScreenState extends State<MisTurnosScreen> {
 
                   return _TarjetaTurno(
                     turno: turno,
-                    cancelando: _viewModel.estaCancelando && turno.id != null,
+                    cancelando: _viewModel.estaCancelando(turno),
                     onCancelar: () => _confirmarCancelacion(turno),
                   );
                 },
