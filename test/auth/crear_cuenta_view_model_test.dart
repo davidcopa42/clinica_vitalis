@@ -83,13 +83,6 @@ class FakePerfilRepository implements PerfilRepository {
   @override
   Future<Paciente?> obtenerPerfil(String uid) async => null;
 
-  @override
-  Future<void> actualizarDatosPerfil(
-    String uid, {
-    String? nombre,
-    String? telefono,
-    String? obraSocial,
-  }) async {}
 }
 
 void main() {

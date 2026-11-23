@@ -11,11 +11,4 @@ abstract class PerfilRepository {
   /// Guarda (combinando con lo existente) los datos del perfil.
   Future<void> guardarPerfil(String uid, Map<String, dynamic> datosPerfil);
 
-  /// Actualiza solo los campos indicados del perfil.
-  Future<void> actualizarDatosPerfil(
-    String uid, {
-    String? nombre,
-    String? telefono,
-    String? obraSocial,
-  });
 }

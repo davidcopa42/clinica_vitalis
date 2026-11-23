@@ -199,7 +199,6 @@ class _PuertaSesionState extends State<PuertaSesion> {
           case _Pantalla.inicio:
             return InicioScreen(
               paciente: _sesionViewModel.pacienteActual!,
-              sesion: _sesionViewModel,
               dependencias: widget.dependencias,
               inicioViewModel: _inicioViewModel!,
               perfilViewModel: _perfilViewModel!,

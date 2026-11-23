@@ -27,13 +27,6 @@ class FakePerfilRepository implements PerfilRepository {
   Future<Map<String, dynamic>?> cargarPerfilUsuario(String uid) async =>
       guardado;
 
-  @override
-  Future<void> actualizarDatosPerfil(
-    String uid, {
-    String? nombre,
-    String? telefono,
-    String? obraSocial,
-  }) async {}
 }
 
 final pacienteOriginal = Paciente(

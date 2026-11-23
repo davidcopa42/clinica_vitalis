@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../../dependencias.dart';
 import '../../../domain/models/paciente.dart';
-import '../../auth/view_models/sesion_view_model.dart';
 import '../../conectividad/view_models/conectividad_view_model.dart';
 import '../../core/duraciones.dart';
 import '../../historia_clinica/view_models/historia_clinica_view_model.dart';
@@ -21,7 +20,6 @@ import 'panel_inicio.dart';
 
 class InicioScreen extends StatefulWidget {
   final Paciente paciente;
-  final SesionViewModel sesion;
   final Dependencias dependencias;
 
   // Los crea y los descarta PuertaSesion.
@@ -32,7 +30,6 @@ class InicioScreen extends StatefulWidget {
   const InicioScreen({
     super.key,
     required this.paciente,
-    required this.sesion,
     required this.dependencias,
     required this.inicioViewModel,
     required this.perfilViewModel,

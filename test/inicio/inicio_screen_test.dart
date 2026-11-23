@@ -1,5 +1,4 @@
 import 'package:clinica_vitalis/domain/models/paciente.dart';
-import 'package:clinica_vitalis/ui/auth/view_models/sesion_view_model.dart';
 import 'package:clinica_vitalis/ui/conectividad/view_models/conectividad_view_model.dart';
 import 'package:clinica_vitalis/ui/historia_clinica/widgets/historia_clinica_screen.dart';
 import 'package:clinica_vitalis/ui/informacion/widgets/informacion_screen.dart';
@@ -27,10 +26,6 @@ void main() {
     addTearDown(tester.view.reset);
 
     final dependencias = crearDependenciasFalsas();
-    final sesion = SesionViewModel(
-      authRepo: dependencias.authRepository,
-      perfilRepo: dependencias.perfilRepository,
-    );
     final inicio = InicioViewModel(
       busDeEventos: dependencias.busDeEventos,
       authRepository: dependencias.authRepository,
@@ -44,7 +39,6 @@ void main() {
       repositorio: dependencias.conectividadRepository,
     );
     addTearDown(() {
-      sesion.dispose();
       inicio.dispose();
       perfil.dispose();
       conectividad.dispose();
@@ -55,7 +49,6 @@ void main() {
       MaterialApp(
         home: InicioScreen(
           paciente: paciente,
-          sesion: sesion,
           dependencias: dependencias,
           inicioViewModel: inicio,
           perfilViewModel: perfil,

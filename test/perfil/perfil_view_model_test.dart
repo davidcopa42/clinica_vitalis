@@ -36,13 +36,6 @@ class FakePerfilRepository implements PerfilRepository {
   @override
   Future<Map<String, dynamic>?> cargarPerfilUsuario(String uid) async => datos;
 
-  @override
-  Future<void> actualizarDatosPerfil(
-    String uid, {
-    String? nombre,
-    String? telefono,
-    String? obraSocial,
-  }) async {}
 }
 
 /// Repositorio de autenticacion falso que solo registra el cierre de sesion.

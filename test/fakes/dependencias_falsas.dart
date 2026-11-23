@@ -30,13 +30,6 @@ class PerfilRepositoryFalso implements PerfilRepository {
     Map<String, dynamic> datosPerfil,
   ) async {}
 
-  @override
-  Future<void> actualizarDatosPerfil(
-    String uid, {
-    String? nombre,
-    String? telefono,
-    String? obraSocial,
-  }) async {}
 }
 
 class HistoriaClinicaRepositoryFalso implements HistoriaClinicaRepository {
