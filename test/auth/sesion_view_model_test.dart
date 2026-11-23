@@ -88,11 +88,11 @@ void main() {
       final authRepo = FakeAuthRepository(uidSimulado: null);
       final perfilRepo = FakePerfilRepository();
 
-      final sesionVM =
+      final sesionViewModel =
           SesionViewModel(authRepo: authRepo, perfilRepo: perfilRepo);
       await Future.delayed(const Duration(milliseconds: 50));
 
-      expect(sesionVM.estadoSesion, EstadoSesion.sinSesion);
+      expect(sesionViewModel.estadoSesion, EstadoSesion.sinSesion);
     });
 
     test('Debe retornar correoSinVerificar si el correo no está verificado',
@@ -101,11 +101,11 @@ void main() {
           uidSimulado: '123', correoVerificadoSimulado: false);
       final perfilRepo = FakePerfilRepository();
 
-      final sesionVM =
+      final sesionViewModel =
           SesionViewModel(authRepo: authRepo, perfilRepo: perfilRepo);
       await Future.delayed(const Duration(milliseconds: 50));
 
-      expect(sesionVM.estadoSesion, EstadoSesion.correoSinVerificar);
+      expect(sesionViewModel.estadoSesion, EstadoSesion.correoSinVerificar);
     });
 
     test('Debe retornar perfilIncompleto si el perfil en Firestore es nulo',
@@ -114,11 +114,11 @@ void main() {
           uidSimulado: '123', correoVerificadoSimulado: true);
       final perfilRepo = FakePerfilRepository(datosPerfilSimulados: null);
 
-      final sesionVM =
+      final sesionViewModel =
           SesionViewModel(authRepo: authRepo, perfilRepo: perfilRepo);
       await Future.delayed(const Duration(milliseconds: 50));
 
-      expect(sesionVM.estadoSesion, EstadoSesion.perfilIncompleto);
+      expect(sesionViewModel.estadoSesion, EstadoSesion.perfilIncompleto);
     });
 
     test(
@@ -140,11 +140,11 @@ void main() {
       final perfilRepo =
           FakePerfilRepository(datosPerfilSimulados: datosCompletos);
 
-      final sesionVM =
+      final sesionViewModel =
           SesionViewModel(authRepo: authRepo, perfilRepo: perfilRepo);
       await Future.delayed(const Duration(milliseconds: 50));
 
-      expect(sesionVM.estadoSesion, EstadoSesion.lista);
+      expect(sesionViewModel.estadoSesion, EstadoSesion.lista);
     });
 
     test('usuarioActual expone los datos de la cuenta del repositorio', () {
@@ -155,14 +155,14 @@ void main() {
           correo: 'ana@test.com',
         );
 
-      final sesionVM = SesionViewModel(
+      final sesionViewModel = SesionViewModel(
         authRepo: authRepo,
         perfilRepo: FakePerfilRepository(),
       );
-      addTearDown(sesionVM.dispose);
+      addTearDown(sesionViewModel.dispose);
 
-      expect(sesionVM.usuarioActual!.correo, 'ana@test.com');
-      expect(sesionVM.usuarioActual!.nombreVisible, 'Ana López');
+      expect(sesionViewModel.usuarioActual!.correo, 'ana@test.com');
+      expect(sesionViewModel.usuarioActual!.nombreVisible, 'Ana López');
     });
   });
 }

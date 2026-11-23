@@ -32,7 +32,7 @@ class PuertaSesion extends StatefulWidget {
 }
 
 class _PuertaSesionState extends State<PuertaSesion> {
-  SesionViewModel get _sesionVM => widget.sesionViewModel;
+  SesionViewModel get _sesionViewModel => widget.sesionViewModel;
 
   _Pantalla? _pantalla;
 
@@ -51,20 +51,20 @@ class _PuertaSesionState extends State<PuertaSesion> {
     _actualizarPantalla();
     // Se registra antes que el ListenableBuilder de build, así los
     // ViewModels nuevos ya existen cuando se redibuja.
-    _sesionVM.addListener(_actualizarPantalla);
+    _sesionViewModel.addListener(_actualizarPantalla);
   }
 
   @override
   void dispose() {
-    _sesionVM.removeListener(_actualizarPantalla);
+    _sesionViewModel.removeListener(_actualizarPantalla);
     _descartar(_tomarViewModelsActuales());
     super.dispose();
   }
 
   _Pantalla _calcularPantalla() {
-    if (_sesionVM.estaCargando) return _Pantalla.cargando;
+    if (_sesionViewModel.estaCargando) return _Pantalla.cargando;
 
-    switch (_sesionVM.estadoSesion) {
+    switch (_sesionViewModel.estadoSesion) {
       case EstadoSesion.sinSesion:
         return _Pantalla.login;
       case EstadoSesion.correoSinVerificar:
@@ -72,7 +72,7 @@ class _PuertaSesionState extends State<PuertaSesion> {
       case EstadoSesion.perfilIncompleto:
         return _Pantalla.completarPerfil;
       case EstadoSesion.lista:
-        return _sesionVM.pacienteActual == null
+        return _sesionViewModel.pacienteActual == null
             ? _Pantalla.cargando
             : _Pantalla.inicio;
     }
@@ -110,7 +110,7 @@ class _PuertaSesionState extends State<PuertaSesion> {
       case _Pantalla.verificarCorreo:
         _verificarCorreoViewModel = VerificarCorreoViewModel(
           authRepository: dependencias.authRepository,
-          alVerificarCorreo: _sesionVM.recargarYCalcular,
+          alVerificarCorreo: _sesionViewModel.recargarYCalcular,
         );
       case _Pantalla.completarPerfil:
         _completarPerfilViewModel = CompletarPerfilViewModel(
@@ -121,7 +121,7 @@ class _PuertaSesionState extends State<PuertaSesion> {
         _inicioViewModel = InicioViewModel(
           busDeEventos: dependencias.busDeEventos,
           authRepository: dependencias.authRepository,
-          paciente: _sesionVM.pacienteActual!,
+          paciente: _sesionViewModel.pacienteActual!,
         );
         _perfilViewModel = PerfilViewModel(
           repository: dependencias.perfilRepository,
@@ -163,7 +163,7 @@ class _PuertaSesionState extends State<PuertaSesion> {
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
-      listenable: _sesionVM,
+      listenable: _sesionViewModel,
       builder: (context, child) {
         switch (_pantalla!) {
           case _Pantalla.cargando:
@@ -185,21 +185,21 @@ class _PuertaSesionState extends State<PuertaSesion> {
             );
 
           case _Pantalla.completarPerfil:
-            final usuarioActual = _sesionVM.usuarioActual;
+            final usuarioActual = _sesionViewModel.usuarioActual;
             return CompletarPerfilScreen(
               viewModel: _completarPerfilViewModel!,
               uid: usuarioActual?.uid ?? '',
               correoInicial: usuarioActual?.correo ?? '',
               nombreInicial: usuarioActual?.nombreVisible ?? '',
               onPerfilCompletado: () async {
-                await _sesionVM.recargarYCalcular();
+                await _sesionViewModel.recargarYCalcular();
               },
             );
 
           case _Pantalla.inicio:
             return InicioScreen(
-              paciente: _sesionVM.pacienteActual!,
-              sesion: _sesionVM,
+              paciente: _sesionViewModel.pacienteActual!,
+              sesion: _sesionViewModel,
               dependencias: widget.dependencias,
               inicioViewModel: _inicioViewModel!,
               perfilViewModel: _perfilViewModel!,

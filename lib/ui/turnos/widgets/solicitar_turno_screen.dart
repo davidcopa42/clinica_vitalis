@@ -100,8 +100,6 @@ class _SolicitarTurnoScreenState extends State<SolicitarTurnoScreen> {
   }
 
   Widget _formulario() {
-    final vm = _viewModel;
-
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -116,40 +114,40 @@ class _SolicitarTurnoScreenState extends State<SolicitarTurnoScreen> {
           ),
           const SizedBox(height: 25),
           DropdownButtonFormField<String>(
-            key: ValueKey('especialidad-${vm.especialidadSeleccionada}'),
-            initialValue: vm.especialidadSeleccionada,
+            key: ValueKey('especialidad-${_viewModel.especialidadSeleccionada}'),
+            initialValue: _viewModel.especialidadSeleccionada,
             decoration: const InputDecoration(
               labelText: 'Especialidad',
               border: OutlineInputBorder(),
             ),
-            items: vm.especialidades.map((especialidad) {
+            items: _viewModel.especialidades.map((especialidad) {
               return DropdownMenuItem(
                 value: especialidad,
                 child: Text(especialidad),
               );
             }).toList(),
-            onChanged: vm.seleccionarEspecialidad,
+            onChanged: _viewModel.seleccionarEspecialidad,
           ),
           const SizedBox(height: 20),
           DropdownButtonFormField<String>(
             key: ValueKey(
-              'profesional-${vm.especialidadSeleccionada}-'
-                  '${vm.profesionalSeleccionado}',
+              'profesional-${_viewModel.especialidadSeleccionada}-'
+                  '${_viewModel.profesionalSeleccionado}',
             ),
-            initialValue: vm.profesionalSeleccionado,
+            initialValue: _viewModel.profesionalSeleccionado,
             decoration: const InputDecoration(
               labelText: 'Profesional',
               border: OutlineInputBorder(),
             ),
-            items: vm.profesionalesDisponibles.map((profesional) {
+            items: _viewModel.profesionalesDisponibles.map((profesional) {
               return DropdownMenuItem(
                 value: profesional.nombre,
                 child: Text(profesional.nombre),
               );
             }).toList(),
-            onChanged: vm.especialidadSeleccionada == null
+            onChanged: _viewModel.especialidadSeleccionada == null
                 ? null
-                : vm.seleccionarProfesional,
+                : _viewModel.seleccionarProfesional,
           ),
           const SizedBox(height: 20),
           const Text(
@@ -163,27 +161,27 @@ class _SolicitarTurnoScreenState extends State<SolicitarTurnoScreen> {
               onPressed: _elegirFecha,
               icon: const Icon(Icons.calendar_month),
               label: Text(
-                vm.fechaSeleccionada == null
+                _viewModel.fechaSeleccionada == null
                     ? 'Seleccionar fecha'
-                    : formatearFecha(vm.fechaSeleccionada!),
+                    : formatearFecha(_viewModel.fechaSeleccionada!),
               ),
             ),
           ),
           const SizedBox(height: 20),
           DropdownButtonFormField<String>(
             key: ValueKey(
-              'horario-${vm.profesionalSeleccionado}-'
-                  '${vm.fechaSeleccionada}-${vm.horarioSeleccionado}',
+              'horario-${_viewModel.profesionalSeleccionado}-'
+                  '${_viewModel.fechaSeleccionada}-${_viewModel.horarioSeleccionado}',
             ),
-            initialValue: vm.horarioSeleccionado,
+            initialValue: _viewModel.horarioSeleccionado,
             decoration: InputDecoration(
               labelText: 'Horario',
               border: const OutlineInputBorder(),
               helperText:
-              vm.puedeElegirHorario && vm.horariosDisponibles.isEmpty
+              _viewModel.puedeElegirHorario && _viewModel.horariosDisponibles.isEmpty
                   ? 'No hay horarios libres ese día.'
                   : null,
-              suffixIcon: vm.cargandoHorarios
+              suffixIcon: _viewModel.cargandoHorarios
                   ? const Padding(
                 padding: EdgeInsets.all(12),
                 child: SizedBox(
@@ -194,18 +192,18 @@ class _SolicitarTurnoScreenState extends State<SolicitarTurnoScreen> {
               )
                   : null,
             ),
-            items: vm.horariosDisponibles.map((horario) {
+            items: _viewModel.horariosDisponibles.map((horario) {
               return DropdownMenuItem(
                 value: horario,
                 child: Text(horario),
               );
             }).toList(),
-            onChanged: vm.puedeElegirHorario ? vm.seleccionarHorario : null,
+            onChanged: _viewModel.puedeElegirHorario ? _viewModel.seleccionarHorario : null,
           ),
-          if (vm.error != null) ...[
+          if (_viewModel.error != null) ...[
             const SizedBox(height: 20),
             Text(
-              vm.error!,
+              _viewModel.error!,
               style: TextStyle(
                 color: Theme.of(context).colorScheme.error,
               ),
@@ -215,8 +213,8 @@ class _SolicitarTurnoScreenState extends State<SolicitarTurnoScreen> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: vm.guardando ? null : _confirmar,
-              child: vm.guardando
+              onPressed: _viewModel.guardando ? null : _confirmar,
+              child: _viewModel.guardando
                   ? const SizedBox(
                 width: 20,
                 height: 20,

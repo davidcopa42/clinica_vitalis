@@ -29,7 +29,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _correoController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  LoginViewModel get _loginVM => widget.viewModel;
+  LoginViewModel get _viewModel => widget.viewModel;
 
   /// Crea el ViewModel de Recuperar contraseña y abre la pantalla.
   void _abrirRecuperarContrasena() {
@@ -67,7 +67,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _intentarLogin() async {
     if (_formKey.currentState?.validate() ?? false) {
-      await _loginVM.iniciarSesion(
+      await _viewModel.iniciarSesion(
         _correoController.text.trim(),
         _passwordController.text.trim(),
       );
@@ -75,7 +75,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _intentarLoginGoogle() async {
-    await _loginVM.iniciarSesionConGoogle();
+    await _viewModel.iniciarSesionConGoogle();
   }
 
   @override
@@ -86,9 +86,9 @@ class _LoginScreenState extends State<LoginScreen> {
         centerTitle: true,
       ),
       body: ListenableBuilder(
-        listenable: _loginVM,
+        listenable: _viewModel,
         builder: (context, _) {
-          final estaCargando = _loginVM.estadoCarga == EstadoCarga.cargando;
+          final estaCargando = _viewModel.estadoCarga == EstadoCarga.cargando;
 
           return Padding(
             padding: const EdgeInsets.all(24.0),
@@ -151,11 +151,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         },
                       ),
                       const SizedBox(height: 24),
-                      if (_loginVM.estadoCarga == EstadoCarga.error)
+                      if (_viewModel.estadoCarga == EstadoCarga.error)
                         Padding(
                           padding: const EdgeInsets.only(bottom: 16.0),
                           child: Text(
-                            _loginVM.mensajeError ?? 'Ocurrió un error',
+                            _viewModel.mensajeError ?? 'Ocurrió un error',
                             style: const TextStyle(color: Colors.red),
                             textAlign: TextAlign.center,
                           ),

@@ -21,7 +21,7 @@ class _CrearCuentaScreenState extends State<CrearCuentaScreen> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
-  CrearCuentaViewModel get _vm => widget.viewModel;
+  CrearCuentaViewModel get _viewModel => widget.viewModel;
 
   @override
   void dispose() {
@@ -30,20 +30,20 @@ class _CrearCuentaScreenState extends State<CrearCuentaScreen> {
     _correoController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
-    _vm.dispose();
+    _viewModel.dispose();
     super.dispose();
   }
 
   void _submit() async {
     if (_formKey.currentState?.validate() ?? false) {
-      await _vm.registrarUsuario(
+      await _viewModel.registrarUsuario(
         nombre: _nombreController.text.trim(),
         apellido: _apellidoController.text.trim(),
         correo: _correoController.text.trim(),
         password: _passwordController.text.trim(),
       );
 
-      if (_vm.estadoCarga == EstadoCarga.exito && mounted) {
+      if (_viewModel.estadoCarga == EstadoCarga.exito && mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -77,7 +77,7 @@ class _CrearCuentaScreenState extends State<CrearCuentaScreen> {
         title: const Text('Crear Nueva Cuenta'),
       ),
       body: ListenableBuilder(
-        listenable: _vm,
+        listenable: _viewModel,
         builder: (context, _) {
           return Padding(
             padding: const EdgeInsets.all(24.0),
@@ -166,11 +166,11 @@ class _CrearCuentaScreenState extends State<CrearCuentaScreen> {
                         },
                       ),
                       const SizedBox(height: 20),
-                      if (_vm.estadoCarga == EstadoCarga.error)
+                      if (_viewModel.estadoCarga == EstadoCarga.error)
                         Padding(
                           padding: const EdgeInsets.only(bottom: 16.0),
                           child: Text(
-                            _vm.mensajeError ?? 'Error desconocido',
+                            _viewModel.mensajeError ?? 'Error desconocido',
                             style: const TextStyle(color: Colors.red),
                           ),
                         ),
@@ -178,10 +178,10 @@ class _CrearCuentaScreenState extends State<CrearCuentaScreen> {
                         width: double.infinity,
                         height: 50,
                         child: ElevatedButton(
-                          onPressed: _vm.estadoCarga == EstadoCarga.cargando
+                          onPressed: _viewModel.estadoCarga == EstadoCarga.cargando
                               ? null
                               : _submit,
-                          child: _vm.estadoCarga == EstadoCarga.cargando
+                          child: _viewModel.estadoCarga == EstadoCarga.cargando
                               ? const CircularProgressIndicator(
                                   color: Colors.white)
                               : const Text('Registrarse',
