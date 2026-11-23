@@ -5,7 +5,7 @@ import 'package:clinica_vitalis/domain/models/usuario_autenticado.dart';
 import 'package:clinica_vitalis/ui/perfil/view_models/perfil_view_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-/// Repositorio de perfil falso que guarda los datos en memoria.
+/// Repositorio de perfil falso que guarda el documento en memoria.
 class FakePerfilRepository implements PerfilRepository {
   FakePerfilRepository({this.datos});
 
@@ -16,10 +16,11 @@ class FakePerfilRepository implements PerfilRepository {
   final List<(String, Map<String, dynamic>)> guardados = [];
 
   @override
-  Future<Map<String, dynamic>?> cargarPerfilUsuario(String uid) async {
+  Future<Paciente?> obtenerPerfil(String uid) async {
     uidsCargados.add(uid);
     if (errorAlCargar != null) throw errorAlCargar!;
-    return datos;
+    final documento = datos;
+    return documento == null ? null : Paciente.fromMap(documento);
   }
 
   @override
@@ -33,7 +34,7 @@ class FakePerfilRepository implements PerfilRepository {
   }
 
   @override
-  Future<Paciente?> obtenerPerfil(String uid) async => null;
+  Future<Map<String, dynamic>?> cargarPerfilUsuario(String uid) async => datos;
 
   @override
   Future<void> actualizarDatosPerfil(
@@ -47,6 +48,7 @@ class FakePerfilRepository implements PerfilRepository {
 /// Repositorio de autenticacion falso que solo registra el cierre de sesion.
 class FakeAuthRepository implements AuthRepository {
   int cierresDeSesion = 0;
+  UsuarioAutenticado? usuario;
 
   @override
   Future<void> cerrarSesion() async => cierresDeSesion++;
@@ -56,8 +58,6 @@ class FakeAuthRepository implements AuthRepository {
 
   @override
   String? get uidActual => null;
-
-  UsuarioAutenticado? usuario;
 
   @override
   UsuarioAutenticado? get usuarioActual => usuario;
@@ -101,33 +101,37 @@ void main() {
     viewModel.addListener(() => estadosDeCarga.add(viewModel.estaCargando));
   }
 
-  setUp(() => crearViewModel(datos: {'nombre': 'Ana', 'dni': '123'}));
+  setUp(
+    () =>
+        crearViewModel(datos: {'uid': 'uid-1', 'nombre': 'Ana', 'dni': '123'}),
+  );
 
   tearDown(() => viewModel.dispose());
 
-  test('empieza sin datos y sin cargar', () {
-    expect(viewModel.datosPerfil, isNull);
+  test('empieza sin paciente y sin cargar', () {
+    expect(viewModel.paciente, isNull);
     expect(viewModel.estaCargando, isFalse);
   });
 
   group('cargarPerfil', () {
-    test('la primera carga avisa cargando y despues los datos', () async {
+    test('la primera carga avisa cargando y despues el paciente', () async {
       await viewModel.cargarPerfil('uid-1');
 
       expect(perfiles.uidsCargados, ['uid-1']);
-      expect(viewModel.datosPerfil, {'nombre': 'Ana', 'dni': '123'});
+      expect(viewModel.paciente!.nombre, 'Ana');
+      expect(viewModel.paciente!.dni, '123');
       expect(viewModel.estaCargando, isFalse);
       expect(estadosDeCarga, [true, false]);
     });
 
-    test('los datos del perfil no se pueden modificar desde afuera', () async {
+    test('carga un perfil recien registrado con fechaNacimiento vacia',
+        () async {
+      crearViewModel(datos: {'nombre': 'Ana', 'fechaNacimiento': ''});
+
       await viewModel.cargarPerfil('uid-1');
 
-      expect(
-        () => viewModel.datosPerfil!['nombre'] = 'Otra',
-        throwsUnsupportedError,
-      );
-      expect(viewModel.datosPerfil!['nombre'], 'Ana');
+      expect(viewModel.paciente!.nombre, 'Ana');
+      expect(viewModel.paciente!.fechaNacimiento, isNull);
     });
 
     test('si ya hay datos recarga sin volver a mostrar cargando', () async {
@@ -137,7 +141,7 @@ void main() {
 
       await viewModel.cargarPerfil('uid-1');
 
-      expect(viewModel.datosPerfil, {'nombre': 'Ana María'});
+      expect(viewModel.paciente!.nombre, 'Ana María');
       expect(estadosDeCarga, [false]);
     });
 
@@ -146,40 +150,47 @@ void main() {
 
       await viewModel.cargarPerfil('uid-1');
 
-      expect(viewModel.datosPerfil, isNull);
+      expect(viewModel.paciente, isNull);
       expect(viewModel.estaCargando, isFalse);
     });
 
-    test('un error se traga: deja de cargar y conserva los datos previos',
+    test('un error se traga: deja de cargar y conserva el paciente previo',
         () async {
       await viewModel.cargarPerfil('uid-1');
       perfiles.errorAlCargar = Exception('sin red');
 
       await viewModel.cargarPerfil('uid-1');
 
-      expect(viewModel.datosPerfil, {'nombre': 'Ana', 'dni': '123'});
+      expect(viewModel.paciente!.nombre, 'Ana');
       expect(viewModel.estaCargando, isFalse);
     });
   });
 
   group('actualizarPerfil', () {
-    test('guarda los datos y vuelve a cargar el perfil', () async {
+    test('guarda el paciente con toMap y vuelve a cargar el perfil', () async {
       await viewModel.cargarPerfil('uid-1');
+      final actualizado = viewModel.paciente!.copyWith(telefono: '261');
 
-      await viewModel.actualizarPerfil('uid-1', {'telefono': '261'});
+      await viewModel.actualizarPerfil('uid-1', actualizado);
 
       final (uidGuardado, datosGuardados) = perfiles.guardados.single;
       expect(uidGuardado, 'uid-1');
-      expect(datosGuardados, {'telefono': '261'});
+      expect(datosGuardados, actualizado.toMap());
       expect(perfiles.uidsCargados, ['uid-1', 'uid-1']);
-      expect(viewModel.datosPerfil!['telefono'], '261');
+      expect(viewModel.paciente!.telefono, '261');
     });
 
     test('si falla el guardado el error se propaga y no recarga', () async {
       perfiles.errorAlGuardar = Exception('sin permiso');
+      const paciente = Paciente(
+        uid: 'uid-1',
+        nombre: 'Ana',
+        apellido: 'López',
+        correo: 'ana@test.com',
+      );
 
       await expectLater(
-        viewModel.actualizarPerfil('uid-1', {'telefono': '261'}),
+        viewModel.actualizarPerfil('uid-1', paciente),
         throwsException,
       );
       expect(perfiles.uidsCargados, isEmpty);

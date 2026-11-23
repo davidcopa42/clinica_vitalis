@@ -1,12 +1,13 @@
 import 'package:clinica_vitalis/data/repositories/auth_repository.dart';
 import 'package:clinica_vitalis/data/repositories/perfil_repository.dart';
+import 'package:clinica_vitalis/domain/models/paciente.dart';
 import 'package:flutter/material.dart';
 
 class PerfilViewModel extends ChangeNotifier {
   final PerfilRepository _perfilRepo;
   final AuthRepository _authRepo;
 
-  Map<String, dynamic>? _datosPerfil;
+  Paciente? _paciente;
   bool _estaCargando = false;
 
   PerfilViewModel({
@@ -15,10 +16,8 @@ class PerfilViewModel extends ChangeNotifier {
   })  : _perfilRepo = repository,
         _authRepo = authRepository;
 
-  Map<String, dynamic>? get datosPerfil {
-    final datos = _datosPerfil;
-    return datos == null ? null : Map.unmodifiable(datos);
-  }
+  /// Perfil cargado, o null si todavía no se cargó o no existe.
+  Paciente? get paciente => _paciente;
   bool get estaCargando => _estaCargando;
 
   /// Foto de la cuenta, o null si no tiene.
@@ -29,13 +28,13 @@ class PerfilViewModel extends ChangeNotifier {
       _authRepo.usuarioActual?.correo ?? 'Sin correo electrónico';
 
   Future<void> cargarPerfil(String uid) async {
-    if (_datosPerfil == null) {
+    if (_paciente == null) {
       _estaCargando = true;
       notifyListeners();
     }
 
     try {
-      _datosPerfil = await _perfilRepo.cargarPerfilUsuario(uid);
+      _paciente = await _perfilRepo.obtenerPerfil(uid);
     } catch (error) {
       debugPrint('Error al cargar perfil: $error');
     } finally {
@@ -44,9 +43,9 @@ class PerfilViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> actualizarPerfil(
-      String uid, Map<String, dynamic> nuevosDatos) async {
-    await _perfilRepo.guardarPerfil(uid, nuevosDatos);
+  /// Guarda el perfil actualizado en el documento [uid] y lo vuelve a cargar.
+  Future<void> actualizarPerfil(String uid, Paciente actualizado) async {
+    await _perfilRepo.guardarPerfil(uid, actualizado.toMap());
     await cargarPerfil(uid);
   }
 

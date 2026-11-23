@@ -20,21 +20,14 @@ class _PerfilScreenState extends State<PerfilScreen> {
   @override
   void initState() {
     super.initState();
-    if (widget.viewModel.datosPerfil == null) {
+    if (widget.viewModel.paciente == null) {
       widget.viewModel.cargarPerfil(widget.uid);
     }
   }
 
-  String _formatearFecha(String? textoFecha) {
-    if (textoFecha == null || textoFecha.isEmpty) {
-      return 'No registrado';
-    }
-    try {
-      final fecha = DateTime.parse(textoFecha);
-      return formatearFecha(fecha);
-    } catch (_) {
-      return textoFecha;
-    }
+  String _formatearFecha(DateTime? fecha) {
+    if (fecha == null) return 'No registrado';
+    return formatearFecha(fecha);
   }
 
   String _formatearObraSocial(String? obraSocial, String? numeroAfiliado) {
@@ -100,20 +93,17 @@ class _PerfilScreenState extends State<PerfilScreen> {
       body: ListenableBuilder(
         listenable: widget.viewModel,
         builder: (context, _) {
-          if (widget.viewModel.estaCargando &&
-              widget.viewModel.datosPerfil == null) {
+          final paciente = widget.viewModel.paciente;
+
+          if (widget.viewModel.estaCargando && paciente == null) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (widget.viewModel.datosPerfil == null) {
+          if (paciente == null) {
             return const Center(child: Text('No hay datos de perfil.'));
           }
 
-          final nombre =
-              widget.viewModel.datosPerfil!['nombre'] as String? ?? '';
-          final apellido =
-              widget.viewModel.datosPerfil!['apellido'] as String? ?? '';
-          final nombreCompleto = '$nombre $apellido'.trim();
+          final nombreCompleto = paciente.nombreCompleto.trim();
 
           return Padding(
             padding: const EdgeInsets.all(24.0),
@@ -146,27 +136,18 @@ class _PerfilScreenState extends State<PerfilScreen> {
                   ),
                 ),
                 const SizedBox(height: 32),
-                _buildInfoRow(
-                    Icons.person,
-                    'Nombre Completo',
-                    nombreCompleto.isNotEmpty
-                        ? nombreCompleto
-                        : widget.viewModel.datosPerfil!['nombre']),
-                _buildInfoRow(
-                    Icons.badge, 'DNI', widget.viewModel.datosPerfil!['dni']),
+                _buildInfoRow(Icons.person, 'Nombre Completo', nombreCompleto),
+                _buildInfoRow(Icons.badge, 'DNI', paciente.dni),
                 _buildInfoRow(
                     Icons.calendar_today,
                     'Nacimiento',
-                    _formatearFecha(
-                        widget.viewModel.datosPerfil!['fechaNacimiento'])),
-                _buildInfoRow(Icons.phone, 'Teléfono',
-                    widget.viewModel.datosPerfil!['telefono']),
+                    _formatearFecha(paciente.fechaNacimiento)),
+                _buildInfoRow(Icons.phone, 'Teléfono', paciente.telefono),
                 _buildInfoRow(
                     Icons.medical_services,
                     'Obra Social',
                     _formatearObraSocial(
-                        widget.viewModel.datosPerfil!['obraSocial'],
-                        widget.viewModel.datosPerfil!['numeroAfiliado'])),
+                        paciente.obraSocial, paciente.numeroAfiliado)),
                 const Spacer(),
                 SizedBox(
                   width: double.infinity,
@@ -178,7 +159,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
                         MaterialPageRoute(
                           builder: (_) => EditarPerfilScreen(
                             uid: widget.uid,
-                            datosActuales: widget.viewModel.datosPerfil!,
+                            paciente: paciente,
                             viewModel: widget.viewModel,
                           ),
                         ),

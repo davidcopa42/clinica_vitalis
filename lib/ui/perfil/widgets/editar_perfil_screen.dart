@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../domain/models/obra_social.dart';
+import '../../../domain/models/paciente.dart';
 import '../../core/formato.dart';
 import '../view_models/perfil_view_model.dart';
 import 'formulario_perfil.dart';
@@ -8,13 +9,15 @@ import 'limites_fecha_nacimiento.dart';
 
 class EditarPerfilScreen extends StatefulWidget {
   final String uid;
-  final Map<String, dynamic> datosActuales;
+
+  /// Perfil tal como está antes de editarlo.
+  final Paciente paciente;
   final PerfilViewModel viewModel;
 
   const EditarPerfilScreen(
       {super.key,
       required this.uid,
-      required this.datosActuales,
+      required this.paciente,
       required this.viewModel});
 
   @override
@@ -37,34 +40,23 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
   @override
   void initState() {
     super.initState();
-    _nombreController =
-        TextEditingController(text: widget.datosActuales['nombre'] ?? '');
-    _apellidoController =
-        TextEditingController(text: widget.datosActuales['apellido'] ?? '');
-    _dniController =
-        TextEditingController(text: widget.datosActuales['dni'] ?? '');
-    _telefonoController =
-        TextEditingController(text: widget.datosActuales['telefono'] ?? '');
-    _numeroAfiliadoController = TextEditingController(
-        text: widget.datosActuales['numeroAfiliado'] ?? '');
+    final paciente = widget.paciente;
+    _nombreController = TextEditingController(text: paciente.nombre);
+    _apellidoController = TextEditingController(text: paciente.apellido);
+    _dniController = TextEditingController(text: paciente.dni);
+    _telefonoController = TextEditingController(text: paciente.telefono);
+    _numeroAfiliadoController =
+        TextEditingController(text: paciente.numeroAfiliado ?? '');
 
-    _obraSocialSeleccionada =
-        widget.datosActuales['obraSocial'] ?? obraSocialParticular;
-    if (!obrasSocialesDisponibles.contains(_obraSocialSeleccionada)) {
-      _obraSocialSeleccionada = obraSocialParticular;
-    }
+    final obraSocial = paciente.obraSocial ?? obraSocialParticular;
+    _obraSocialSeleccionada = obrasSocialesDisponibles.contains(obraSocial)
+        ? obraSocial
+        : obraSocialParticular;
 
-    final fechaStr = widget.datosActuales['fechaNacimiento'] as String?;
-    _fechaNacimientoController = TextEditingController();
-    if (fechaStr != null && fechaStr.isNotEmpty) {
-      try {
-        _fechaSeleccionada = DateTime.parse(fechaStr);
-        _fechaNacimientoController.text =
-            formatearFecha(_fechaSeleccionada!);
-      } catch (_) {
-        _fechaNacimientoController.text = fechaStr;
-      }
-    }
+    _fechaSeleccionada = paciente.fechaNacimiento;
+    final fecha = _fechaSeleccionada;
+    _fechaNacimientoController =
+        TextEditingController(text: fecha == null ? '' : formatearFecha(fecha));
   }
 
   @override
@@ -103,19 +95,18 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
       try {
         await widget.viewModel.actualizarPerfil(
           widget.uid,
-          {
-            'nombre': _nombreController.text.trim(),
-            'apellido': _apellidoController.text.trim(),
-            'dni': _dniController.text.trim(),
-            'fechaNacimiento': _fechaSeleccionada?.toIso8601String() ??
-                widget.datosActuales['fechaNacimiento'] ??
-                '',
-            'telefono': _telefonoController.text.trim(),
-            'obraSocial': _obraSocialSeleccionada,
-            'numeroAfiliado': _obraSocialSeleccionada == obraSocialParticular
+          widget.paciente.copyWith(
+            nombre: _nombreController.text.trim(),
+            apellido: _apellidoController.text.trim(),
+            dni: _dniController.text.trim(),
+            // Si no se eligió otra fecha, copyWith conserva la anterior.
+            fechaNacimiento: _fechaSeleccionada,
+            telefono: _telefonoController.text.trim(),
+            obraSocial: _obraSocialSeleccionada,
+            numeroAfiliado: _obraSocialSeleccionada == obraSocialParticular
                 ? ''
                 : _numeroAfiliadoController.text.trim(),
-          },
+          ),
         );
 
         if (context.mounted) {
