@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../../data/repositories/auth_repositorio_firebase.dart';
+import '../../../data/repositories/perfil_repositorio_firestore.dart';
 import '../../../data/services/auth_service.dart';
 import '../../../data/services/perfil_service.dart';
+import '../view_models/completar_perfil_view_model.dart';
 import 'formulario_perfil.dart';
 
 class CompletarPerfilScreen extends StatefulWidget {
@@ -36,22 +38,25 @@ class _CompletarPerfilScreenState extends State<CompletarPerfilScreen> {
   String _obraSocialSeleccionada = 'Particular';
   DateTime? _fechaSeleccionada;
 
-  final PerfilService _perfilService = PerfilService();
-  bool _isLoading = false;
+  late final CompletarPerfilViewModel _viewModel;
 
   @override
   void initState() {
     super.initState();
-    final partesNombre = widget.nombreInicial.split(' ');
-    _nombreController = TextEditingController(
-        text: partesNombre.isNotEmpty ? partesNombre.first : '');
-    if (partesNombre.length > 1) {
-      _apellidoController.text = partesNombre.sublist(1).join(' ');
-    }
+    _viewModel = CompletarPerfilViewModel(
+      perfilRepository:
+          PerfilRepositorioFirestore(perfilService: PerfilService()),
+      authRepository: AuthRepositorioFirebase(authService: AuthService()),
+    );
+    final nombreSeparado =
+        _viewModel.separarNombreInicial(widget.nombreInicial);
+    _nombreController = TextEditingController(text: nombreSeparado.nombre);
+    _apellidoController.text = nombreSeparado.apellido;
   }
 
   @override
   void dispose() {
+    _viewModel.dispose();
     _nombreController.dispose();
     _apellidoController.dispose();
     _dniController.dispose();
@@ -80,35 +85,25 @@ class _CompletarPerfilScreenState extends State<CompletarPerfilScreen> {
 
   void _guardarPerfil() async {
     if (_formKey.currentState?.validate() ?? false) {
-      setState(() => _isLoading = true);
+      final error = await _viewModel.guardarPerfil(
+        uid: widget.uid,
+        nombre: _nombreController.text,
+        apellido: _apellidoController.text,
+        correo: widget.correoInicial,
+        dni: _dniController.text,
+        fechaNacimiento: _fechaSeleccionada,
+        telefono: _telefonoController.text,
+        obraSocial: _obraSocialSeleccionada,
+        numeroAfiliado: _numeroAfiliadoController.text,
+      );
+      if (!mounted) return;
 
-      try {
-        await _perfilService.guardarPerfil(widget.uid, {
-          'nombre': _nombreController.text.trim(),
-          'apellido': _apellidoController.text.trim(),
-          'correo': widget.correoInicial,
-          'dni': _dniController.text.trim(),
-          'fechaNacimiento': _fechaSeleccionada?.toIso8601String() ?? '',
-          'telefono': _telefonoController.text.trim(),
-          'obraSocial': _obraSocialSeleccionada,
-          'numeroAfiliado': _obraSocialSeleccionada == 'Particular'
-              ? ''
-              : _numeroAfiliadoController.text.trim(),
-        });
-
-        if (mounted) {
-          widget.onPerfilCompletado();
-        }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error al guardar el perfil: $e')),
-          );
-        }
-      } finally {
-        if (mounted) {
-          setState(() => _isLoading = false);
-        }
+      if (error == null) {
+        widget.onPerfilCompletado();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(error)),
+        );
       }
     }
   }
@@ -133,7 +128,7 @@ class _CompletarPerfilScreenState extends State<CompletarPerfilScreen> {
     );
 
     if (confirmar == true && mounted) {
-      await AuthRepositorioFirebase(authService: AuthService()).cerrarSesion();
+      await _viewModel.cerrarSesion();
       if (mounted) {
         Navigator.of(context).popUntil((route) => route.isFirst);
       }
@@ -168,24 +163,29 @@ class _CompletarPerfilScreenState extends State<CompletarPerfilScreen> {
                   style: TextStyle(fontSize: 15, color: Colors.grey),
                 ),
                 const SizedBox(height: 32),
-                FormularioPerfil(
-                  formKey: _formKey,
-                  nombreController: _nombreController,
-                  apellidoController: _apellidoController,
-                  dniController: _dniController,
-                  fechaNacimientoController: _fechaNacimientoController,
-                  telefonoController: _telefonoController,
-                  obraSocialValue: _obraSocialSeleccionada,
-                  numeroAfiliadoController: _numeroAfiliadoController,
-                  onObraSocialChanged: (nuevoValor) {
-                    if (nuevoValor != null) {
-                      setState(() => _obraSocialSeleccionada = nuevoValor);
-                    }
+                ListenableBuilder(
+                  listenable: _viewModel,
+                  builder: (context, _) {
+                    return FormularioPerfil(
+                      formKey: _formKey,
+                      nombreController: _nombreController,
+                      apellidoController: _apellidoController,
+                      dniController: _dniController,
+                      fechaNacimientoController: _fechaNacimientoController,
+                      telefonoController: _telefonoController,
+                      obraSocialValue: _obraSocialSeleccionada,
+                      numeroAfiliadoController: _numeroAfiliadoController,
+                      onObraSocialChanged: (nuevoValor) {
+                        if (nuevoValor != null) {
+                          setState(() => _obraSocialSeleccionada = nuevoValor);
+                        }
+                      },
+                      onTapFecha: () => _seleccionarFecha(context),
+                      onGuardar: _guardarPerfil,
+                      isLoading: _viewModel.estaGuardando,
+                      textoBoton: 'Continuar a la App',
+                    );
                   },
-                  onTapFecha: () => _seleccionarFecha(context),
-                  onGuardar: _guardarPerfil,
-                  isLoading: _isLoading,
-                  textoBoton: 'Continuar a la App',
                 ),
               ],
             ),
