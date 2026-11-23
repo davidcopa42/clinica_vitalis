@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../domain/models/paciente.dart';
 import '../../../domain/models/turno.dart';
+import '../../core/formato.dart';
 
 class TurnoConfirmadoScreen extends StatelessWidget {
   const TurnoConfirmadoScreen({
@@ -12,12 +13,6 @@ class TurnoConfirmadoScreen extends StatelessWidget {
 
   final Paciente paciente;
   final Turno turno;
-
-  String _formatearFecha(DateTime fecha) {
-    return '${fecha.day.toString().padLeft(2, '0')}/'
-        '${fecha.month.toString().padLeft(2, '0')}/'
-        '${fecha.year}';
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -127,7 +122,7 @@ class TurnoConfirmadoScreen extends StatelessWidget {
                   ListTile(
                     title: const Text('Fecha'),
                     subtitle: Text(
-                      _formatearFecha(turno.fecha),
+                      formatearFecha(turno.fecha),
                     ),
                   ),
                   ListTile(

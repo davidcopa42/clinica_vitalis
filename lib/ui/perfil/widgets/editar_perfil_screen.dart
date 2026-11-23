@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 import '../../../domain/models/obra_social.dart';
+import '../../core/formato.dart';
 import '../view_models/perfil_view_model.dart';
 import 'formulario_perfil.dart';
 import 'limites_fecha_nacimiento.dart';
@@ -69,7 +69,7 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
       try {
         _fechaSeleccionada = DateTime.parse(fechaStr);
         _fechaNacimientoController.text =
-            DateFormat('dd/MM/yyyy').format(_fechaSeleccionada!);
+            formatearFecha(_fechaSeleccionada!);
       } catch (_) {
         _fechaNacimientoController.text = fechaStr;
       }
@@ -100,7 +100,7 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
       setState(() {
         _fechaSeleccionada = seleccion;
         _fechaNacimientoController.text =
-            DateFormat('dd/MM/yyyy').format(seleccion);
+            formatearFecha(seleccion);
       });
     }
   }

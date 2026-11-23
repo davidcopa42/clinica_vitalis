@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 import '../../../domain/models/obra_social.dart';
+import '../../core/formato.dart';
 import '../view_models/completar_perfil_view_model.dart';
 import 'formulario_perfil.dart';
 import 'limites_fecha_nacimiento.dart';
@@ -73,7 +73,7 @@ class _CompletarPerfilScreenState extends State<CompletarPerfilScreen> {
       setState(() {
         _fechaSeleccionada = seleccion;
         _fechaNacimientoController.text =
-            DateFormat('dd/MM/yyyy').format(seleccion);
+            formatearFecha(seleccion);
       });
     }
   }

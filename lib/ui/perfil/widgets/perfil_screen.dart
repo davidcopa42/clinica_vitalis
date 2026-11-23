@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 import '../../../domain/models/obra_social.dart';
+import '../../core/formato.dart';
 import '../view_models/perfil_view_model.dart';
 import 'editar_perfil_screen.dart';
 
@@ -30,7 +30,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
     }
     try {
       final fecha = DateTime.parse(textoFecha);
-      return DateFormat('dd/MM/yyyy').format(fecha);
+      return formatearFecha(fecha);
     } catch (_) {
       return textoFecha;
     }
