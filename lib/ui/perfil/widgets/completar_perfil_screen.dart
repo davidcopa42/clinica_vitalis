@@ -1,142 +1,70 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
-import '../../../data/repositories/auth_repository.dart';
-import '../../../data/services/perfil_service.dart';
+import '../../core/dimensiones.dart';
+import '../../core/widgets/dialogo_cerrar_sesion.dart';
+import '../view_models/formulario_perfil_view_model.dart';
+import 'controladores_perfil.dart';
 import 'formulario_perfil.dart';
 
+/// Pantalla que pide los datos faltantes antes de usar la app.
 class CompletarPerfilScreen extends StatefulWidget {
-  final String uid;
-  final String correoInicial;
-  final String nombreInicial;
-  final VoidCallback onPerfilCompletado;
-
   const CompletarPerfilScreen({
     super.key,
-    required this.uid,
-    required this.correoInicial,
-    required this.nombreInicial,
+    required this.viewModel,
     required this.onPerfilCompletado,
   });
+
+  final FormularioPerfilViewModel viewModel;
+  final VoidCallback onPerfilCompletado;
 
   @override
   State<CompletarPerfilScreen> createState() => _CompletarPerfilScreenState();
 }
 
 class _CompletarPerfilScreenState extends State<CompletarPerfilScreen> {
-  final _formKey = GlobalKey<FormState>();
-  late final TextEditingController _nombreController;
-  final _apellidoController = TextEditingController();
-  final _dniController = TextEditingController();
-  final _fechaNacimientoController = TextEditingController();
-  final _telefonoController = TextEditingController();
-  final _numeroAfiliadoController = TextEditingController();
+  final _claveFormulario = GlobalKey<FormState>();
+  final _controladores = ControladoresPerfil();
 
-  String _obraSocialSeleccionada = 'Particular';
-  DateTime? _fechaSeleccionada;
-
-  final PerfilService _perfilService = PerfilService();
-  bool _isLoading = false;
+  FormularioPerfilViewModel get _viewModel => widget.viewModel;
 
   @override
   void initState() {
     super.initState();
-    final partesNombre = widget.nombreInicial.split(' ');
-    _nombreController = TextEditingController(
-        text: partesNombre.isNotEmpty ? partesNombre.first : '');
-    if (partesNombre.length > 1) {
-      _apellidoController.text = partesNombre.sublist(1).join(' ');
-    }
+    _preparar();
+  }
+
+  Future<void> _preparar() async {
+    await _viewModel.prepararParaCompletar();
+    if (mounted) _controladores.cargarDesde(_viewModel);
   }
 
   @override
   void dispose() {
-    _nombreController.dispose();
-    _apellidoController.dispose();
-    _dniController.dispose();
-    _fechaNacimientoController.dispose();
-    _telefonoController.dispose();
-    _numeroAfiliadoController.dispose();
+    _controladores.dispose();
     super.dispose();
   }
 
-  Future<void> _seleccionarFecha(BuildContext context) async {
-    final DateTime? seleccion = await showDatePicker(
+  Future<void> _elegirFecha() async {
+    final fecha = await showDatePicker(
       context: context,
-      initialDate: DateTime.now().subtract(const Duration(days: 365 * 18)),
-      firstDate: DateTime(1900),
-      lastDate: DateTime.now(),
+      initialDate: _viewModel.fechaInicialSelector,
+      firstDate: FormularioPerfilViewModel.fechaNacimientoMinima,
+      lastDate: _viewModel.fechaNacimientoMaxima,
     );
-
-    if (seleccion != null && seleccion != _fechaSeleccionada) {
-      setState(() {
-        _fechaSeleccionada = seleccion;
-        _fechaNacimientoController.text =
-            DateFormat('dd/MM/yyyy').format(seleccion);
-      });
-    }
+    if (fecha == null) return;
+    _viewModel.seleccionarFechaNacimiento(fecha);
+    _controladores.fechaNacimiento.text = _viewModel.fechaNacimientoTexto;
   }
 
-  void _guardarPerfil() async {
-    if (_formKey.currentState?.validate() ?? false) {
-      setState(() => _isLoading = true);
-
-      try {
-        await _perfilService.guardarPerfil(widget.uid, {
-          'nombre': _nombreController.text.trim(),
-          'apellido': _apellidoController.text.trim(),
-          'correo': widget.correoInicial,
-          'dni': _dniController.text.trim(),
-          'fechaNacimiento': _fechaSeleccionada?.toIso8601String() ?? '',
-          'telefono': _telefonoController.text.trim(),
-          'obraSocial': _obraSocialSeleccionada,
-          'numeroAfiliado': _obraSocialSeleccionada == 'Particular'
-              ? ''
-              : _numeroAfiliadoController.text.trim(),
-        });
-
-        if (mounted) {
-          widget.onPerfilCompletado();
-        }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error al guardar el perfil: $e')),
-          );
-        }
-      } finally {
-        if (mounted) {
-          setState(() => _isLoading = false);
-        }
-      }
-    }
+  Future<void> _guardar() async {
+    if (!(_claveFormulario.currentState?.validate() ?? false)) return;
+    await _controladores.guardarEn(_viewModel);
+    if (mounted && _viewModel.fueGuardado) widget.onPerfilCompletado();
   }
 
-  Future<void> _confirmarCierreSesion() async {
-    final confirmar = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Cerrar sesión'),
-        content: const Text('¿Estás seguro de que deseas salir?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Salir', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmar == true && mounted) {
-      await AuthRepository().cerrarSesion();
-      if (mounted) {
-        Navigator.of(context).popUntil((route) => route.isFirst);
-      }
-    }
+  Future<void> _cerrarSesion() async {
+    final confirmado = await DialogoCerrarSesion.confirmar(context);
+    if (confirmado) await _viewModel.cerrarSesion();
   }
 
   @override
@@ -149,45 +77,37 @@ class _CompletarPerfilScreenState extends State<CompletarPerfilScreen> {
           IconButton(
             icon: const Icon(Icons.logout, color: Colors.red),
             tooltip: 'Cerrar sesión',
-            onPressed: _confirmarCierreSesion,
+            onPressed: _cerrarSesion,
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Center(
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                const Icon(Icons.badge, size: 70, color: Colors.blue),
-                const SizedBox(height: 16),
-                const Text(
-                  'Necesitamos algunos datos adicionales para agendar sus turnos en Clínica Vitalis.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 15, color: Colors.grey),
-                ),
-                const SizedBox(height: 32),
-                FormularioPerfil(
-                  formKey: _formKey,
-                  nombreController: _nombreController,
-                  apellidoController: _apellidoController,
-                  dniController: _dniController,
-                  fechaNacimientoController: _fechaNacimientoController,
-                  telefonoController: _telefonoController,
-                  obraSocialValue: _obraSocialSeleccionada,
-                  numeroAfiliadoController: _numeroAfiliadoController,
-                  onObraSocialChanged: (nuevoValor) {
-                    if (nuevoValor != null) {
-                      setState(() => _obraSocialSeleccionada = nuevoValor);
-                    }
-                  },
-                  onTapFecha: () => _seleccionarFecha(context),
-                  onGuardar: _guardarPerfil,
-                  isLoading: _isLoading,
-                  textoBoton: 'Continuar a la App',
-                ),
-              ],
-            ),
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(Dimensiones.margenPantalla),
+          child: Column(
+            children: [
+              const Icon(
+                Icons.badge,
+                size: Dimensiones.iconoDestacado,
+                color: Colors.blue,
+              ),
+              const SizedBox(height: Dimensiones.separacion),
+              const Text(
+                'Necesitamos algunos datos adicionales para agendar sus '
+                'turnos en Clínica Vitalis.',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.grey),
+              ),
+              const SizedBox(height: Dimensiones.separacionSeccion),
+              FormularioPerfil(
+                claveFormulario: _claveFormulario,
+                controladores: _controladores,
+                viewModel: _viewModel,
+                textoBoton: 'Continuar a la App',
+                onElegirFecha: _elegirFecha,
+                onGuardar: _guardar,
+              ),
+            ],
           ),
         ),
       ),

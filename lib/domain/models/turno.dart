@@ -1,7 +1,7 @@
 /// Estado de un turno.
 enum EstadoTurno { confirmado, cancelado }
 
-/// Turno médico reservado por un paciente.
+/// Turno medico reservado por un paciente.
 class Turno {
   const Turno({
     this.id,
@@ -13,16 +13,29 @@ class Turno {
     this.estado = EstadoTurno.confirmado,
   });
 
+  /// Crea un turno a partir de un mapa leido de la base de datos.
+  factory Turno.fromMap(Map<String, Object?> mapa) {
+    return Turno(
+      id: mapa['id'] as int?,
+      pacienteUid: mapa['paciente_uid'] as String,
+      especialidad: mapa['especialidad'] as String,
+      profesional: mapa['profesional'] as String,
+      fecha: DateTime.parse(mapa['fecha'] as String),
+      horario: mapa['horario'] as String,
+      estado: EstadoTurno.values.byName(mapa['estado'] as String),
+    );
+  }
+
   /// Identificador en la base de datos. Es null hasta que se guarda.
   final int? id;
 
-  /// Identificador del paciente dueño del turno.
+  /// Identificador del paciente duenio del turno.
   final String pacienteUid;
 
   final String especialidad;
   final String profesional;
 
-  /// Día del turno (la hora está en [horario]).
+  /// Dia del turno (la hora esta en [horario]).
   final DateTime fecha;
 
   /// Hora del turno con formato 'HH:mm', por ejemplo '09:30'.
@@ -31,7 +44,10 @@ class Turno {
   final EstadoTurno estado;
 
   /// Fecha y hora juntas, para ordenar y programar el recordatorio.
-  DateTime get fechaHora {
+  DateTime get fechaHora => combinarFechaYHorario(fecha, horario);
+
+  /// Junta el dia de [fecha] con un [horario] 'HH:mm'.
+  static DateTime combinarFechaYHorario(DateTime fecha, String horario) {
     final partes = horario.split(':');
     return DateTime(
       fecha.year,
@@ -41,6 +57,10 @@ class Turno {
       int.parse(partes[1]),
     );
   }
+
+  /// Deja solo dia, mes y anio de [fecha] (hora 00:00).
+  static DateTime soloDia(DateTime fecha) =>
+      DateTime(fecha.year, fecha.month, fecha.day);
 
   /// Devuelve una copia con el id o el estado cambiados.
   Turno copyWith({int? id, EstadoTurno? estado}) {
@@ -62,22 +82,9 @@ class Turno {
       'paciente_uid': pacienteUid,
       'especialidad': especialidad,
       'profesional': profesional,
-      'fecha': DateTime(fecha.year, fecha.month, fecha.day).toIso8601String(),
+      'fecha': soloDia(fecha).toIso8601String(),
       'horario': horario,
       'estado': estado.name,
     };
-  }
-
-  /// Crea un turno a partir de un mapa leído de la base de datos.
-  factory Turno.fromMap(Map<String, Object?> mapa) {
-    return Turno(
-      id: mapa['id'] as int?,
-      pacienteUid: mapa['paciente_uid'] as String,
-      especialidad: mapa['especialidad'] as String,
-      profesional: mapa['profesional'] as String,
-      fecha: DateTime.parse(mapa['fecha'] as String),
-      horario: mapa['horario'] as String,
-      estado: EstadoTurno.values.byName(mapa['estado'] as String),
-    );
   }
 }

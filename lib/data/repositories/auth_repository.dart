@@ -1,94 +1,46 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import '../services/auth_service.dart';
+/// Contrato para la autenticacion del paciente.
+///
+/// Los metodos que fallan lanzan [AuthException] con un mensaje traducido.
+abstract class AuthRepository {
+  /// Emite el uid del usuario cada vez que cambia la sesion (null si no hay).
+  Stream<String?> get cambiosDeSesion;
 
-class AuthException implements Exception {
-  AuthException(this.mensaje);
-  final String mensaje;
-  @override
-  String toString() => mensaje;
-}
+  /// Uid del usuario con sesion iniciada, o null.
+  String? get uidActual;
 
-class AuthRepository {
-  final AuthService _authService = AuthService();
+  /// Indica si el usuario actual ya verifico su correo.
+  bool get correoVerificado;
 
-  Stream<String?> get cambiosDeSesion =>
-      _authService.cambiosDeUsuario.map((user) => user?.uid);
+  /// Correo del usuario actual, o null.
+  String? get correoActual;
 
-  String? get uidActual => _authService.usuarioActual?.uid;
+  /// Nombre visible del usuario actual, o null.
+  String? get nombreVisible;
 
-  bool get correoVerificado =>
-      _authService.usuarioActual?.emailVerified ?? false;
+  /// Foto del usuario actual (por ejemplo, la de Google), o null.
+  String? get fotoUrl;
 
-  Future<void> registrarConCorreo(String correo, String contrasena) async {
-    try {
-      await _authService.registrarConCorreo(correo, contrasena);
-    } on FirebaseAuthException catch (e) {
-      throw _traducirError(e);
-    }
-  }
+  /// Crea una cuenta con correo y contrasena.
+  Future<void> registrarConCorreo(String correo, String contrasena);
 
-  Future<void> iniciarConCorreo(String correo, String contrasena) async {
-    try {
-      await _authService.iniciarConCorreo(correo, contrasena);
-    } on FirebaseAuthException catch (e) {
-      throw _traducirError(e);
-    }
-  }
+  /// Inicia sesion con correo y contrasena.
+  Future<void> iniciarConCorreo(String correo, String contrasena);
 
-  Future<void> iniciarConGoogle() async {
-    try {
-      await _authService.iniciarConGoogle();
-    } on FirebaseAuthException catch (e) {
-      throw _traducirError(e);
-    }
-  }
+  /// Inicia sesion con Google. Devuelve false si el usuario cancelo.
+  Future<bool> iniciarConGoogle();
 
-  Future<void> enviarVerificacion() async {
-    try {
-      await _authService.enviarVerificacion();
-    } on FirebaseAuthException catch (e) {
-      throw _traducirError(e);
-    }
-  }
+  /// Cambia el nombre visible del usuario actual.
+  Future<void> actualizarNombreVisible(String nombre);
 
-  Future<void> recargarUsuario() async {
-    try {
-      await _authService.recargarUsuario();
-    } on FirebaseAuthException catch (e) {
-      throw _traducirError(e);
-    }
-  }
+  /// Envia el correo de verificacion.
+  Future<void> enviarVerificacion();
 
-  Future<void> recuperarContrasena(String correo) async {
-    try {
-      await _authService.recuperarContrasena(correo);
-    } on FirebaseAuthException catch (e) {
-      throw _traducirError(e);
-    }
-  }
+  /// Vuelve a leer el usuario actual (por ejemplo, tras verificar el correo).
+  Future<void> recargarUsuario();
 
-  Future<void> cerrarSesion() async {
-    await _authService.cerrarSesion();
-  }
+  /// Envia el enlace para restablecer la contrasena.
+  Future<void> recuperarContrasena(String correo);
 
-  AuthException _traducirError(FirebaseAuthException e) {
-    switch (e.code) {
-      case 'invalid-email':
-        return AuthException('El correo no es válido.');
-      case 'invalid-credential':
-      case 'wrong-password':
-      case 'user-not-found':
-        return AuthException('Correo o contraseña incorrectos.');
-      case 'email-already-in-use':
-        return AuthException('Ya existe una cuenta con ese correo.');
-      case 'weak-password':
-        return AuthException('La contraseña es muy débil.');
-      case 'network-request-failed':
-        return AuthException('Sin conexión. Revisá internet.');
-      case 'too-many-requests':
-        return AuthException('Demasiados intentos. Probá en unos minutos.');
-      default:
-        return AuthException('Ocurrió un error al autenticar.');
-    }
-  }
+  /// Cierra la sesion actual.
+  Future<void> cerrarSesion();
 }

@@ -1,48 +1,50 @@
-import 'package:clinica_vitalis/data/repositories/historia_clinica_repository.dart';
-import 'package:clinica_vitalis/domain/models/registro_clinico.dart';
-import 'package:clinica_vitalis/ui/core/estado_carga.dart';
 import 'package:flutter/foundation.dart';
 
-/// Administra los datos y el estado de la historia clínica.
+import '../../../data/repositories/auth_repository.dart';
+import '../../../data/repositories/historia_clinica_repository.dart';
+import '../../../domain/models/registro_clinico.dart';
+import '../../core/estado_carga.dart';
+
+/// Estado y comandos de la pantalla de historia clinica.
 class HistoriaClinicaViewModel extends ChangeNotifier {
   HistoriaClinicaViewModel({
-    required HistoriaClinicaRepository repositorio,
-  }) : _repositorio = repositorio;
+    required HistoriaClinicaRepository historiaClinicaRepository,
+    required AuthRepository authRepository,
+  })  : _historiaClinicaRepository = historiaClinicaRepository,
+        _authRepository = authRepository;
 
-  final HistoriaClinicaRepository _repositorio;
+  final HistoriaClinicaRepository _historiaClinicaRepository;
+  final AuthRepository _authRepository;
 
   EstadoCarga _estado = EstadoCarga.inicial;
   List<RegistroClinico> _registros = [];
   TipoRegistro? _filtro;
   String? _mensajeError;
-  String _pacienteUid = '';
 
   EstadoCarga get estado => _estado;
-
-  List<RegistroClinico> get registros => List.unmodifiable(_registros);
-
   TipoRegistro? get filtro => _filtro;
-
   String? get mensajeError => _mensajeError;
 
-  /// Registros filtrados según el tipo seleccionado.
-  List<RegistroClinico> get registrosFiltrados {
-    if (_filtro == null) {
-      return List.unmodifiable(_registros);
-    }
+  /// Registros del tipo seleccionado, o todos si no hay filtro.
+  List<RegistroClinico> get registrosFiltrados => List.unmodifiable(
+        _filtro == null
+            ? _registros
+            : _registros.where((registro) => registro.tipo == _filtro),
+      );
 
-    return _registros.where((registro) => registro.tipo == _filtro).toList();
-  }
+  bool get hayRegistrosFiltrados => registrosFiltrados.isNotEmpty;
 
-  /// Carga los registros clínicos del paciente.
-  Future<void> cargar(String pacienteUid) async {
-    _pacienteUid = pacienteUid;
+  /// Carga los registros clinicos del paciente con sesion iniciada.
+  Future<void> cargar() async {
+    final uid = _authRepository.uidActual;
+    if (uid == null) return;
+
     _estado = EstadoCarga.cargando;
     _mensajeError = null;
     notifyListeners();
 
     try {
-      _registros = await _repositorio.obtenerRegistros(pacienteUid);
+      _registros = await _historiaClinicaRepository.obtenerRegistros(uid);
       _estado = EstadoCarga.exito;
     } catch (_) {
       _mensajeError = 'No se pudo cargar la historia clínica.';
@@ -50,11 +52,6 @@ class HistoriaClinicaViewModel extends ChangeNotifier {
     } finally {
       notifyListeners();
     }
-  }
-
-  /// Reintenta la carga de los registros.
-  Future<void> reintentar() async {
-    await cargar(_pacienteUid);
   }
 
   /// Cambia el filtro de registros.

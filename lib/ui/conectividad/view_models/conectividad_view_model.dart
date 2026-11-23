@@ -1,32 +1,33 @@
 import 'dart:async';
+
 import 'package:flutter/foundation.dart';
-import '../../../data/services/conectividad_service.dart';
 
+import '../../../data/repositories/conectividad_repository.dart';
+
+/// Expone si hay conexion a internet para mostrar un aviso.
 class ConectividadViewModel extends ChangeNotifier {
-  final ServicioDeConectividad _servicio;
-  StreamSubscription<bool>? _suscripcion;
-  bool _hayConexion = true;
-
-  ConectividadViewModel({required ServicioDeConectividad servicio}) : _servicio = servicio {
-    // 1. Nos suscribimos a los cambios del stream
-    _suscripcion = _servicio.cambios.listen(_actualizar);
-
-    // 2. Verificamos el estado actual de la red de inmediato
-    _servicio.hayRed().then(_actualizar);
+  ConectividadViewModel({
+    required ConectividadRepository conectividadRepository,
+  }) : _repositorio = conectividadRepository {
+    _suscripcion = _repositorio.cambiosDeConexion.listen(_actualizar);
+    _repositorio.hayConexion().then(_actualizar);
   }
+
+  final ConectividadRepository _repositorio;
+  late final StreamSubscription<bool> _suscripcion;
+  bool _hayConexion = true;
 
   bool get hayConexion => _hayConexion;
 
-  void _actualizar(bool hay) {
-    if (hay == _hayConexion) return;
-    _hayConexion = hay;
-    notifyListeners(); // Notifica a la interfaz para que redibuje el aviso si cambia
+  void _actualizar(bool hayConexion) {
+    if (hayConexion == _hayConexion) return;
+    _hayConexion = hayConexion;
+    notifyListeners();
   }
 
   @override
   void dispose() {
-    // 3. OBLIGATORIO: cancelamos la suscripción para evitar fugas de memoria (Memory Leaks)
-    _suscripcion?.cancel();
+    _suscripcion.cancel();
     super.dispose();
   }
 }

@@ -1,3 +1,4 @@
+/// Paciente de la clinica con sus datos personales y de cobertura.
 class Paciente {
   const Paciente({
     required this.uid,
@@ -12,11 +13,35 @@ class Paciente {
     this.fotoUrl,
   });
 
-  final String uid, nombre, apellido, correo, telefono, dni;
-  final DateTime? fechaNacimiento;
-  final String? obraSocial, numeroAfiliado, fotoUrl;
+  /// Crea un paciente a partir de un mapa leido de la base remota.
+  factory Paciente.fromMap(Map<String, Object?> mapa) {
+    return Paciente(
+      uid: mapa['uid'] as String? ?? '',
+      nombre: mapa['nombre'] as String? ?? '',
+      apellido: mapa['apellido'] as String? ?? '',
+      correo: mapa['correo'] as String? ?? '',
+      telefono: mapa['telefono'] as String? ?? '',
+      dni: mapa['dni'] as String? ?? '',
+      fechaNacimiento:
+          DateTime.tryParse(mapa['fechaNacimiento'] as String? ?? ''),
+      obraSocial: mapa['obraSocial'] as String?,
+      numeroAfiliado: mapa['numeroAfiliado'] as String?,
+      fotoUrl: mapa['fotoUrl'] as String?,
+    );
+  }
 
-  /// Nombre, apellido, teléfono, DNI y fecha de nacimiento cargados.
+  final String uid;
+  final String nombre;
+  final String apellido;
+  final String correo;
+  final String telefono;
+  final String dni;
+  final DateTime? fechaNacimiento;
+  final String? obraSocial;
+  final String? numeroAfiliado;
+  final String? fotoUrl;
+
+  /// Indica si estan cargados nombre, apellido, telefono, DNI y nacimiento.
   bool get perfilCompleto =>
       nombre.isNotEmpty &&
       apellido.isNotEmpty &&
@@ -24,8 +49,10 @@ class Paciente {
       dni.isNotEmpty &&
       fechaNacimiento != null;
 
-  String get nombreCompleto => '$nombre $apellido';
+  /// Nombre y apellido separados por un espacio.
+  String get nombreCompleto => '$nombre $apellido'.trim();
 
+  /// Devuelve una copia con los campos indicados reemplazados.
   Paciente copyWith({
     String? uid,
     String? nombre,
@@ -52,6 +79,7 @@ class Paciente {
     );
   }
 
+  /// Convierte el paciente en un mapa para guardarlo en la base remota.
   Map<String, Object?> toMap() {
     return {
       'uid': uid,
@@ -65,22 +93,5 @@ class Paciente {
       'numeroAfiliado': numeroAfiliado,
       'fotoUrl': fotoUrl,
     };
-  }
-
-  factory Paciente.fromMap(Map<String, Object?> mapa) {
-    return Paciente(
-      uid: mapa['uid'] as String? ?? '',
-      nombre: mapa['nombre'] as String? ?? '',
-      apellido: mapa['apellido'] as String? ?? '',
-      correo: mapa['correo'] as String? ?? '',
-      telefono: mapa['telefono'] as String? ?? '',
-      dni: mapa['dni'] as String? ?? '',
-      fechaNacimiento: mapa['fechaNacimiento'] != null
-          ? DateTime.parse(mapa['fechaNacimiento'] as String)
-          : null,
-      obraSocial: mapa['obraSocial'] as String?,
-      numeroAfiliado: mapa['numeroAfiliado'] as String?,
-      fotoUrl: mapa['fotoUrl'] as String?,
-    );
   }
 }

@@ -1,61 +1,74 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 
+import '../../../data/repositories/auth_exception.dart';
 import '../../../data/repositories/auth_repository.dart';
 import '../../../data/repositories/perfil_repository.dart';
+import '../../../domain/models/paciente.dart';
 import '../../core/estado_carga.dart';
+import '../../core/obras_sociales.dart';
 
+/// Estado y comandos de la pantalla para crear una cuenta.
 class CrearCuentaViewModel extends ChangeNotifier {
-  EstadoCarga _estadoCarga = EstadoCarga.inicial;
+  CrearCuentaViewModel({
+    required AuthRepository authRepository,
+    required PerfilRepository perfilRepository,
+  })  : _authRepository = authRepository,
+        _perfilRepository = perfilRepository;
+
+  final AuthRepository _authRepository;
+  final PerfilRepository _perfilRepository;
+
+  EstadoCarga _estado = EstadoCarga.inicial;
   String? _mensajeError;
 
-  EstadoCarga get estadoCarga => _estadoCarga;
+  EstadoCarga get estado => _estado;
   String? get mensajeError => _mensajeError;
+  bool get estaCargando => _estado == EstadoCarga.cargando;
+  bool get tieneError => _estado == EstadoCarga.error;
+  bool get fueRegistrado => _estado == EstadoCarga.exito;
 
-  final AuthRepository _authRepo = AuthRepository();
-  final PerfilRepository _perfilRepo = PerfilRepository();
+  /// Vuelve al estado inicial (por ejemplo, al abrir la pantalla).
+  void reiniciar() {
+    _estado = EstadoCarga.inicial;
+    _mensajeError = null;
+    notifyListeners();
+  }
 
+  /// Crea la cuenta, guarda el perfil base y envia la verificacion.
   Future<void> registrarUsuario({
     required String nombre,
     required String apellido,
     required String correo,
-    required String password,
+    required String contrasena,
   }) async {
-    _estadoCarga = EstadoCarga.cargando;
+    _estado = EstadoCarga.cargando;
     _mensajeError = null;
     notifyListeners();
 
     try {
-      await _authRepo.registrarConCorreo(correo, password);
+      await _authRepository.registrarConCorreo(correo, contrasena);
+      await _authRepository.actualizarNombreVisible('$nombre $apellido');
 
-      final userActual = FirebaseAuth.instance.currentUser;
-      await userActual
-          ?.updateDisplayName('${nombre.trim()} ${apellido.trim()}');
-
-      final uid = _authRepo.uidActual;
-
+      final uid = _authRepository.uidActual;
       if (uid != null) {
-        await _perfilRepo.guardarPerfil(uid, {
-          'nombre': nombre.trim(),
-          'apellido': apellido.trim(),
-          'correo': correo.trim(),
-          'telefono': '',
-          'dni': '',
-          'fechaNacimiento': '',
-          'obraSocial': 'Particular',
-          'numeroAfiliado': '',
-          'photoUrl': '',
-        });
-
-        await _authRepo.enviarVerificacion();
+        await _perfilRepository.guardarPerfil(
+          Paciente(
+            uid: uid,
+            nombre: nombre,
+            apellido: apellido,
+            correo: correo,
+            obraSocial: ObrasSociales.particular,
+          ),
+        );
+        await _authRepository.enviarVerificacion();
       }
 
-      _estadoCarga = EstadoCarga.exito;
-    } on AuthException catch (e) {
-      _estadoCarga = EstadoCarga.error;
-      _mensajeError = e.mensaje;
-    } catch (e) {
-      _estadoCarga = EstadoCarga.error;
+      _estado = EstadoCarga.exito;
+    } on AuthException catch (error) {
+      _estado = EstadoCarga.error;
+      _mensajeError = error.mensaje;
+    } catch (_) {
+      _estado = EstadoCarga.error;
       _mensajeError = 'Ocurrió un error inesperado al registrarse.';
     } finally {
       notifyListeners();

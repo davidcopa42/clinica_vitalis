@@ -1,88 +1,42 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import '../../../data/repositories/auth_repository.dart';
-import '../../../data/repositories/perfil_repository.dart';
-import '../../inicio/widgets/inicio.dart';
-import '../../perfil/widgets/completar_perfil_screen.dart';
+import '../../core/widgets/vista_cargando.dart';
+import '../view_models/estado_sesion.dart';
 import '../view_models/sesion_view_model.dart';
-import 'login.dart';
-import 'verificar_correo.dart';
 
-class PuertaSesion extends StatefulWidget {
-  const PuertaSesion({super.key});
+/// Muestra la pantalla que corresponde a cada [EstadoSesion].
+///
+/// Las pantallas se construyen en `main.dart` y llegan ya armadas.
+class PuertaSesion extends StatelessWidget {
+  const PuertaSesion({
+    super.key,
+    required this.viewModel,
+    required this.pantallaLogin,
+    required this.pantallaVerificarCorreo,
+    required this.pantallaCompletarPerfil,
+    required this.pantallaInicio,
+  });
 
-  @override
-  State<PuertaSesion> createState() => _PuertaSesionState();
-}
-
-class _PuertaSesionState extends State<PuertaSesion> {
-  late final SesionViewModel _sesionVM;
-
-  @override
-  void initState() {
-    super.initState();
-    _sesionVM = SesionViewModel(
-      authRepo: AuthRepository(),
-      perfilRepo: PerfilRepository(),
-    );
-  }
-
-  @override
-  void dispose() {
-    _sesionVM.dispose();
-    super.dispose();
-  }
+  final SesionViewModel viewModel;
+  final Widget pantallaLogin;
+  final Widget pantallaVerificarCorreo;
+  final Widget pantallaCompletarPerfil;
+  final Widget pantallaInicio;
 
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
-      listenable: _sesionVM,
-      builder: (context, child) {
-        if (_sesionVM.isCargando) {
-          return const Scaffold(
-            body: Center(
-              child: CircularProgressIndicator(),
-            ),
-          );
+      listenable: viewModel,
+      builder: (context, _) {
+        if (viewModel.estaCargando) {
+          return const Scaffold(body: VistaCargando());
         }
-
-        switch (_sesionVM.estadoSesion) {
-          case EstadoSesion.sinSesion:
-            return const LoginScreen();
-
-          case EstadoSesion.correoSinVerificar:
-            return VerificarCorreoScreen(
-              onVerificado: () async {
-                await _sesionVM.recargarYCalcular();
-              },
-            );
-
-          case EstadoSesion.perfilIncompleto:
-            final userActual = FirebaseAuth.instance.currentUser;
-            return CompletarPerfilScreen(
-              uid: userActual?.uid ?? '',
-              correoInicial: userActual?.email ?? '',
-              nombreInicial: userActual?.displayName ?? '',
-              onPerfilCompletado: () async {
-                await _sesionVM.recargarYCalcular();
-              },
-            );
-
-          case EstadoSesion.lista:
-            final paciente = _sesionVM.pacienteActual;
-            if (paciente == null) {
-              return const Scaffold(
-                body: Center(
-                  child: CircularProgressIndicator(),
-                ),
-              );
-            }
-            return InicioPage(
-              paciente: paciente,
-              sesion: _sesionVM,
-            );
-        }
+        return switch (viewModel.estadoSesion) {
+          EstadoSesion.sinSesion => pantallaLogin,
+          EstadoSesion.correoSinVerificar => pantallaVerificarCorreo,
+          EstadoSesion.perfilIncompleto => pantallaCompletarPerfil,
+          EstadoSesion.lista => pantallaInicio,
+        };
       },
     );
   }

@@ -35,6 +35,18 @@ void main() {
       expect(pacienteReconstruido.fotoUrl, pacienteOriginal.fotoUrl);
     });
 
+    test('fromMap tolera fechaNacimiento vacia o nula sin lanzar excepcion',
+        () {
+      const base = {'uid': '1', 'nombre': 'Ana', 'apellido': 'Paz'};
+
+      final conVacia = Paciente.fromMap({...base, 'fechaNacimiento': ''});
+      final conNula = Paciente.fromMap({...base, 'fechaNacimiento': null});
+
+      expect(conVacia.fechaNacimiento, isNull);
+      expect(conNula.fechaNacimiento, isNull);
+      expect(conVacia.perfilCompleto, isFalse);
+    });
+
     test('perfilCompleto debe ser false si falta algún dato obligatorio', () {
       const pacienteIncompleto = Paciente(
         uid: '123',

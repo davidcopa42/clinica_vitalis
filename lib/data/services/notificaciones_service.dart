@@ -1,91 +1,74 @@
-
-import 'package:clinica_vitalis/domain/models/turno.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/data/latest_all.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 
+/// Acceso directo al plugin de notificaciones locales.
 class NotificacionesService {
-  NotificacionesService._internal();
+  NotificacionesService({required FlutterLocalNotificationsPlugin plugin})
+      : _plugin = plugin;
 
-  static final NotificacionesService _instancia =
-  NotificacionesService._internal();
+  static const idCanal = 'recordatorios_turnos';
+  static const nombreCanal = 'Recordatorios de turnos';
+  static const descripcionCanal = 'Avisos de proximos turnos medicos.';
+  static const iconoAndroid = '@mipmap/ic_launcher';
 
-  factory NotificacionesService() => _instancia;
+  final FlutterLocalNotificationsPlugin _plugin;
 
-  final FlutterLocalNotificationsPlugin _notificaciones =
-  FlutterLocalNotificationsPlugin();
-
+  /// Configura zona horaria, canal de Android y permisos.
   Future<void> inicializar() async {
     tz_data.initializeTimeZones();
-
     final zonaHoraria = await FlutterTimezone.getLocalTimezone();
     tz.setLocalLocation(tz.getLocation(zonaHoraria.identifier));
 
-    const configuracionAndroid =
-    AndroidInitializationSettings('@mipmap/ic_launcher');
-
-    const configuracion = InitializationSettings(
-      android: configuracionAndroid,
+    await _plugin.initialize(
+      settings: const InitializationSettings(
+        android: AndroidInitializationSettings(iconoAndroid),
+      ),
     );
 
-    await _notificaciones.initialize(
-      settings: configuracion,
-    );
-
-    final android = _notificaciones.resolvePlatformSpecificImplementation<
+    final android = _plugin.resolvePlatformSpecificImplementation<
         AndroidFlutterLocalNotificationsPlugin>();
 
-    // Crear explícitamente el canal de notificaciones.
-    const canalRecordatorios = AndroidNotificationChannel(
-      'recordatorios_turnos',
-      'Recordatorios de turnos',
-      description: 'Avisos de próximos turnos médicos.',
-      importance: Importance.max,
+    await android?.createNotificationChannel(
+      const AndroidNotificationChannel(
+        idCanal,
+        nombreCanal,
+        description: descripcionCanal,
+        importance: Importance.max,
+      ),
     );
-
-    await android?.createNotificationChannel(canalRecordatorios);
-
-    // Solicitar permisos.
     await android?.requestNotificationsPermission();
     await android?.requestExactAlarmsPermission();
   }
 
-  Future<void> programarRecordatorio(Turno turno) async {
-    if (turno.id == null) return;
-
-    if (turno.estado != EstadoTurno.confirmado) return;
-
-    final fechaRecordatorio =
-    turno.fechaHora.subtract(const Duration(hours: 24));
-
-    if (!fechaRecordatorio.isAfter(DateTime.now())) return;
-
-    final fechaProgramada =
-    tz.TZDateTime.from(fechaRecordatorio, tz.local);
-
-    const detalles = NotificationDetails(
-      android: AndroidNotificationDetails(
-        'recordatorios_turnos',
-        'Recordatorios de turnos',
-        channelDescription: 'Avisos de próximos turnos médicos.',
-        importance: Importance.max,
-        priority: Priority.high,
+  /// Programa una notificacion para [fecha] en la zona horaria local.
+  Future<void> programar({
+    required int id,
+    required String titulo,
+    required String cuerpo,
+    required DateTime fecha,
+  }) async {
+    await _plugin.zonedSchedule(
+      id: id,
+      title: titulo,
+      body: cuerpo,
+      scheduledDate: tz.TZDateTime.from(fecha, tz.local),
+      notificationDetails: const NotificationDetails(
+        android: AndroidNotificationDetails(
+          idCanal,
+          nombreCanal,
+          channelDescription: descripcionCanal,
+          importance: Importance.max,
+          priority: Priority.high,
+        ),
       ),
-    );
-
-    await _notificaciones.zonedSchedule(
-      id: turno.id!,
-      title: 'Recordatorio de turno',
-      body:
-      'Mañana tenés turno con ${turno.profesional} a las ${turno.horario}.',
-      scheduledDate: fechaProgramada,
-      notificationDetails: detalles,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
     );
   }
 
-  Future<void> cancelarRecordatorio(int turnoId) async {
-    await _notificaciones.cancel(id: turnoId);
+  /// Cancela la notificacion con ese [id].
+  Future<void> cancelar(int id) async {
+    await _plugin.cancel(id: id);
   }
 }

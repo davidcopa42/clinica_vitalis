@@ -1,23 +1,17 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 
-/// Define la interfaz o contrato para la conectividad
-abstract class ServicioDeConectividad {
-  Stream<bool> get cambios;
-  Future<bool> hayRed();
-}
+/// Acceso directo al plugin connectivity_plus.
+class ConectividadService {
+  ConectividadService({required Connectivity conectividad})
+      : _conectividad = conectividad;
 
-/// Implementación usando el plugin connectivity_plus
-bool _hayAlgunaRed(List<ConnectivityResult> resultados) =>
-    resultados.any((r) => r != ConnectivityResult.none);
+  final Connectivity _conectividad;
 
-class ConectividadConPlus implements ServicioDeConectividad {
-  final Connectivity _connectivity = Connectivity();
+  /// Emite los tipos de red disponibles cada vez que cambian.
+  Stream<List<ConnectivityResult>> get cambios =>
+      _conectividad.onConnectivityChanged;
 
-  @override
-  Stream<bool> get cambios =>
-      _connectivity.onConnectivityChanged.map(_hayAlgunaRed).distinct();
-
-  @override
-  Future<bool> hayRed() async =>
-      _hayAlgunaRed(await _connectivity.checkConnectivity());
+  /// Devuelve los tipos de red disponibles en este momento.
+  Future<List<ConnectivityResult>> consultarEstado() =>
+      _conectividad.checkConnectivity();
 }

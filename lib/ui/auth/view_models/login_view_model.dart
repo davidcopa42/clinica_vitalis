@@ -1,113 +1,99 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter/foundation.dart';
 
-import '../../../data/services/perfil_service.dart';
+import '../../../data/repositories/auth_exception.dart';
+import '../../../data/repositories/auth_repository.dart';
+import '../../../data/repositories/perfil_repository.dart';
+import '../../../domain/models/paciente.dart';
 import '../../core/estado_carga.dart';
 
+/// Estado y comandos de la pantalla de inicio de sesion.
 class LoginViewModel extends ChangeNotifier {
-  EstadoCarga _estadoCarga = EstadoCarga.inicial;
+  LoginViewModel({
+    required AuthRepository authRepository,
+    required PerfilRepository perfilRepository,
+  })  : _authRepository = authRepository,
+        _perfilRepository = perfilRepository;
+
+  final AuthRepository _authRepository;
+  final PerfilRepository _perfilRepository;
+
+  EstadoCarga _estado = EstadoCarga.inicial;
   String? _mensajeError;
-  bool _esNuevoUsuario = false;
 
-  EstadoCarga get estadoCarga => _estadoCarga;
+  EstadoCarga get estado => _estado;
   String? get mensajeError => _mensajeError;
-  bool get esNuevoUsuario => _esNuevoUsuario;
+  bool get estaCargando => _estado == EstadoCarga.cargando;
+  bool get tieneError => _estado == EstadoCarga.error;
 
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
-  final PerfilService _perfilService = PerfilService();
-
-  Future<void> iniciarSesion(String correo, String password) async {
-    _estadoCarga = EstadoCarga.cargando;
+  /// Vuelve al estado inicial (por ejemplo, al volver a mostrar la pantalla).
+  void reiniciar() {
+    _estado = EstadoCarga.inicial;
     _mensajeError = null;
     notifyListeners();
+  }
 
+  /// Inicia sesion con correo y contrasena.
+  Future<void> iniciarSesion(String correo, String contrasena) async {
+    _empezarCarga();
     try {
-      await _auth.signInWithEmailAndPassword(
-        email: correo,
-        password: password,
-      );
-
-      _estadoCarga = EstadoCarga.exito;
-    } on FirebaseAuthException catch (e) {
-      _estadoCarga = EstadoCarga.error;
-      switch (e.code) {
-        case 'user-not-found':
-          _mensajeError = 'No existe una cuenta con este correo.';
-          break;
-        case 'wrong-password':
-          _mensajeError = 'Contraseña incorrecta.';
-          break;
-        case 'invalid-email':
-          _mensajeError = 'El formato del correo es inválido.';
-          break;
-        case 'user-disabled':
-          _mensajeError = 'Este usuario ha sido deshabilitado.';
-          break;
-        case 'invalid-credential':
-          _mensajeError = 'Credenciales inválidas. Verifique sus datos.';
-          break;
-        default:
-          _mensajeError = 'Error de autenticación: ${e.message}';
-      }
-    } catch (e) {
-      _estadoCarga = EstadoCarga.error;
-      _mensajeError = 'Ocurrió un error inesperado: $e';
+      await _authRepository.iniciarConCorreo(correo, contrasena);
+      _estado = EstadoCarga.exito;
+    } on AuthException catch (error) {
+      _fallar(error.mensaje);
+    } catch (_) {
+      _fallar('Ocurrió un error inesperado al iniciar sesión.');
     } finally {
       notifyListeners();
     }
   }
 
+  /// Inicia sesion con Google y crea un perfil base si es la primera vez.
   Future<void> iniciarSesionConGoogle() async {
-    _estadoCarga = EstadoCarga.cargando;
-    _mensajeError = null;
-    notifyListeners();
-
+    _empezarCarga();
     try {
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      if (googleUser == null) {
-        _estadoCarga = EstadoCarga.inicial;
-        notifyListeners();
+      final inicioSesion = await _authRepository.iniciarConGoogle();
+      if (!inicioSesion) {
+        _estado = EstadoCarga.inicial;
         return;
       }
-
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
-
-      final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-
-      UserCredential userCredential =
-          await _auth.signInWithCredential(credential);
-      final user = userCredential.user;
-
-      if (user != null) {
-        final perfilExistente = await _perfilService.obtenerPerfil(user.uid);
-
-        if (perfilExistente == null || perfilExistente.isEmpty) {
-          _esNuevoUsuario = true;
-          await _perfilService.guardarPerfil(user.uid, {
-            'nombre': user.displayName ?? 'Sin nombre',
-            'correo': user.email ?? '',
-            'dni': '',
-            'fechaNacimiento': '',
-            'telefono': user.phoneNumber ?? '',
-            'obraSocial': '',
-          });
-        } else {
-          _esNuevoUsuario = false;
-        }
-      }
-
-      _estadoCarga = EstadoCarga.exito;
-    } catch (e) {
-      _estadoCarga = EstadoCarga.error;
-      _mensajeError = 'No se pudo iniciar sesión con Google: $e';
+      await _crearPerfilBaseSiFalta();
+      _estado = EstadoCarga.exito;
+    } on AuthException catch (error) {
+      _fallar(error.mensaje);
+    } catch (_) {
+      _fallar('No se pudo iniciar sesión con Google.');
     } finally {
       notifyListeners();
     }
+  }
+
+  Future<void> _crearPerfilBaseSiFalta() async {
+    final uid = _authRepository.uidActual;
+    if (uid == null) return;
+
+    final perfilExistente = await _perfilRepository.obtenerPerfil(uid);
+    if (perfilExistente != null) return;
+
+    final partesNombre = (_authRepository.nombreVisible ?? '').split(' ');
+    await _perfilRepository.guardarPerfil(
+      Paciente(
+        uid: uid,
+        nombre: partesNombre.first,
+        apellido: partesNombre.skip(1).join(' '),
+        correo: _authRepository.correoActual ?? '',
+        fotoUrl: _authRepository.fotoUrl,
+      ),
+    );
+  }
+
+  void _empezarCarga() {
+    _estado = EstadoCarga.cargando;
+    _mensajeError = null;
+    notifyListeners();
+  }
+
+  void _fallar(String mensaje) {
+    _estado = EstadoCarga.error;
+    _mensajeError = mensaje;
   }
 }
