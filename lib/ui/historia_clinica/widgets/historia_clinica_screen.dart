@@ -1,9 +1,8 @@
 import 'package:clinica_vitalis/domain/models/paciente.dart';
-import 'package:clinica_vitalis/domain/models/registro_clinico.dart';
 import 'package:clinica_vitalis/ui/core/estado_carga.dart';
 import 'package:clinica_vitalis/ui/core/mensaje_error.dart';
 import 'package:clinica_vitalis/ui/historia_clinica/view_models/historia_clinica_view_model.dart';
-import 'package:clinica_vitalis/ui/historia_clinica/widgets/detalle_registro_screen.dart';
+import 'package:clinica_vitalis/ui/historia_clinica/widgets/lista_registros.dart';
 import 'package:flutter/material.dart';
 
 /// Pantalla que muestra la historia clínica del paciente.
@@ -48,121 +47,28 @@ class _HistoriaClinicaScreenState extends State<HistoriaClinicaScreen> {
       body: ListenableBuilder(
         listenable: _viewModel,
         builder: (context, _) {
-          return _construirContenido();
+          switch (_viewModel.estado) {
+            case EstadoCarga.inicial:
+            case EstadoCarga.cargando:
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+
+            case EstadoCarga.error:
+              return MensajeError(
+                mensaje: _viewModel.mensajeError ?? 'Ocurrió un error.',
+                alReintentar: _viewModel.reintentar,
+              );
+
+            case EstadoCarga.exito:
+              return ListaRegistros(
+                registros: _viewModel.registrosFiltrados,
+                filtro: _viewModel.filtro,
+                alCambiarFiltro: _viewModel.cambiarFiltro,
+              );
+          }
         },
       ),
     );
-  }
-
-  Widget _construirContenido() {
-    switch (_viewModel.estado) {
-      case EstadoCarga.inicial:
-      case EstadoCarga.cargando:
-        return const Center(
-          child: CircularProgressIndicator(),
-        );
-
-      case EstadoCarga.error:
-        return MensajeError(
-          mensaje: _viewModel.mensajeError ?? 'Ocurrió un error.',
-          alReintentar: _viewModel.reintentar,
-        );
-
-      case EstadoCarga.exito:
-        return _construirLista();
-    }
-  }
-
-  Widget _construirLista() {
-    final registros = _viewModel.registrosFiltrados;
-
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(12),
-          child: SegmentedButton<TipoRegistro?>(
-            segments: const [
-              ButtonSegment(
-                value: null,
-                label: Text('Todos'),
-              ),
-              ButtonSegment(
-                value: TipoRegistro.analisis,
-                label: Text('Análisis'),
-              ),
-              ButtonSegment(
-                value: TipoRegistro.estudio,
-                label: Text('Estudios'),
-              ),
-              ButtonSegment(
-                value: TipoRegistro.receta,
-                label: Text('Recetas'),
-              ),
-            ],
-            selected: {_viewModel.filtro},
-            onSelectionChanged: (seleccion) {
-              _viewModel.cambiarFiltro(seleccion.first);
-            },
-          ),
-        ),
-        Expanded(
-          child: registros.isEmpty
-              ? const Center(
-                  child: Text('No hay registros para este filtro.'),
-                )
-              : ListView.builder(
-                  itemCount: registros.length,
-                  itemBuilder: (context, index) {
-                    final registro = registros[index];
-
-                    return Card(
-                      margin: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      child: ListTile(
-                        leading: Icon(
-                          _obtenerIcono(registro.tipo),
-                          size: 32,
-                        ),
-                        title: Text(registro.titulo),
-                        subtitle: Text(
-                          '${registro.profesional}\n'
-                          '${registro.fecha.day}/'
-                          '${registro.fecha.month}/'
-                          '${registro.fecha.year}',
-                        ),
-                        isThreeLine: true,
-                        trailing: const Icon(
-                          Icons.arrow_forward_ios,
-                        ),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => DetalleRegistroScreen(
-                                registro: registro,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    );
-                  },
-                ),
-        ),
-      ],
-    );
-  }
-
-  IconData _obtenerIcono(TipoRegistro tipo) {
-    switch (tipo) {
-      case TipoRegistro.analisis:
-        return Icons.science;
-      case TipoRegistro.estudio:
-        return Icons.medical_information;
-      case TipoRegistro.receta:
-        return Icons.description;
-    }
   }
 }

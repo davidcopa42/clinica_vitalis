@@ -1,6 +1,8 @@
 import 'package:clinica_vitalis/domain/models/registro_clinico.dart';
 import 'package:flutter/material.dart';
 
+import '../view_models/textos_registro_clinico.dart';
+
 /// Muestra los detalles de un registro clínico.
 class DetalleRegistroScreen extends StatelessWidget {
   const DetalleRegistroScreen({
@@ -22,7 +24,7 @@ class DetalleRegistroScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              _nombreTipo(registro.tipo),
+              registro.tipoTexto,
               style: Theme.of(context).textTheme.labelLarge,
             ),
             const SizedBox(height: 12),
@@ -35,11 +37,7 @@ class DetalleRegistroScreen extends StatelessWidget {
               'Fecha',
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
-            Text(
-              '${registro.fecha.day}/'
-              '${registro.fecha.month}/'
-              '${registro.fecha.year}',
-            ),
+            Text(registro.fechaTexto),
             const SizedBox(height: 20),
             const Text(
               'Profesional',
@@ -56,16 +54,5 @@ class DetalleRegistroScreen extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  String _nombreTipo(TipoRegistro tipo) {
-    switch (tipo) {
-      case TipoRegistro.analisis:
-        return 'Análisis';
-      case TipoRegistro.estudio:
-        return 'Estudio';
-      case TipoRegistro.receta:
-        return 'Receta';
-    }
   }
 }
