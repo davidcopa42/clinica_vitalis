@@ -16,6 +16,7 @@ import 'data/services/conectividad_service.dart';
 import 'data/services/notificaciones_service.dart';
 import 'data/services/perfil_service.dart';
 import 'dependencias.dart';
+import 'ui/auth/view_models/sesion_view_model.dart';
 import 'ui/auth/widgets/puerta_sesion.dart';
 
 void main() async {
@@ -44,12 +45,25 @@ void main() async {
     busDeEventos: BusDeEventos(),
   );
 
-  runApp(MyApp(dependencias: dependencias));
+  // ViewModel que vive mientras vive la app.
+  final sesionViewModel = SesionViewModel(
+    authRepo: dependencias.authRepository,
+    perfilRepo: dependencias.perfilRepository,
+  );
+
+  runApp(
+    MyApp(sesionViewModel: sesionViewModel, dependencias: dependencias),
+  );
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key, required this.dependencias});
+  const MyApp({
+    super.key,
+    required this.sesionViewModel,
+    required this.dependencias,
+  });
 
+  final SesionViewModel sesionViewModel;
   final Dependencias dependencias;
 
   @override
@@ -66,7 +80,10 @@ class MyApp extends StatelessWidget {
         brightness: Brightness.dark,
       ),
       themeMode: ThemeMode.system,
-      home: PuertaSesion(dependencias: dependencias),
+      home: PuertaSesion(
+        sesionViewModel: sesionViewModel,
+        dependencias: dependencias,
+      ),
     );
   }
 }

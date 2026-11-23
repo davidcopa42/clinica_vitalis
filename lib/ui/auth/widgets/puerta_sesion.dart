@@ -8,8 +8,14 @@ import 'login.dart';
 import 'verificar_correo.dart';
 
 class PuertaSesion extends StatefulWidget {
-  const PuertaSesion({super.key, required this.dependencias});
+  const PuertaSesion({
+    super.key,
+    required this.sesionViewModel,
+    required this.dependencias,
+  });
 
+  /// Se crea en `main.dart` y vive mientras vive la app.
+  final SesionViewModel sesionViewModel;
   final Dependencias dependencias;
 
   @override
@@ -17,22 +23,7 @@ class PuertaSesion extends StatefulWidget {
 }
 
 class _PuertaSesionState extends State<PuertaSesion> {
-  late final SesionViewModel _sesionVM;
-
-  @override
-  void initState() {
-    super.initState();
-    _sesionVM = SesionViewModel(
-      authRepo: widget.dependencias.authRepository,
-      perfilRepo: widget.dependencias.perfilRepository,
-    );
-  }
-
-  @override
-  void dispose() {
-    _sesionVM.dispose();
-    super.dispose();
-  }
+  SesionViewModel get _sesionVM => widget.sesionViewModel;
 
   @override
   Widget build(BuildContext context) {
