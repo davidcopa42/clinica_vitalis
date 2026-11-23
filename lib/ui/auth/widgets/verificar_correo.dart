@@ -1,11 +1,8 @@
-import 'dart:async';
-
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../../../data/repositories/auth_repositorio_firebase.dart';
-import '../../../data/repositories/auth_repository.dart';
 import '../../../data/services/auth_service.dart';
+import '../view_models/verificar_correo_view_model.dart';
 
 class VerificarCorreoScreen extends StatefulWidget {
   final VoidCallback onVerificado;
@@ -17,83 +14,41 @@ class VerificarCorreoScreen extends StatefulWidget {
 }
 
 class _VerificarCorreoScreenState extends State<VerificarCorreoScreen> {
-  final AuthRepository _authRepo =
-      AuthRepositorioFirebase(authService: AuthService());
-
-  bool _puedeReenviar = true;
-  int _segundosRestantes = 0;
-
-  Timer? _timerReenvio;
-  Timer? _timerVerificacionAutomatica;
+  late final VerificarCorreoViewModel _viewModel;
 
   @override
   void initState() {
     super.initState();
-
-    _timerVerificacionAutomatica = Timer.periodic(
-      const Duration(seconds: 3),
-      (_) => _chequearVerificacion(),
+    _viewModel = VerificarCorreoViewModel(
+      authRepository: AuthRepositorioFirebase(authService: AuthService()),
+      alVerificarCorreo: widget.onVerificado,
     );
+    _viewModel.iniciarVerificacionAutomatica();
   }
 
   @override
   void dispose() {
-    _timerReenvio?.cancel();
-    _timerVerificacionAutomatica?.cancel();
+    _viewModel.dispose();
     super.dispose();
   }
 
-  // Este es el método mágico que avanza solo
-  Future<void> _chequearVerificacion() async {
-    final user = FirebaseAuth.instance.currentUser;
-    await user?.reload();
-
-    if (user?.emailVerified ?? false) {
-      _timerVerificacionAutomatica?.cancel();
-      widget.onVerificado();
-    }
-  }
-
-  void _iniciarTemporizadorReenvio() {
-    setState(() {
-      _puedeReenviar = false;
-      _segundosRestantes = 60;
-    });
-
-    _timerReenvio = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (_segundosRestantes > 0) {
-        setState(() => _segundosRestantes--);
-      } else {
-        setState(() => _puedeReenviar = true);
-        timer.cancel();
-      }
-    });
-  }
-
   void _reenviarCorreo() async {
-    try {
-      await _authRepo.enviarVerificacion();
-      _iniciarTemporizadorReenvio();
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Correo reenviado. Revisa tu bandeja.')),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al reenviar: $e')),
-        );
-      }
-    }
+    final error = await _viewModel.reenviarCorreo();
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(error ?? 'Correo reenviado. Revisa tu bandeja.'),
+      ),
+    );
   }
 
   void _yaVerifiqueManual() {
-    _chequearVerificacion();
+    _viewModel.comprobarVerificacion();
   }
 
   void _cerrarSesion() async {
-    await _authRepo.cerrarSesion();
+    await _viewModel.cerrarSesion();
   }
 
   @override
@@ -138,14 +93,21 @@ class _VerificarCorreoScreenState extends State<VerificarCorreoScreen> {
             const SizedBox(height: 16),
             SizedBox(
               height: 50,
-              child: OutlinedButton(
-                onPressed: _puedeReenviar ? _reenviarCorreo : null,
-                child: Text(
-                  _puedeReenviar
-                      ? 'Reenviar correo'
-                      : 'Reenviar disponible en ${_segundosRestantes}s',
-                  style: const TextStyle(fontSize: 16),
-                ),
+              child: ListenableBuilder(
+                listenable: _viewModel,
+                builder: (context, _) {
+                  return OutlinedButton(
+                    onPressed:
+                        _viewModel.puedeReenviar ? _reenviarCorreo : null,
+                    child: Text(
+                      _viewModel.puedeReenviar
+                          ? 'Reenviar correo'
+                          : 'Reenviar disponible en '
+                              '${_viewModel.segundosRestantes}s',
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                  );
+                },
               ),
             ),
             const Spacer(),
