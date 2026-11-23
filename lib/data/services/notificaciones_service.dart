@@ -6,6 +6,13 @@ import 'package:timezone/data/latest_all.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 
 class NotificacionesService {
+  static const _idCanal = 'recordatorios_turnos';
+  static const _nombreCanal = 'Recordatorios de turnos';
+  static const _descripcionCanal = 'Avisos de próximos turnos médicos.';
+
+  /// Cuánto antes del turno llega el recordatorio.
+  static const _anticipacionRecordatorio = Duration(hours: 24);
+
   NotificacionesService._internal();
 
   static final NotificacionesService _instancia =
@@ -38,9 +45,9 @@ class NotificacionesService {
 
     // Crear explícitamente el canal de notificaciones.
     const canalRecordatorios = AndroidNotificationChannel(
-      'recordatorios_turnos',
-      'Recordatorios de turnos',
-      description: 'Avisos de próximos turnos médicos.',
+      _idCanal,
+      _nombreCanal,
+      description: _descripcionCanal,
       importance: Importance.max,
     );
 
@@ -57,7 +64,7 @@ class NotificacionesService {
     if (turno.estado != EstadoTurno.confirmado) return;
 
     final fechaRecordatorio =
-    turno.fechaHora.subtract(const Duration(hours: 24));
+    turno.fechaHora.subtract(_anticipacionRecordatorio);
 
     if (!fechaRecordatorio.isAfter(DateTime.now())) return;
 
@@ -66,9 +73,9 @@ class NotificacionesService {
 
     const detalles = NotificationDetails(
       android: AndroidNotificationDetails(
-        'recordatorios_turnos',
-        'Recordatorios de turnos',
-        channelDescription: 'Avisos de próximos turnos médicos.',
+        _idCanal,
+        _nombreCanal,
+        channelDescription: _descripcionCanal,
         importance: Importance.max,
         priority: Priority.high,
       ),

@@ -10,6 +10,9 @@ class HistoriaClinicaRepositorioSimulado implements HistoriaClinicaRepository {
 
   final bool simularError;
 
+  /// Demora que imita la respuesta de un sistema externo.
+  static const _demoraSimulada = Duration(seconds: 1);
+
   /// Obtiene entre 6 y 8 registros de ejemplo.
   ///
   /// En el futuro se conectará con el sistema interno de la clínica.
@@ -17,7 +20,7 @@ class HistoriaClinicaRepositorioSimulado implements HistoriaClinicaRepository {
   Future<List<RegistroClinico>> obtenerRegistros(
     String pacienteUid,
   ) async {
-    await Future.delayed(const Duration(seconds: 1));
+    await Future.delayed(_demoraSimulada);
 
     if (simularError) {
       throw Exception('No se pudieron cargar los registros clínicos.');

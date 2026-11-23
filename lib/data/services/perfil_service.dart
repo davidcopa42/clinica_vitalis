@@ -1,12 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class PerfilService {
+  static const _coleccionPerfiles = 'perfiles';
+
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Future<Map<String, dynamic>?> obtenerPerfil(String uid) async {
     try {
       DocumentSnapshot doc =
-          await _firestore.collection('perfiles').doc(uid).get();
+          await _firestore.collection(_coleccionPerfiles).doc(uid).get();
       if (doc.exists && doc.data() != null) {
         return doc.data() as Map<String, dynamic>;
       }
@@ -19,7 +21,7 @@ class PerfilService {
   Future<void> guardarPerfil(
       String uid, Map<String, dynamic> datosPerfil) async {
     try {
-      await _firestore.collection('perfiles').doc(uid).set(
+      await _firestore.collection(_coleccionPerfiles).doc(uid).set(
             datosPerfil,
             SetOptions(merge: true),
           );
