@@ -55,13 +55,16 @@ class TurnoViewModel extends ChangeNotifier {
   String? get error => _error;
 
   /// Especialidades sin repetir.
-  List<String> get especialidades =>
-      _profesionales.map((profesional) => profesional.especialidad).toSet().toList();
+  List<String> get especialidades => List.unmodifiable(
+        _profesionales.map((profesional) => profesional.especialidad).toSet(),
+      );
 
   /// Profesionales de la especialidad elegida.
-  List<Profesional> get profesionalesDisponibles => _profesionales
-      .where((profesional) => profesional.especialidad == _especialidadSeleccionada)
-      .toList();
+  List<Profesional> get profesionalesDisponibles => List.unmodifiable(
+        _profesionales.where(
+          (profesional) => profesional.especialidad == _especialidadSeleccionada,
+        ),
+      );
 
   /// El horario se elige recién con profesional y fecha.
   bool get puedeElegirHorario =>

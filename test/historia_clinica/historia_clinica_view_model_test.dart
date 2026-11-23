@@ -139,5 +139,19 @@ void main() {
 
       expect(titulos(viewModel.registrosFiltrados), ['Radiografía']);
     });
+
+    test('registrosFiltrados no se puede modificar, con o sin filtro', () {
+      expect(
+        () => viewModel.registrosFiltrados.clear(),
+        throwsUnsupportedError,
+      );
+
+      viewModel.cambiarFiltro(TipoRegistro.analisis);
+
+      expect(
+        () => viewModel.registrosFiltrados.clear(),
+        throwsUnsupportedError,
+      );
+    });
   });
 }

@@ -239,6 +239,20 @@ void main() {
         throwsUnsupportedError,
       );
     });
+
+    test('especialidades y profesionalesDisponibles no se pueden modificar',
+        () async {
+      await completarFormulario();
+
+      expect(
+        () => viewModel.especialidades.add('Neurología'),
+        throwsUnsupportedError,
+      );
+      expect(
+        () => viewModel.profesionalesDisponibles.clear(),
+        throwsUnsupportedError,
+      );
+    });
   });
 
   group('confirmar', () {

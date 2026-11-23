@@ -15,7 +15,10 @@ class PerfilViewModel extends ChangeNotifier {
   })  : _perfilRepo = repository,
         _authRepo = authRepository;
 
-  Map<String, dynamic>? get datosPerfil => _datosPerfil;
+  Map<String, dynamic>? get datosPerfil {
+    final datos = _datosPerfil;
+    return datos == null ? null : Map.unmodifiable(datos);
+  }
   bool get estaCargando => _estaCargando;
 
   /// Foto de la cuenta, o null si no tiene.

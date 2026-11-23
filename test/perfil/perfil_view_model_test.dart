@@ -120,6 +120,16 @@ void main() {
       expect(estadosDeCarga, [true, false]);
     });
 
+    test('los datos del perfil no se pueden modificar desde afuera', () async {
+      await viewModel.cargarPerfil('uid-1');
+
+      expect(
+        () => viewModel.datosPerfil!['nombre'] = 'Otra',
+        throwsUnsupportedError,
+      );
+      expect(viewModel.datosPerfil!['nombre'], 'Ana');
+    });
+
     test('si ya hay datos recarga sin volver a mostrar cargando', () async {
       await viewModel.cargarPerfil('uid-1');
       estadosDeCarga.clear();
