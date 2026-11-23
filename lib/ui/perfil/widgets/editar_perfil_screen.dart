@@ -30,7 +30,7 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
 
   late String _obraSocialSeleccionada;
   DateTime? _fechaSeleccionada;
-  bool _isLoading = false;
+  bool _estaGuardando = false;
 
   @override
   void initState() {
@@ -105,7 +105,7 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
 
   void _guardarCambios(BuildContext context) async {
     if (_formKey.currentState?.validate() ?? false) {
-      setState(() => _isLoading = true);
+      setState(() => _estaGuardando = true);
 
       try {
         await widget.viewModel.actualizarPerfil(
@@ -138,7 +138,7 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
           );
         }
       } finally {
-        if (mounted) setState(() => _isLoading = false);
+        if (mounted) setState(() => _estaGuardando = false);
       }
     }
   }
@@ -167,7 +167,7 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
               numeroAfiliadoController: _numeroAfiliadoController,
               onTapFecha: () => _seleccionarFecha(context),
               onGuardar: () => _guardarCambios(context),
-              isLoading: _isLoading,
+              estaGuardando: _estaGuardando,
               textoBoton: 'Guardar Cambios',
             ),
           ),

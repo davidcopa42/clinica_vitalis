@@ -17,12 +17,12 @@ class SesionViewModel extends ChangeNotifier {
   String? _uidActual;
   Paciente? _pacienteActual;
 
-  bool _isCargando = true;
+  bool _estaCargando = true;
 
   EstadoSesion get estadoSesion => _estadoSesion;
   String? get uidActual => _uidActual;
   Paciente? get pacienteActual => _pacienteActual;
-  bool get isCargando => _isCargando;
+  bool get estaCargando => _estaCargando;
 
   /// Datos de la cuenta con sesión iniciada, o null si no hay sesión.
   UsuarioAutenticado? get usuarioActual => _authRepo.usuarioActual;
@@ -43,12 +43,12 @@ class SesionViewModel extends ChangeNotifier {
     if (uid == null) {
       _estadoSesion = EstadoSesion.sinSesion;
       _pacienteActual = null;
-      _isCargando = false;
+      _estaCargando = false;
       notifyListeners();
       return;
     }
 
-    _isCargando = true;
+    _estaCargando = true;
     notifyListeners();
 
     try {
@@ -70,13 +70,13 @@ class SesionViewModel extends ChangeNotifier {
       _pacienteActual = null;
       _estadoSesion = EstadoSesion.perfilIncompleto;
     } finally {
-      _isCargando = false;
+      _estaCargando = false;
       notifyListeners();
     }
   }
 
   Future<void> recargarYCalcular() async {
-    _isCargando = true;
+    _estaCargando = true;
     notifyListeners();
     await _authRepo.recargarUsuario();
     await _calcularEstadoSesion(_uidActual);

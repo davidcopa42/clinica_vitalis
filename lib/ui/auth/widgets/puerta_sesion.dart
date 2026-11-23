@@ -62,7 +62,7 @@ class _PuertaSesionState extends State<PuertaSesion> {
   }
 
   _Pantalla _calcularPantalla() {
-    if (_sesionVM.isCargando) return _Pantalla.cargando;
+    if (_sesionVM.estaCargando) return _Pantalla.cargando;
 
     switch (_sesionVM.estadoSesion) {
       case EstadoSesion.sinSesion:

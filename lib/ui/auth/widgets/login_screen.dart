@@ -88,7 +88,7 @@ class _LoginScreenState extends State<LoginScreen> {
       body: ListenableBuilder(
         listenable: _loginVM,
         builder: (context, _) {
-          final isLoading = _loginVM.estadoCarga == EstadoCarga.cargando;
+          final estaCargando = _loginVM.estadoCarga == EstadoCarga.cargando;
 
           return Padding(
             padding: const EdgeInsets.all(24.0),
@@ -164,8 +164,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         width: double.infinity,
                         height: 50,
                         child: ElevatedButton(
-                          onPressed: isLoading ? null : _intentarLogin,
-                          child: isLoading
+                          onPressed: estaCargando ? null : _intentarLogin,
+                          child: estaCargando
                               ? const CircularProgressIndicator(
                                   color: Colors.white)
                               : const Text(
@@ -179,7 +179,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         width: double.infinity,
                         height: 50,
                         child: OutlinedButton.icon(
-                          onPressed: isLoading ? null : _intentarLoginGoogle,
+                          onPressed: estaCargando ? null : _intentarLoginGoogle,
                           icon: const Icon(Icons.g_mobiledata, size: 32),
                           label: const Text(
                             'Continuar con Google',
@@ -190,14 +190,14 @@ class _LoginScreenState extends State<LoginScreen> {
                       const SizedBox(height: 16),
                       TextButton(
                         onPressed:
-                            isLoading ? null : _abrirRecuperarContrasena,
+                            estaCargando ? null : _abrirRecuperarContrasena,
                         child: const Text(
                           '¿Olvidaste tu contraseña?',
                           style: TextStyle(fontSize: 15),
                         ),
                       ),
                       TextButton(
-                        onPressed: isLoading ? null : _abrirCrearCuenta,
+                        onPressed: estaCargando ? null : _abrirCrearCuenta,
                         child: const Text(
                           '¿No tienes cuenta? Regístrate aquí',
                           style: TextStyle(fontSize: 15),

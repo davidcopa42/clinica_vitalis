@@ -88,7 +88,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
           ListenableBuilder(
             listenable: widget.viewModel,
             builder: (context, _) {
-              if (widget.viewModel.isLoading) {
+              if (widget.viewModel.estaCargando) {
                 return const Center(
                   child: Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16.0),
@@ -114,7 +114,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
       body: ListenableBuilder(
         listenable: widget.viewModel,
         builder: (context, _) {
-          if (widget.viewModel.isLoading &&
+          if (widget.viewModel.estaCargando &&
               widget.viewModel.perfilData == null) {
             return const Center(child: CircularProgressIndicator());
           }

@@ -98,7 +98,7 @@ void main() {
     auth = FakeAuthRepository();
     viewModel = PerfilViewModel(repository: perfiles, authRepository: auth);
     estadosDeCarga = [];
-    viewModel.addListener(() => estadosDeCarga.add(viewModel.isLoading));
+    viewModel.addListener(() => estadosDeCarga.add(viewModel.estaCargando));
   }
 
   setUp(() => crearViewModel(datos: {'nombre': 'Ana', 'dni': '123'}));
@@ -107,7 +107,7 @@ void main() {
 
   test('empieza sin datos y sin cargar', () {
     expect(viewModel.perfilData, isNull);
-    expect(viewModel.isLoading, isFalse);
+    expect(viewModel.estaCargando, isFalse);
   });
 
   group('cargarPerfil', () {
@@ -116,7 +116,7 @@ void main() {
 
       expect(perfiles.uidsCargados, ['uid-1']);
       expect(viewModel.perfilData, {'nombre': 'Ana', 'dni': '123'});
-      expect(viewModel.isLoading, isFalse);
+      expect(viewModel.estaCargando, isFalse);
       expect(estadosDeCarga, [true, false]);
     });
 
@@ -137,7 +137,7 @@ void main() {
       await viewModel.cargarPerfil('uid-1');
 
       expect(viewModel.perfilData, isNull);
-      expect(viewModel.isLoading, isFalse);
+      expect(viewModel.estaCargando, isFalse);
     });
 
     test('un error se traga: deja de cargar y conserva los datos previos',
@@ -148,7 +148,7 @@ void main() {
       await viewModel.cargarPerfil('uid-1');
 
       expect(viewModel.perfilData, {'nombre': 'Ana', 'dni': '123'});
-      expect(viewModel.isLoading, isFalse);
+      expect(viewModel.estaCargando, isFalse);
     });
   });
 

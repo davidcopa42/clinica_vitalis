@@ -175,7 +175,7 @@ class _CompletarPerfilScreenState extends State<CompletarPerfilScreen> {
                       },
                       onTapFecha: () => _seleccionarFecha(context),
                       onGuardar: _guardarPerfil,
-                      isLoading: _viewModel.estaGuardando,
+                      estaGuardando: _viewModel.estaGuardando,
                       textoBoton: 'Continuar a la App',
                     );
                   },

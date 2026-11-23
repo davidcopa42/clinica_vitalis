@@ -12,7 +12,7 @@ class FormularioPerfil extends StatelessWidget {
   final TextEditingController numeroAfiliadoController;
   final VoidCallback onTapFecha;
   final VoidCallback onGuardar;
-  final bool isLoading;
+  final bool estaGuardando;
   final String textoBoton;
 
   const FormularioPerfil({
@@ -28,7 +28,7 @@ class FormularioPerfil extends StatelessWidget {
     required this.numeroAfiliadoController,
     required this.onTapFecha,
     required this.onGuardar,
-    this.isLoading = false,
+    this.estaGuardando = false,
     this.textoBoton = 'Guardar Cambios',
   });
 
@@ -165,8 +165,8 @@ class FormularioPerfil extends StatelessWidget {
             width: double.infinity,
             height: 50,
             child: ElevatedButton(
-              onPressed: isLoading ? null : onGuardar,
-              child: isLoading
+              onPressed: estaGuardando ? null : onGuardar,
+              child: estaGuardando
                   ? const CircularProgressIndicator(color: Colors.white)
                   : Text(textoBoton, style: const TextStyle(fontSize: 16)),
             ),
