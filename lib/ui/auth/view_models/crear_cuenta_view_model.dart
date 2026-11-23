@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../../data/repositories/auth_repository.dart';
 import '../../../data/repositories/perfil_repository.dart';

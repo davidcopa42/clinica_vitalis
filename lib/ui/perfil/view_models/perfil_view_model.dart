@@ -3,7 +3,7 @@ import 'package:clinica_vitalis/data/repositories/perfil_repository.dart';
 import 'package:clinica_vitalis/domain/models/obra_social.dart';
 import 'package:clinica_vitalis/domain/models/paciente.dart';
 import 'package:clinica_vitalis/ui/core/formato.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 
 class PerfilViewModel extends ChangeNotifier {
   final PerfilRepository _perfilRepo;
