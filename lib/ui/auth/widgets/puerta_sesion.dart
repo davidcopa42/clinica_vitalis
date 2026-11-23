@@ -1,8 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import '../../../data/repositories/auth_repository.dart';
+import '../../../data/repositories/auth_repositorio_firebase.dart';
 import '../../../data/repositories/perfil_repositorio_firestore.dart';
+import '../../../data/services/auth_service.dart';
 import '../../../data/services/perfil_service.dart';
 import '../../inicio/widgets/inicio.dart';
 import '../../perfil/widgets/completar_perfil_screen.dart';
@@ -24,7 +25,7 @@ class _PuertaSesionState extends State<PuertaSesion> {
   void initState() {
     super.initState();
     _sesionVM = SesionViewModel(
-      authRepo: AuthRepository(),
+      authRepo: AuthRepositorioFirebase(authService: AuthService()),
       perfilRepo: PerfilRepositorioFirestore(perfilService: PerfilService()),
     );
   }

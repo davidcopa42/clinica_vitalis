@@ -1,10 +1,13 @@
+import 'package:clinica_vitalis/data/repositories/auth_repositorio_firebase.dart';
 import 'package:clinica_vitalis/data/repositories/auth_repository.dart';
 import 'package:clinica_vitalis/data/repositories/perfil_repository.dart';
+import 'package:clinica_vitalis/data/services/auth_service.dart';
 import 'package:flutter/material.dart';
 
 class PerfilViewModel extends ChangeNotifier {
   final PerfilRepository _perfilRepo;
-  final AuthRepository _authRepo = AuthRepository();
+  final AuthRepository _authRepo =
+      AuthRepositorioFirebase(authService: AuthService());
 
   Map<String, dynamic>? _perfilData;
   bool _isLoading = false;

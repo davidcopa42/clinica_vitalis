@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../data/repositories/auth_repository.dart';
+import '../../../data/repositories/auth_repositorio_firebase.dart';
+import '../../../data/services/auth_service.dart';
 
 class RecuperarPasswordScreen extends StatefulWidget {
   const RecuperarPasswordScreen({super.key});
@@ -25,7 +26,7 @@ class _RecuperarPasswordScreenState extends State<RecuperarPasswordScreen> {
       setState(() => _isLoading = true);
 
       try {
-        await AuthRepository()
+        await AuthRepositorioFirebase(authService: AuthService())
             .recuperarContrasena(_correoController.text.trim());
       } catch (e) {
         debugPrint('Error al recuperar: $e');

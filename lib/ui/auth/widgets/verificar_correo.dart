@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../../../data/repositories/auth_repositorio_firebase.dart';
 import '../../../data/repositories/auth_repository.dart';
+import '../../../data/services/auth_service.dart';
 
 class VerificarCorreoScreen extends StatefulWidget {
   final VoidCallback onVerificado;
@@ -15,7 +17,8 @@ class VerificarCorreoScreen extends StatefulWidget {
 }
 
 class _VerificarCorreoScreenState extends State<VerificarCorreoScreen> {
-  final AuthRepository _authRepo = AuthRepository();
+  final AuthRepository _authRepo =
+      AuthRepositorioFirebase(authService: AuthService());
 
   bool _puedeReenviar = true;
   int _segundosRestantes = 0;

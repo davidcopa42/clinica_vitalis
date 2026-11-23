@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../../../data/repositories/auth_repository.dart';
+import '../../../data/repositories/auth_repositorio_firebase.dart';
+import '../../../data/services/auth_service.dart';
 import '../../../data/services/perfil_service.dart';
 import 'formulario_perfil.dart';
 
@@ -132,7 +133,7 @@ class _CompletarPerfilScreenState extends State<CompletarPerfilScreen> {
     );
 
     if (confirmar == true && mounted) {
-      await AuthRepository().cerrarSesion();
+      await AuthRepositorioFirebase(authService: AuthService()).cerrarSesion();
       if (mounted) {
         Navigator.of(context).popUntil((route) => route.isFirst);
       }

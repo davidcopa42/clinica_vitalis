@@ -1,9 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../../../data/repositories/auth_repositorio_firebase.dart';
 import '../../../data/repositories/auth_repository.dart';
 import '../../../data/repositories/perfil_repositorio_firestore.dart';
 import '../../../data/repositories/perfil_repository.dart';
+import '../../../data/services/auth_service.dart';
 import '../../../data/services/perfil_service.dart';
 import '../../core/estado_carga.dart';
 
@@ -14,7 +16,8 @@ class CrearCuentaViewModel extends ChangeNotifier {
   EstadoCarga get estadoCarga => _estadoCarga;
   String? get mensajeError => _mensajeError;
 
-  final AuthRepository _authRepo = AuthRepository();
+  final AuthRepository _authRepo =
+      AuthRepositorioFirebase(authService: AuthService());
   final PerfilRepository _perfilRepo =
       PerfilRepositorioFirestore(perfilService: PerfilService());
 
