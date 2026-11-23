@@ -66,6 +66,25 @@ void main() {
     });
   });
 
+  testWidgets('el desplegable ofrece todas las obras sociales', (tester) async {
+    await montarFormulario(tester);
+
+    await tester.tap(find.text('Particular'));
+    await tester.pumpAndSettle();
+
+    for (final obraSocial in [
+      'Particular',
+      'OSDE',
+      'Swiss Medical',
+      'Galeno',
+      'PAMI',
+      'IOMA',
+      'Otra',
+    ]) {
+      expect(find.text(obraSocial), findsWidgets, reason: obraSocial);
+    }
+  });
+
   group('telefono', () {
     testWidgets('acepta entre 8 y 15 digitos', (tester) async {
       await montarFormulario(tester);

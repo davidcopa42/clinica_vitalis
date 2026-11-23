@@ -134,18 +134,9 @@ class FormularioPerfil extends StatelessWidget {
               border: OutlineInputBorder(),
               prefixIcon: Icon(Icons.medical_services),
             ),
-            items: const [
-              DropdownMenuItem(
-                value: obraSocialParticular,
-                child: Text(obraSocialParticular),
-              ),
-              DropdownMenuItem(value: 'OSDE', child: Text('OSDE')),
-              DropdownMenuItem(
-                  value: 'Swiss Medical', child: Text('Swiss Medical')),
-              DropdownMenuItem(value: 'Galeno', child: Text('Galeno')),
-              DropdownMenuItem(value: 'PAMI', child: Text('PAMI')),
-              DropdownMenuItem(value: 'IOMA', child: Text('IOMA')),
-              DropdownMenuItem(value: 'Otra', child: Text('Otra')),
+            items: [
+              for (final obraSocial in obrasSocialesDisponibles)
+                DropdownMenuItem(value: obraSocial, child: Text(obraSocial)),
             ],
             onChanged: onObraSocialChanged,
           ),

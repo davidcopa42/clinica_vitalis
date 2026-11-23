@@ -50,16 +50,7 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
 
     _obraSocialSeleccionada =
         widget.datosActuales['obraSocial'] ?? obraSocialParticular;
-    const obrasValidas = [
-      obraSocialParticular,
-      'OSDE',
-      'Swiss Medical',
-      'Galeno',
-      'PAMI',
-      'IOMA',
-      'Otra'
-    ];
-    if (!obrasValidas.contains(_obraSocialSeleccionada)) {
+    if (!obrasSocialesDisponibles.contains(_obraSocialSeleccionada)) {
       _obraSocialSeleccionada = obraSocialParticular;
     }
 
