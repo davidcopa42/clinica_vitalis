@@ -12,6 +12,7 @@ import 'package:clinica_vitalis/ui/turnos/view_models/turno_view_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../fakes/fake_recordatorio_repository.dart';
 import '../fakes/fake_turno_repository.dart';
 
 const profesionales = [
@@ -53,12 +54,14 @@ void main() {
 
   late BusDeEventos busDeEventos;
   late FakeTurnoRepository repositorio;
+  late FakeRecordatorioRepository recordatorios;
   late TurnoViewModel viewModel;
   late List<EventoDeApp> eventosPublicados;
   late StreamSubscription<EventoDeApp> suscripcion;
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
+    recordatorios = FakeRecordatorioRepository();
     repositorio = FakeTurnoRepository(
       profesionales: profesionales,
       horarios: ['08:00', '08:40'],
@@ -68,6 +71,7 @@ void main() {
       repositorio: repositorio,
       borradorRepository:
           BorradorRepositorioLocal(borradorService: BorradorService()),
+      recordatorioRepository: recordatorios,
       busDeEventos: busDeEventos,
     );
     eventosPublicados = [];
@@ -307,6 +311,49 @@ void main() {
       final preferencias = await SharedPreferences.getInstance();
       expect(preferencias.getString('borrador_horario'), '08:40');
       expect(eventosPublicados, isEmpty);
+    });
+  });
+
+  group('recordatorio', () {
+    test('al confirmar programa el recordatorio del turno guardado', () async {
+      await completarFormulario();
+
+      final turno = await viewModel.confirmar(paciente);
+
+      expect(recordatorios.turnosProgramados.single.id, turno!.id);
+      expect(recordatorios.turnosProgramados.single.horario, '08:40');
+    });
+
+    test('si no se guarda el turno no se programa recordatorio', () async {
+      await viewModel.cargar();
+      await viewModel.confirmar(paciente);
+
+      await completarFormulario();
+      repositorio.errorAlGuardar = const TurnoNoDisponibleException();
+      await viewModel.confirmar(paciente);
+
+      repositorio.errorAlGuardar = Exception('disco lleno');
+      viewModel.seleccionarHorario('08:00');
+      await viewModel.confirmar(paciente);
+
+      expect(recordatorios.turnosProgramados, isEmpty);
+    });
+
+    test(
+        'si falla el recordatorio el error se propaga, pero el turno ya '
+        'quedo guardado, sin borrador y con el evento publicado', () async {
+      await completarFormulario();
+      recordatorios.errorAlProgramar = Exception('sin permiso');
+
+      await expectLater(viewModel.confirmar(paciente), throwsException);
+      await pumpEventQueue();
+
+      expect(repositorio.turnosGuardados, hasLength(1));
+      expect(viewModel.guardando, isFalse);
+      expect(viewModel.error, isNull);
+      final preferencias = await SharedPreferences.getInstance();
+      expect(preferencias.containsKey('borrador_horario'), isFalse);
+      expect(eventosPublicados, hasLength(1));
     });
   });
 }

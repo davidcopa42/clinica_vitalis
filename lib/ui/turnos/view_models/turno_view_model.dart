@@ -1,4 +1,5 @@
 import 'package:clinica_vitalis/data/repositories/borrador_repository.dart';
+import 'package:clinica_vitalis/data/repositories/recordatorio_repository.dart';
 import 'package:clinica_vitalis/data/repositories/turno_repository.dart';
 import 'package:clinica_vitalis/domain/models/borrador_turno.dart';
 import 'package:clinica_vitalis/domain/models/paciente.dart';
@@ -15,13 +16,16 @@ class TurnoViewModel extends ChangeNotifier {
   TurnoViewModel({
     required TurnoRepository repositorio,
     required BorradorRepository borradorRepository,
+    required RecordatorioRepository recordatorioRepository,
     required BusDeEventos busDeEventos,
   })  : _repositorio = repositorio,
         _borradorRepository = borradorRepository,
+        _recordatorioRepository = recordatorioRepository,
         _busDeEventos = busDeEventos;
 
   final TurnoRepository _repositorio;
   final BorradorRepository _borradorRepository;
+  final RecordatorioRepository _recordatorioRepository;
   final BusDeEventos _busDeEventos;
 
   // ---------- Estado privado ----------
@@ -178,7 +182,9 @@ class TurnoViewModel extends ChangeNotifier {
     guardarBorrador();
   }
 
-  /// Valida y guarda el turno. Devuelve el turno guardado, o null si falló
+  /// Valida y guarda el turno, y programa su recordatorio.
+  ///
+  /// Devuelve el turno guardado, o null si falló
   Future<Turno?> confirmar(Paciente paciente) async {
     if (_especialidadSeleccionada == null ||
         _profesionalSeleccionado == null ||
@@ -193,8 +199,9 @@ class TurnoViewModel extends ChangeNotifier {
     _error = null;
     notifyListeners();
 
+    late final Turno turnoGuardado;
     try {
-      final turnoGuardado = await _repositorio.guardarTurno(
+      turnoGuardado = await _repositorio.guardarTurno(
         Turno(
           pacienteUid: paciente.uid,
           especialidad: _especialidadSeleccionada!,
@@ -215,8 +222,6 @@ class TurnoViewModel extends ChangeNotifier {
           fecha: _fechaSeleccionada!,
         ),
       );
-
-      return turnoGuardado;
     } on TurnoNoDisponibleException {
       _error = 'Ese horario se acaba de ocupar. Elegí otro.';
       _horarioSeleccionado = null;
@@ -229,6 +234,10 @@ class TurnoViewModel extends ChangeNotifier {
       _guardando = false;
       notifyListeners();
     }
+
+    // Fuera del try: si falla, el error se propaga a la vista como antes.
+    await _recordatorioRepository.programarRecordatorio(turnoGuardado);
+    return turnoGuardado;
   }
 
   /// Pide al repositorio los horarios libres del profesional en la fecha.

@@ -1,4 +1,5 @@
 import 'package:clinica_vitalis/data/repositories/borrador_repositorio_local.dart';
+import 'package:clinica_vitalis/data/repositories/recordatorio_repositorio_local.dart';
 import 'package:clinica_vitalis/data/repositories/turno_repositorio_local.dart';
 import 'package:clinica_vitalis/data/services/base_datos_service.dart';
 import 'package:clinica_vitalis/data/services/borrador_service.dart';
@@ -26,7 +27,6 @@ class TurnoPage extends StatefulWidget {
 }
 
 class _TurnoPageState extends State<TurnoPage> {
-  final NotificacionesService _notificacionesService = NotificacionesService();
   late final TurnoViewModel _viewModel;
   late final AppLifecycleListener _cicloDeVida;
 
@@ -37,6 +37,9 @@ class _TurnoPageState extends State<TurnoPage> {
       repositorio: TurnoRepositorioLocal(baseDatos: BaseDatosService()),
       borradorRepository:
           BorradorRepositorioLocal(borradorService: BorradorService()),
+      recordatorioRepository: RecordatorioRepositorioLocal(
+        notificacionesService: NotificacionesService(),
+      ),
       busDeEventos: widget.busDeEventos,
     );
     _viewModel.cargar();
@@ -74,10 +77,6 @@ class _TurnoPageState extends State<TurnoPage> {
     final turno = await _viewModel.confirmar(widget.paciente);
 
     if (!mounted || turno == null) return;
-
-    await _notificacionesService.programarRecordatorio(turno);
-
-    if (!mounted) return;
 
     Navigator.push(
       context,
