@@ -10,8 +10,8 @@ import '../../perfil/widgets/completar_perfil_screen.dart';
 import '../view_models/login_view_model.dart';
 import '../view_models/sesion_view_model.dart';
 import '../view_models/verificar_correo_view_model.dart';
-import 'login.dart';
-import 'verificar_correo.dart';
+import 'login_screen.dart';
+import 'verificar_correo_screen.dart';
 
 /// Lo que la puerta muestra en cada momento.
 enum _Pantalla { cargando, login, verificarCorreo, completarPerfil, inicio }

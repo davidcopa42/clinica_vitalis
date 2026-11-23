@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import '../view_models/recuperar_contrasena_view_model.dart';
 
-class RecuperarPasswordScreen extends StatefulWidget {
-  const RecuperarPasswordScreen({super.key, required this.viewModel});
+class RecuperarContrasenaScreen extends StatefulWidget {
+  const RecuperarContrasenaScreen({super.key, required this.viewModel});
 
   /// Lo crea quien abre la pantalla; la pantalla lo descarta al cerrarse.
   final RecuperarContrasenaViewModel viewModel;
 
   @override
-  State<RecuperarPasswordScreen> createState() =>
-      _RecuperarPasswordScreenState();
+  State<RecuperarContrasenaScreen> createState() =>
+      _RecuperarContrasenaScreenState();
 }
 
-class _RecuperarPasswordScreenState extends State<RecuperarPasswordScreen> {
+class _RecuperarContrasenaScreenState extends State<RecuperarContrasenaScreen> {
   final _formKey = GlobalKey<FormState>();
   final _correoController = TextEditingController();
   RecuperarContrasenaViewModel get _viewModel => widget.viewModel;

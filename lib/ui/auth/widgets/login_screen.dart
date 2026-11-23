@@ -4,8 +4,8 @@ import '../../core/estado_carga.dart';
 import '../view_models/crear_cuenta_view_model.dart';
 import '../view_models/login_view_model.dart';
 import '../view_models/recuperar_contrasena_view_model.dart';
-import 'crear_cuenta.dart';
-import 'recuperar_password.dart';
+import 'crear_cuenta_screen.dart';
+import 'recuperar_contrasena_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({
@@ -39,7 +39,7 @@ class _LoginScreenState extends State<LoginScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => RecuperarPasswordScreen(viewModel: viewModel),
+        builder: (_) => RecuperarContrasenaScreen(viewModel: viewModel),
       ),
     );
   }
