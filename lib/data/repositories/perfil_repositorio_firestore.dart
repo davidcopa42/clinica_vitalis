@@ -22,9 +22,8 @@ class PerfilRepositorioFirestore implements PerfilRepository {
     final mapa = await _perfilService.obtenerPerfil(uid);
     if (mapa == null) return null;
     final datosConUid = Map<String, Object?>.from(mapa);
-    if (!datosConUid.containsKey('uid') ||
-        datosConUid['uid'] == null ||
-        (datosConUid['uid'] as String).isEmpty) {
+    final uidGuardado = datosConUid['uid'] as String?;
+    if (uidGuardado == null || uidGuardado.isEmpty) {
       datosConUid['uid'] = uid;
     }
     return Paciente.fromMap(datosConUid);
