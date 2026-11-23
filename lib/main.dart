@@ -1,24 +1,56 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
+import 'data/repositories/auth_repositorio_firebase.dart';
+import 'data/repositories/borrador_repositorio_local.dart';
+import 'data/repositories/conectividad_repositorio_local.dart';
+import 'data/repositories/historia_clinica_repositorio_simulado.dart';
+import 'data/repositories/perfil_repositorio_firestore.dart';
+import 'data/repositories/recordatorio_repositorio_local.dart';
+import 'data/repositories/turno_repositorio_local.dart';
+import 'data/services/auth_service.dart';
+import 'data/services/base_datos_service.dart';
+import 'data/services/borrador_service.dart';
 import 'data/services/bus_de_eventos.dart';
+import 'data/services/conectividad_service.dart';
 import 'data/services/notificaciones_service.dart';
+import 'data/services/perfil_service.dart';
+import 'dependencias.dart';
 import 'ui/auth/widgets/puerta_sesion.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  await NotificacionesService().inicializar();
 
-  final busDeEventos = BusDeEventos();
+  // Servicios: hablan con el exterior.
+  final notificacionesService = NotificacionesService();
+  await notificacionesService.inicializar();
 
-  runApp(MyApp(busDeEventos: busDeEventos));
+  // Repositorios: reciben sus servicios por constructor.
+  final dependencias = Dependencias(
+    authRepository: AuthRepositorioFirebase(authService: AuthService()),
+    perfilRepository:
+        PerfilRepositorioFirestore(perfilService: PerfilService()),
+    turnoRepository: TurnoRepositorioLocal(baseDatos: BaseDatosService()),
+    historiaClinicaRepository: HistoriaClinicaRepositorioSimulado(),
+    borradorRepository:
+        BorradorRepositorioLocal(borradorService: BorradorService()),
+    recordatorioRepository: RecordatorioRepositorioLocal(
+      notificacionesService: notificacionesService,
+    ),
+    conectividadRepository: ConectividadRepositorioLocal(
+      conectividadService: ConectividadConPlus(),
+    ),
+    busDeEventos: BusDeEventos(),
+  );
+
+  runApp(MyApp(dependencias: dependencias));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key, required this.busDeEventos});
+  const MyApp({super.key, required this.dependencias});
 
-  final BusDeEventos busDeEventos;
+  final Dependencias dependencias;
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +66,7 @@ class MyApp extends StatelessWidget {
         brightness: Brightness.dark,
       ),
       themeMode: ThemeMode.system,
-      home: PuertaSesion(busDeEventos: busDeEventos),
+      home: PuertaSesion(dependencias: dependencias),
     );
   }
 }

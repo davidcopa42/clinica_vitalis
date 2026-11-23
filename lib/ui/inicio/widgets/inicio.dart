@@ -1,11 +1,6 @@
-import 'package:clinica_vitalis/data/repositories/auth_repositorio_firebase.dart';
-import 'package:clinica_vitalis/data/repositories/perfil_repositorio_firestore.dart';
-import 'package:clinica_vitalis/data/services/auth_service.dart';
-import 'package:clinica_vitalis/data/services/perfil_service.dart';
 import 'package:flutter/material.dart';
 
-import '../../../data/repositories/conectividad_repositorio_local.dart';
-import '../../../data/services/conectividad_service.dart';
+import '../../../dependencias.dart';
 import '../../../domain/models/paciente.dart';
 import '../../auth/view_models/sesion_view_model.dart';
 import '../../conectividad/view_models/conectividad_view_model.dart';
@@ -17,19 +12,18 @@ import '../../perfil/widgets/perfil.dart';
 import '../../sintomas/widgets/sintomas_page.dart';
 import '../../turnos/widgets/mis_turnos.dart';
 import '../../turnos/widgets/solicitar_turno.dart';
-import '../../../data/services/bus_de_eventos.dart'; // 3. Import del bus
 import '../view_models/inicio_view_model.dart';
 
 class InicioPage extends StatefulWidget {
   final Paciente paciente;
   final SesionViewModel sesion;
-  final BusDeEventos busDeEventos;
+  final Dependencias dependencias;
 
   const InicioPage({
     super.key,
     required this.paciente,
     required this.sesion,
-    required this.busDeEventos,
+    required this.dependencias,
   });
 
   @override
@@ -45,21 +39,19 @@ class _InicioPageState extends State<InicioPage> {
   @override
   void initState() {
     super.initState();
-    final authRepository = AuthRepositorioFirebase(authService: AuthService());
+    final dependencias = widget.dependencias;
     _inicioViewModel = InicioViewModel(
-      busDeEventos: widget.busDeEventos,
-      authRepository: authRepository,
+      busDeEventos: dependencias.busDeEventos,
+      authRepository: dependencias.authRepository,
       paciente: widget.paciente,
     );
     _inicioViewModel.addListener(_mostrarAvisoPendiente);
     _perfilViewModel = PerfilViewModel(
-      repository: PerfilRepositorioFirestore(perfilService: PerfilService()),
-      authRepository: authRepository,
+      repository: dependencias.perfilRepository,
+      authRepository: dependencias.authRepository,
     );
     _conectividadViewModel = ConectividadViewModel(
-      repositorio: ConectividadRepositorioLocal(
-        conectividadService: ConectividadConPlus(),
-      ),
+      repositorio: dependencias.conectividadRepository,
     );
   }
 
@@ -223,7 +215,7 @@ class _InicioPageState extends State<InicioPage> {
                           MaterialPageRoute(
                             builder: (context) => TurnoPage(
                               paciente: widget.paciente,
-                              busDeEventos: widget.busDeEventos,
+                              busDeEventos: widget.dependencias.busDeEventos,
                             ),
                           ),
                         );
@@ -243,7 +235,7 @@ class _InicioPageState extends State<InicioPage> {
                           MaterialPageRoute(
                             builder: (context) => MisTurnosPage(
                               paciente: widget.paciente,
-                              busDeEventos: widget.busDeEventos,
+                              busDeEventos: widget.dependencias.busDeEventos,
                             ),
                           ),
                         );
@@ -270,7 +262,7 @@ class _InicioPageState extends State<InicioPage> {
                                   MaterialPageRoute(
                                     builder: (context) => TurnoPage(
                                       paciente: widget.paciente,
-                                      busDeEventos: widget.busDeEventos,
+                                      busDeEventos: widget.dependencias.busDeEventos,
                                     ),
                                   ),
                                 );
