@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
+import 'data/services/bus_de_eventos.dart';
 import 'data/services/notificaciones_service.dart';
 import 'ui/auth/widgets/puerta_sesion.dart';
 
@@ -9,11 +10,15 @@ void main() async {
   await Firebase.initializeApp();
   await NotificacionesService().inicializar();
 
-  runApp(const MyApp());
+  final busDeEventos = BusDeEventos();
+
+  runApp(MyApp(busDeEventos: busDeEventos));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({super.key, required this.busDeEventos});
+
+  final BusDeEventos busDeEventos;
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +34,7 @@ class MyApp extends StatelessWidget {
         brightness: Brightness.dark,
       ),
       themeMode: ThemeMode.system,
-      home: const PuertaSesion(),
+      home: PuertaSesion(busDeEventos: busDeEventos),
     );
   }
 }

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../../../data/repositories/auth_repositorio_firebase.dart';
 import '../../../data/repositories/perfil_repositorio_firestore.dart';
 import '../../../data/services/auth_service.dart';
+import '../../../data/services/bus_de_eventos.dart';
 import '../../../data/services/perfil_service.dart';
 import '../../inicio/widgets/inicio.dart';
 import '../../perfil/widgets/completar_perfil_screen.dart';
@@ -12,7 +13,9 @@ import 'login.dart';
 import 'verificar_correo.dart';
 
 class PuertaSesion extends StatefulWidget {
-  const PuertaSesion({super.key});
+  const PuertaSesion({super.key, required this.busDeEventos});
+
+  final BusDeEventos busDeEventos;
 
   @override
   State<PuertaSesion> createState() => _PuertaSesionState();
@@ -83,6 +86,7 @@ class _PuertaSesionState extends State<PuertaSesion> {
             return InicioPage(
               paciente: paciente,
               sesion: _sesionVM,
+              busDeEventos: widget.busDeEventos,
             );
         }
       },

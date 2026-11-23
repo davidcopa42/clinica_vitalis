@@ -1,6 +1,6 @@
 import 'package:clinica_vitalis/data/services/bus_de_eventos.dart';
 import 'package:clinica_vitalis/data/services/notificaciones_service.dart';
-import 'package:clinica_vitalis/domain/evento_de_app.dart';
+import 'package:clinica_vitalis/domain/models/evento_de_app.dart';
 import 'package:clinica_vitalis/domain/models/turno.dart';
 import 'package:clinica_vitalis/ui/core/estado_carga.dart';
 import 'package:clinica_vitalis/ui/turnos/view_models/mis_turnos_view_model.dart';
@@ -38,6 +38,7 @@ Turno crearTurno(int? id, String horario) {
 }
 
 void main() {
+  late BusDeEventos busDeEventos;
   late FakeTurnoRepository repositorio;
   late FakeNotificacionesService notificaciones;
   late MisTurnosViewModel viewModel;
@@ -48,9 +49,11 @@ void main() {
       turnos: [crearTurno(1, '08:00'), crearTurno(2, '08:40')],
     );
     notificaciones = FakeNotificacionesService();
+    busDeEventos = BusDeEventos();
     viewModel = MisTurnosViewModel(
       repositorio: repositorio,
       notificacionesService: notificaciones,
+      busDeEventos: busDeEventos,
       pacienteUid: 'paciente-1',
     );
     viewModelDescartado = false;
@@ -58,6 +61,7 @@ void main() {
 
   tearDown(() {
     if (!viewModelDescartado) viewModel.dispose();
+    busDeEventos.dispose();
   });
 
   group('cargar', () {
@@ -179,6 +183,22 @@ void main() {
         ),
       );
       await pumpEventQueue();
+
+      expect(repositorio.pacientesConsultados, isEmpty);
+    });
+
+    test('solo escucha el bus que recibio por constructor', () async {
+      final otroBus = BusDeEventos();
+
+      otroBus.publicar(
+        TurnoConfirmadoEvento(
+          especialidad: 'Cardiología',
+          profesional: 'Dr. Juan Pérez',
+          fecha: DateTime(2030, 3, 15),
+        ),
+      );
+      await pumpEventQueue();
+      otroBus.dispose();
 
       expect(repositorio.pacientesConsultados, isEmpty);
     });

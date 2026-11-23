@@ -1,5 +1,6 @@
 import 'package:clinica_vitalis/data/repositories/turno_repositorio_local.dart';
 import 'package:clinica_vitalis/data/services/base_datos_service.dart';
+import 'package:clinica_vitalis/data/services/bus_de_eventos.dart';
 import 'package:clinica_vitalis/data/services/notificaciones_service.dart';
 import 'package:clinica_vitalis/domain/models/paciente.dart';
 import 'package:clinica_vitalis/domain/models/turno.dart';
@@ -13,9 +14,11 @@ class MisTurnosPage extends StatefulWidget {
   const MisTurnosPage({
     super.key,
     required this.paciente,
+    required this.busDeEventos,
   });
 
   final Paciente paciente;
+  final BusDeEventos busDeEventos;
 
   @override
   State<MisTurnosPage> createState() => _MisTurnosPageState();
@@ -30,6 +33,7 @@ class _MisTurnosPageState extends State<MisTurnosPage> {
     _viewModel = MisTurnosViewModel(
       repositorio: TurnoRepositorioLocal(baseDatos: BaseDatosService()),
       notificacionesService: NotificacionesService(),
+      busDeEventos: widget.busDeEventos,
       pacienteUid: widget.paciente.uid, // Pasamos el UID al ViewModel
     );
 

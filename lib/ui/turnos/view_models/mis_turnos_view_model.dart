@@ -4,7 +4,7 @@ import 'package:clinica_vitalis/data/services/notificaciones_service.dart';
 import 'package:clinica_vitalis/domain/models/turno.dart';
 import 'package:clinica_vitalis/ui/core/estado_carga.dart';
 import 'package:flutter/foundation.dart';
-import '../../../domain/evento_de_app.dart';
+import '../../../domain/models/evento_de_app.dart';
 import '../../../data/services/bus_de_eventos.dart';
 
 /// Estado y lógica de la pantalla Mis turnos.
@@ -12,10 +12,11 @@ class MisTurnosViewModel extends ChangeNotifier {
   MisTurnosViewModel({
     required TurnoRepository repositorio,
     required NotificacionesService notificacionesService,
+    required BusDeEventos busDeEventos,
     required this.pacienteUid,
   })  : _repositorio = repositorio,
         _notificacionesService = notificacionesService {
-    // Nos suscribimos al Stream global de eventos
+    // Nos suscribimos al Stream de eventos inyectado
     _suscripcionEventos = busDeEventos.stream.listen(_manejarEventosApp);
   }
 

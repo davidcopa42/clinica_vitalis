@@ -1,5 +1,6 @@
 import 'package:clinica_vitalis/data/repositories/turno_repositorio_local.dart';
 import 'package:clinica_vitalis/data/services/base_datos_service.dart';
+import 'package:clinica_vitalis/data/services/bus_de_eventos.dart';
 import 'package:clinica_vitalis/data/services/notificaciones_service.dart';
 import 'package:clinica_vitalis/domain/models/paciente.dart';
 import 'package:clinica_vitalis/ui/core/estado_carga.dart';
@@ -12,9 +13,11 @@ class TurnoPage extends StatefulWidget {
   const TurnoPage({
     super.key,
     required this.paciente,
+    required this.busDeEventos,
   });
 
   final Paciente paciente;
+  final BusDeEventos busDeEventos;
 
   @override
   State<TurnoPage> createState() => _TurnoPageState();
@@ -30,6 +33,7 @@ class _TurnoPageState extends State<TurnoPage> {
     super.initState();
     _viewModel = TurnoViewModel(
       repositorio: TurnoRepositorioLocal(baseDatos: BaseDatosService()),
+      busDeEventos: widget.busDeEventos,
     );
     _viewModel.cargar();
 

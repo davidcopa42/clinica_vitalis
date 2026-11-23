@@ -16,17 +16,19 @@ import '../../perfil/widgets/perfil.dart';
 import '../../sintomas/widgets/sintomas_page.dart';
 import '../../turnos/widgets/mis_turnos.dart';
 import '../../turnos/widgets/solicitar_turno.dart';
-import '../../../domain/evento_de_app.dart'; // 2. Import del evento
+import '../../../domain/models/evento_de_app.dart'; // 2. Import del evento
 import '../../../data/services/bus_de_eventos.dart'; // 3. Import del bus
 
 class InicioPage extends StatefulWidget {
   final Paciente paciente;
   final SesionViewModel sesion;
+  final BusDeEventos busDeEventos;
 
   const InicioPage({
     super.key,
     required this.paciente,
     required this.sesion,
+    required this.busDeEventos,
   });
 
   @override
@@ -50,7 +52,7 @@ class _InicioPageState extends State<InicioPage> {
     _conectividadViewModel = ConectividadViewModel(servicio: ConectividadConPlus());
 
     // 5. Nos suscribimos a la "radio" para escuchar eventos en vivo
-    _suscripcionEventos = busDeEventos.stream.listen((evento) {
+    _suscripcionEventos = widget.busDeEventos.stream.listen((evento) {
       if (evento is TurnoConfirmadoEvento) {
         if (!mounted) return;
         // Mostramos el SnackBar verde cuando escuchamos el evento
@@ -212,6 +214,7 @@ class _InicioPageState extends State<InicioPage> {
                           MaterialPageRoute(
                             builder: (context) => TurnoPage(
                               paciente: widget.paciente,
+                              busDeEventos: widget.busDeEventos,
                             ),
                           ),
                         );
@@ -231,6 +234,7 @@ class _InicioPageState extends State<InicioPage> {
                           MaterialPageRoute(
                             builder: (context) => MisTurnosPage(
                               paciente: widget.paciente,
+                              busDeEventos: widget.busDeEventos,
                             ),
                           ),
                         );
@@ -257,6 +261,7 @@ class _InicioPageState extends State<InicioPage> {
                                   MaterialPageRoute(
                                     builder: (context) => TurnoPage(
                                       paciente: widget.paciente,
+                                      busDeEventos: widget.busDeEventos,
                                     ),
                                   ),
                                 );

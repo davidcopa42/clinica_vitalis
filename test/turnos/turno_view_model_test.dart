@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:clinica_vitalis/data/repositories/turno_repository.dart';
 import 'package:clinica_vitalis/data/services/bus_de_eventos.dart';
-import 'package:clinica_vitalis/domain/evento_de_app.dart';
+import 'package:clinica_vitalis/domain/models/evento_de_app.dart';
 import 'package:clinica_vitalis/domain/models/paciente.dart';
 import 'package:clinica_vitalis/domain/models/profesional.dart';
 import 'package:clinica_vitalis/ui/core/estado_carga.dart';
@@ -49,6 +49,7 @@ void main() {
 
   final fecha = DateTime(2030, 3, 15);
 
+  late BusDeEventos busDeEventos;
   late FakeTurnoRepository repositorio;
   late TurnoViewModel viewModel;
   late List<EventoDeApp> eventosPublicados;
@@ -60,7 +61,11 @@ void main() {
       profesionales: profesionales,
       horarios: ['08:00', '08:40'],
     );
-    viewModel = TurnoViewModel(repositorio: repositorio);
+    busDeEventos = BusDeEventos();
+    viewModel = TurnoViewModel(
+      repositorio: repositorio,
+      busDeEventos: busDeEventos,
+    );
     eventosPublicados = [];
     suscripcion = busDeEventos.stream.listen(eventosPublicados.add);
   });
@@ -68,6 +73,7 @@ void main() {
   tearDown(() async {
     await suscripcion.cancel();
     viewModel.dispose();
+    busDeEventos.dispose();
   });
 
   /// Deja el formulario completo: Cardiología, Dr. Juan Pérez, fecha y 08:40.

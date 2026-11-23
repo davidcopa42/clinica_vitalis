@@ -6,15 +6,19 @@ import 'package:clinica_vitalis/ui/core/estado_carga.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../../domain/evento_de_app.dart';
+import '../../../domain/models/evento_de_app.dart';
 import '../../../data/services/bus_de_eventos.dart';
 
 /// Estado y lógica de la pantalla Solicitar turno.
 class TurnoViewModel extends ChangeNotifier {
-  TurnoViewModel({required TurnoRepository repositorio})
-      : _repositorio = repositorio;
+  TurnoViewModel({
+    required TurnoRepository repositorio,
+    required BusDeEventos busDeEventos,
+  })  : _repositorio = repositorio,
+        _busDeEventos = busDeEventos;
 
   final TurnoRepository _repositorio;
+  final BusDeEventos _busDeEventos;
 
   // ---------- Estado privado ----------
 
@@ -221,7 +225,7 @@ class TurnoViewModel extends ChangeNotifier {
       await prefs.remove('borrador_horario');
 
       // ---> 2. PUBLICAMOS EL EVENTO EN EL STREAM (El Micrófono) <---
-      busDeEventos.publicar(
+      _busDeEventos.publicar(
         TurnoConfirmadoEvento(
           especialidad: _especialidadSeleccionada!,
           profesional: _profesionalSeleccionado!,

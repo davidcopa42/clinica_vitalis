@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 
+import '../../../data/services/bus_de_eventos.dart';
 import '../../../domain/models/paciente.dart';
 import '../../turnos/widgets/solicitar_turno.dart';
 
 class RegistroPage extends StatefulWidget {
-  const RegistroPage({super.key});
+  const RegistroPage({super.key, required this.busDeEventos});
+
+  final BusDeEventos busDeEventos;
 
   @override
   State<RegistroPage> createState() => _RegistroPageState();
@@ -105,6 +108,7 @@ class _RegistroPageState extends State<RegistroPage> {
                     MaterialPageRoute(
                       builder: (context) => TurnoPage(
                         paciente: paciente,
+                        busDeEventos: widget.busDeEventos,
                       ),
                     ),
                   );
