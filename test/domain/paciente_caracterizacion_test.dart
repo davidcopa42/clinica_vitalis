@@ -49,14 +49,14 @@ void main() {
       expect(paciente.fechaNacimiento, isNull);
     });
 
-    // Bug conocido (Fase D, bug 2): el registro guarda la clave 'photoUrl'
-    // pero el modelo lee 'fotoUrl'.
-    test('BUG CONOCIDO: la clave photoUrl no se lee como fotoUrl', () {
+    // Bug 2: la foto se lee de la clave fotoUrl, la misma que escribe toMap
+    // y, desde la correccion, el registro.
+    test('la foto se lee de la clave fotoUrl', () {
       final paciente = Paciente.fromMap(
-        const {'photoUrl': 'https://foto.com/img.png'},
+        const {'fotoUrl': 'https://foto.com/img.png'},
       );
 
-      expect(paciente.fotoUrl, isNull);
+      expect(paciente.fotoUrl, 'https://foto.com/img.png');
     });
   });
 }

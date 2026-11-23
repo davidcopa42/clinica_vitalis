@@ -49,7 +49,7 @@ class CrearCuentaViewModel extends ChangeNotifier {
           'fechaNacimiento': '',
           'obraSocial': obraSocialParticular,
           'numeroAfiliado': '',
-          'photoUrl': '',
+          'fotoUrl': '',
         });
 
         await _authRepo.enviarVerificacion();

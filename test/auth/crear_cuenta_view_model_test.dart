@@ -144,8 +144,8 @@ void main() {
     test('guarda el perfil inicial con los datos recortados', () async {
       await registrar();
 
-      // Fija el formato actual: fechaNacimiento '' y la clave 'photoUrl'
-      // son los bugs 1 y 2 de la Fase D.
+      // fechaNacimiento '' se lee como sin fecha (bug 1) y la foto usa la
+      // misma clave que lee Paciente, fotoUrl (bug 2).
       expect(perfiles.perfilGuardado, {
         'nombre': 'Ana',
         'apellido': 'López',
@@ -155,8 +155,19 @@ void main() {
         'fechaNacimiento': '',
         'obraSocial': 'Particular',
         'numeroAfiliado': '',
-        'photoUrl': '',
+        'fotoUrl': '',
       });
+    });
+
+    test('el perfil guardado se puede leer como Paciente sin errores',
+        () async {
+      await registrar();
+
+      final paciente = Paciente.fromMap(perfiles.perfilGuardado!);
+
+      expect(paciente.nombreCompleto, 'Ana López');
+      expect(paciente.fotoUrl, '');
+      expect(paciente.perfilCompleto, isFalse);
     });
 
     test('sin uid despues de registrar no guarda perfil ni envia verificacion',
