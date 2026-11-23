@@ -35,11 +35,17 @@ class SintomasViewModel extends ChangeNotifier {
     'Dificultad para hablar o mover un lado del cuerpo',
   };
 
+  static const _duracionInicial = 'Hoy';
+  static const _intensidadInicial = 1.0;
+
+  /// Desde esta intensidad (escala de 1 a 10) se recomienda la guardia.
+  static const _intensidadDeAlarma = 9;
+
   final Set<String> _sintomasSeleccionados = {};
 
   String _descripcion = '';
-  String _duracion = 'Hoy';
-  double _intensidad = 1;
+  String _duracion = _duracionInicial;
+  double _intensidad = _intensidadInicial;
   bool _registrado = false;
 
   List<String> get sintomasDisponibles =>
@@ -55,7 +61,7 @@ class SintomasViewModel extends ChangeNotifier {
 
   bool get tieneSignosAlarma {
     return _sintomasSeleccionados.any(_sintomasAlarma.contains) ||
-        _intensidad >= 9;
+        _intensidad >= _intensidadDeAlarma;
   }
 
   /// Guarda el borrador actual al instante.

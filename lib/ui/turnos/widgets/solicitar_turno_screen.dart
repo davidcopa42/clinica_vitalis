@@ -22,6 +22,9 @@ class SolicitarTurnoScreen extends StatefulWidget {
 }
 
 class _SolicitarTurnoScreenState extends State<SolicitarTurnoScreen> {
+  /// Hasta cuántos días hacia adelante se puede pedir un turno.
+  static const _diasMaximosDeAnticipacion = 90;
+
   late final AppLifecycleListener _cicloDeVida;
 
   TurnoViewModel get _viewModel => widget.viewModel;
@@ -51,7 +54,7 @@ class _SolicitarTurnoScreenState extends State<SolicitarTurnoScreen> {
     final fecha = await showDatePicker(
       context: context,
       firstDate: hoy,
-      lastDate: hoy.add(const Duration(days: 90)),
+      lastDate: hoy.add(const Duration(days: _diasMaximosDeAnticipacion)),
       initialDate: _viewModel.fechaSeleccionada ?? hoy,
     );
 
