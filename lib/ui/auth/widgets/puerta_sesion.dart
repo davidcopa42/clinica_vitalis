@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../dependencias.dart';
 import '../../conectividad/view_models/conectividad_view_model.dart';
 import '../../inicio/view_models/inicio_view_model.dart';
-import '../../inicio/widgets/inicio.dart';
+import '../../inicio/widgets/inicio_screen.dart';
 import '../../perfil/view_models/completar_perfil_view_model.dart';
 import '../../perfil/view_models/perfil_view_model.dart';
 import '../../perfil/widgets/completar_perfil_screen.dart';
@@ -197,7 +197,7 @@ class _PuertaSesionState extends State<PuertaSesion> {
             );
 
           case _Pantalla.inicio:
-            return InicioPage(
+            return InicioScreen(
               paciente: _sesionVM.pacienteActual!,
               sesion: _sesionVM,
               dependencias: widget.dependencias,

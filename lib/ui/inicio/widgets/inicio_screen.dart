@@ -18,7 +18,7 @@ import '../../turnos/widgets/mis_turnos.dart';
 import '../../turnos/widgets/solicitar_turno.dart';
 import '../view_models/inicio_view_model.dart';
 
-class InicioPage extends StatefulWidget {
+class InicioScreen extends StatefulWidget {
   final Paciente paciente;
   final SesionViewModel sesion;
   final Dependencias dependencias;
@@ -28,7 +28,7 @@ class InicioPage extends StatefulWidget {
   final PerfilViewModel perfilViewModel;
   final ConectividadViewModel conectividadViewModel;
 
-  const InicioPage({
+  const InicioScreen({
     super.key,
     required this.paciente,
     required this.sesion,
@@ -39,10 +39,10 @@ class InicioPage extends StatefulWidget {
   });
 
   @override
-  State<InicioPage> createState() => _InicioPageState();
+  State<InicioScreen> createState() => _InicioScreenState();
 }
 
-class _InicioPageState extends State<InicioPage> {
+class _InicioScreenState extends State<InicioScreen> {
   int _indiceSeleccionado = 0;
 
   InicioViewModel get _inicioViewModel => widget.inicioViewModel;

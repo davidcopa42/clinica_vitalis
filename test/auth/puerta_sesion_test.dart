@@ -12,7 +12,7 @@ import 'package:clinica_vitalis/ui/auth/view_models/sesion_view_model.dart';
 import 'package:clinica_vitalis/ui/auth/widgets/login_screen.dart';
 import 'package:clinica_vitalis/ui/auth/widgets/puerta_sesion.dart';
 import 'package:clinica_vitalis/ui/auth/widgets/verificar_correo_screen.dart';
-import 'package:clinica_vitalis/ui/inicio/widgets/inicio.dart';
+import 'package:clinica_vitalis/ui/inicio/widgets/inicio_screen.dart';
 import 'package:clinica_vitalis/ui/perfil/widgets/completar_perfil_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -177,7 +177,7 @@ void main() {
     perfiles.paciente = pacienteCompleto;
     await montarPuerta(tester);
 
-    expect(find.byType(InicioPage), findsOneWidget);
+    expect(find.byType(InicioScreen), findsOneWidget);
     expect(find.text('Hola, Ana'), findsOneWidget);
   });
 
