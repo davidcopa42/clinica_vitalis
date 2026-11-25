@@ -38,7 +38,8 @@ class MisTurnosViewModel extends ChangeNotifier {
   /// Método que reacciona cada vez que el Bus de Eventos transmite algo
   void _manejarEventosApp(EventoDeApp evento) {
     if (evento is TurnoConfirmadoEvento) {
-      debugPrint('MisTurnosViewModel escuchó: ¡Nuevo turno confirmado! Recargando...');
+      debugPrint(
+          'MisTurnosViewModel escuchó: ¡Nuevo turno confirmado! Recargando...');
       cargar(pacienteUid);
     }
   }

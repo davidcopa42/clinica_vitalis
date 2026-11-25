@@ -1,4 +1,7 @@
 import 'package:clinica_vitalis/data/repositories/turno_repository.dart';
+import 'package:clinica_vitalis/data/services/bus_de_eventos.dart';
+import 'package:clinica_vitalis/data/services/notificaciones_service.dart';
+import 'package:clinica_vitalis/domain/evento_de_app.dart';
 import 'package:clinica_vitalis/domain/models/paciente.dart';
 import 'package:clinica_vitalis/domain/models/profesional.dart';
 import 'package:clinica_vitalis/domain/models/turno.dart';
@@ -6,15 +9,16 @@ import 'package:clinica_vitalis/ui/core/estado_carga.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../../domain/evento_de_app.dart';
-import '../../../data/services/bus_de_eventos.dart';
-
 /// Estado y lógica de la pantalla Solicitar turno.
 class TurnoViewModel extends ChangeNotifier {
-  TurnoViewModel({required TurnoRepository repositorio})
-      : _repositorio = repositorio;
+  TurnoViewModel({
+    required TurnoRepository repositorio,
+    NotificacionesService? notificaciones,
+  })  : _repositorio = repositorio,
+        _notificaciones = notificaciones ?? NotificacionesService();
 
   final TurnoRepository _repositorio;
+  final NotificacionesService _notificaciones;
 
   // ---------- Estado privado ----------
 
@@ -54,17 +58,18 @@ class TurnoViewModel extends ChangeNotifier {
   /// El horario se elige recién con profesional y fecha.
   bool get puedeElegirHorario =>
       _profesionalSeleccionado != null &&
-          _fechaSeleccionada != null &&
-          !_cargandoHorarios;
+      _fechaSeleccionada != null &&
+      !_cargandoHorarios;
 
   // ---------- Acciones de Persistencia Local (Borrador) ----------
 
-  /// Guarda los datos actuales de forma inmediata en SharedPreferences
+  /// Guarda los datos actuales de forma inmediata en SharedPreferences.
   Future<void> guardarBorrador() async {
     final prefs = await SharedPreferences.getInstance();
 
     if (_especialidadSeleccionada != null) {
-      await prefs.setString('borrador_especialidad', _especialidadSeleccionada!);
+      await prefs.setString(
+          'borrador_especialidad', _especialidadSeleccionada!);
     } else {
       await prefs.remove('borrador_especialidad');
     }
@@ -76,7 +81,8 @@ class TurnoViewModel extends ChangeNotifier {
     }
 
     if (_fechaSeleccionada != null) {
-      await prefs.setString('borrador_fecha', _fechaSeleccionada!.toIso8601String());
+      await prefs.setString(
+          'borrador_fecha', _fechaSeleccionada!.toIso8601String());
     } else {
       await prefs.remove('borrador_fecha');
     }
@@ -90,42 +96,43 @@ class TurnoViewModel extends ChangeNotifier {
     debugPrint('Ciclo de vida - Borrador actualizado en SharedPreferences.');
   }
 
-  /// Refresca los datos del servidor cuando la app vuelve al frente (onResume)
+  /// Refresca los datos cuando la app vuelve al frente (onResume).
   Future<void> refrescar() async {
-    debugPrint('Ciclo de vida - App retomada. Refrescando cartelera de turnos...');
+    debugPrint('Ciclo de vida - App retomada. Refrescando turnos...');
     await cargar();
   }
 
-  /// Carga los profesionales al abrir la pantalla y recupera todo el borrador si existe.
+  /// Carga los profesionales y recupera el borrador si existe.
   Future<void> cargar() async {
     _estado = EstadoCarga.cargando;
     notifyListeners();
 
     try {
-      // 1. Primero obtenemos la lista de profesionales del repositorio
+      // 1. Profesionales del repositorio.
       _profesionales = await _repositorio.obtenerProfesionales();
 
-      // 2. Leemos el borrador guardado en SharedPreferences
+      // 2. Borrador guardado en SharedPreferences.
       final prefs = await SharedPreferences.getInstance();
       final espGuardada = prefs.getString('borrador_especialidad');
       final profGuardado = prefs.getString('borrador_profesional');
       final fechaGuardadaStr = prefs.getString('borrador_fecha');
       final horarioGuardado = prefs.getString('borrador_horario');
 
-      // 3. Restauramos la especialidad si es válida
+      // 3. Restauramos la especialidad si es válida.
       if (espGuardada != null && especialidades.contains(espGuardada)) {
         _especialidadSeleccionada = espGuardada;
 
-        // 4. Restauramos el profesional si existe
-        if (profGuardado != null && profesionalesDisponibles.any((p) => p.nombre == profGuardado)) {
+        // 4. Restauramos el profesional si existe.
+        if (profGuardado != null &&
+            profesionalesDisponibles.any((p) => p.nombre == profGuardado)) {
           _profesionalSeleccionado = profGuardado;
 
-          // 5. Restauramos la fecha si está guardada
+          // 5. Restauramos la fecha.
           if (fechaGuardadaStr != null) {
             _fechaSeleccionada = DateTime.parse(fechaGuardadaStr);
           }
 
-          // 6. SOLUCIÓN CLAVE: Si ya tenemos profesional y fecha, cargamos los horarios de forma sincrónica/esperada
+          // 6. Con profesional y fecha, cargamos los horarios.
           if (_fechaSeleccionada != null) {
             try {
               _horariosDisponibles = await _repositorio.horariosDisponibles(
@@ -137,8 +144,9 @@ class TurnoViewModel extends ChangeNotifier {
             }
           }
 
-          // 7. Finalmente, restauramos el horario si está dentro de los disponibles
-          if (horarioGuardado != null && _horariosDisponibles.contains(horarioGuardado)) {
+          // 7. Restauramos el horario si sigue disponible.
+          if (horarioGuardado != null &&
+              _horariosDisponibles.contains(horarioGuardado)) {
             _horarioSeleccionado = horarioGuardado;
           }
         }
@@ -187,7 +195,7 @@ class TurnoViewModel extends ChangeNotifier {
     guardarBorrador();
   }
 
-  /// Valida y guarda el turno. Devuelve el turno guardado, o null si falló
+  /// Valida y guarda el turno. Devuelve el turno guardado, o null si falló.
   Future<Turno?> confirmar(Paciente paciente) async {
     if (_especialidadSeleccionada == null ||
         _profesionalSeleccionado == null ||
@@ -213,14 +221,21 @@ class TurnoViewModel extends ChangeNotifier {
         ),
       );
 
-      // Limpiamos el borrador de SharedPreferences al confirmar el turno con éxito
+      // Programa el aviso 24 h antes. Si falla, el turno igual queda guardado.
+      try {
+        await _notificaciones.programarRecordatorio(turnoGuardado);
+      } catch (_) {
+        debugPrint('No se pudo programar el recordatorio.');
+      }
+
+      // Limpiamos el borrador al confirmar el turno con éxito.
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove('borrador_especialidad');
       await prefs.remove('borrador_profesional');
       await prefs.remove('borrador_fecha');
       await prefs.remove('borrador_horario');
 
-      // ---> 2. PUBLICAMOS EL EVENTO EN EL STREAM (El Micrófono) <---
+      // Publicamos el evento en el bus (Stream) para que Mis turnos se entere.
       busDeEventos.publicar(
         TurnoConfirmadoEvento(
           especialidad: _especialidadSeleccionada!,
