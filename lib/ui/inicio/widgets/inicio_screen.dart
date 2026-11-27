@@ -52,6 +52,21 @@ class _InicioScreenState extends State<InicioScreen> {
   void initState() {
     super.initState();
     _inicioViewModel.addListener(_mostrarAvisoPendiente);
+    _inicioViewModel.addListener(_abrirMisTurnosSiCorresponde);
+    // Por si el recordatorio se tocó antes de que existiera esta pantalla.
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => _abrirMisTurnosSiCorresponde());
+  }
+
+  /// Abre Mis turnos cuando el paciente tocó un recordatorio.
+  ///
+  /// Vuelve primero a Inicio para no apilar Mis turnos dos veces.
+  void _abrirMisTurnosSiCorresponde() {
+    if (!mounted || !_inicioViewModel.debeAbrirMisTurnos) return;
+    _inicioViewModel.descartarAperturaMisTurnos();
+
+    Navigator.of(context).popUntil((ruta) => ruta.isFirst);
+    _abrirMisTurnos();
   }
 
   /// Crea el ViewModel de Solicitar turno y abre la pantalla.
@@ -163,6 +178,7 @@ class _InicioScreenState extends State<InicioScreen> {
   @override
   void dispose() {
     _inicioViewModel.removeListener(_mostrarAvisoPendiente);
+    _inicioViewModel.removeListener(_abrirMisTurnosSiCorresponde);
     super.dispose();
   }
 

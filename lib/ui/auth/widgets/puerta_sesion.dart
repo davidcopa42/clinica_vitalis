@@ -121,6 +121,7 @@ class _PuertaSesionState extends State<PuertaSesion> {
         _inicioViewModel = InicioViewModel(
           busDeEventos: dependencias.busDeEventos,
           authRepository: dependencias.authRepository,
+          recordatorioRepository: dependencias.recordatorioRepository,
           paciente: _sesionViewModel.pacienteActual!,
         );
         _perfilViewModel = PerfilViewModel(

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:clinica_vitalis/domain/models/turno.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
@@ -12,6 +14,9 @@ class NotificacionesService {
   /// Cuánto antes del turno llega el recordatorio.
   static const _anticipacionRecordatorio = Duration(hours: 24);
 
+  /// Payload de los recordatorios de turno: al tocarlos se abre Mis turnos.
+  static const payloadMisTurnos = 'mis_turnos';
+
   NotificacionesService._internal();
 
   static final NotificacionesService _instancia =
@@ -21,6 +26,13 @@ class NotificacionesService {
 
   final FlutterLocalNotificationsPlugin _notificaciones =
       FlutterLocalNotificationsPlugin();
+
+  final StreamController<String?> _toques =
+      StreamController<String?>.broadcast();
+
+  /// Payload de cada notificación que el usuario toca con la app abierta
+  /// o en segundo plano.
+  Stream<String?> get toques => _toques.stream;
 
   /// Prepara zonas horarias, plugin y canal.
   ///
@@ -40,6 +52,9 @@ class NotificacionesService {
 
     await _notificaciones.initialize(
       settings: configuracion,
+      onDidReceiveNotificationResponse: (respuesta) {
+        _toques.add(respuesta.payload);
+      },
     );
 
     final android = _notificaciones.resolvePlatformSpecificImplementation<
@@ -53,6 +68,16 @@ class NotificacionesService {
     );
 
     await android?.createNotificationChannel(canalRecordatorios);
+  }
+
+  /// Payload de la notificación que abrió la app estando cerrada, o null
+  /// si la app no se abrió desde una notificación.
+  ///
+  /// En ese caso [toques] no emite: hay que preguntarlo.
+  Future<String?> obtenerPayloadDeLanzamiento() async {
+    final lanzamiento = await _notificaciones.getNotificationAppLaunchDetails();
+    if (!(lanzamiento?.didNotificationLaunchApp ?? false)) return null;
+    return lanzamiento!.notificationResponse?.payload;
   }
 
   /// Pide permiso para mostrar notificaciones (Android 13 o posterior).
@@ -94,6 +119,7 @@ class NotificacionesService {
           'Mañana tenés turno con ${turno.profesional} a las ${turno.horario}.',
       scheduledDate: fechaProgramada,
       notificationDetails: detalles,
+      payload: payloadMisTurnos,
       // Inexacta: alcanza para un recordatorio y no necesita el permiso
       // especial de alarmas exactas.
       androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,

@@ -10,4 +10,11 @@ abstract class RecordatorioRepository {
 
   /// Pide permiso para mostrar los avisos. Devuelve true si se otorgó.
   Future<bool> pedirPermiso();
+
+  /// Emite cada vez que el paciente toca un recordatorio de turno.
+  Stream<void> get recordatoriosTocados;
+
+  /// Devuelve true, una sola vez, si hay un recordatorio tocado que nadie
+  /// atendió todavía: con la app cerrada o antes de llegar a Inicio.
+  Future<bool> consumirRecordatorioTocado();
 }

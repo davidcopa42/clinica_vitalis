@@ -6,6 +6,7 @@ import 'package:clinica_vitalis/ui/inicio/view_models/inicio_view_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../fakes/fake_auth_repository.dart';
+import '../fakes/fake_recordatorio_repository.dart';
 
 const paciente = Paciente(
   uid: 'uid-1',
@@ -17,15 +18,18 @@ const paciente = Paciente(
 void main() {
   late BusDeEventos busDeEventos;
   late FakeAuthRepository auth;
+  late FakeRecordatorioRepository recordatorios;
   late InicioViewModel viewModel;
   var viewModelDescartado = false;
 
   setUp(() {
     busDeEventos = BusDeEventos();
     auth = FakeAuthRepository();
+    recordatorios = FakeRecordatorioRepository();
     viewModel = InicioViewModel(
       busDeEventos: busDeEventos,
       authRepository: auth,
+      recordatorioRepository: recordatorios,
       paciente: paciente,
     );
     viewModelDescartado = false;
@@ -46,6 +50,61 @@ void main() {
     );
   }
 
+  group('recordatorios tocados', () {
+    test('sin recordatorios tocados no abre Mis turnos', () async {
+      await pumpEventQueue();
+
+      expect(viewModel.debeAbrirMisTurnos, isFalse);
+    });
+
+    test('un recordatorio tocado antes de crearse abre Mis turnos', () async {
+      recordatorios.recordatorioTocadoPendiente = true;
+      final conRecordatorio = InicioViewModel(
+        busDeEventos: busDeEventos,
+        authRepository: auth,
+        recordatorioRepository: recordatorios,
+        paciente: paciente,
+      );
+      addTearDown(conRecordatorio.dispose);
+      await pumpEventQueue();
+
+      expect(conRecordatorio.debeAbrirMisTurnos, isTrue);
+      expect(recordatorios.recordatorioTocadoPendiente, isFalse);
+    });
+
+    test('un recordatorio tocado con Inicio abierto avisa a la pantalla',
+        () async {
+      await pumpEventQueue();
+      var avisos = 0;
+      viewModel.addListener(() => avisos++);
+
+      recordatorios.tocarRecordatorio();
+      await pumpEventQueue();
+
+      expect(viewModel.debeAbrirMisTurnos, isTrue);
+      expect(avisos, 1);
+    });
+
+    test('descartarAperturaMisTurnos lo apaga', () async {
+      recordatorios.tocarRecordatorio();
+      await pumpEventQueue();
+
+      viewModel.descartarAperturaMisTurnos();
+
+      expect(viewModel.debeAbrirMisTurnos, isFalse);
+    });
+
+    test('despues de dispose deja de escuchar los recordatorios', () async {
+      viewModel.dispose();
+      viewModelDescartado = true;
+
+      recordatorios.tocarRecordatorio();
+      await pumpEventQueue();
+
+      expect(recordatorios.recordatorioTocadoPendiente, isTrue);
+    });
+  });
+
   group('nombreUsuario', () {
     test('usa el nombre del paciente', () {
       expect(viewModel.nombreUsuario, 'Ana');
@@ -55,6 +114,7 @@ void main() {
       final sinNombre = InicioViewModel(
         busDeEventos: busDeEventos,
         authRepository: auth,
+        recordatorioRepository: recordatorios,
         paciente: paciente.copyWith(nombre: ''),
       );
       addTearDown(sinNombre.dispose);
@@ -77,6 +137,7 @@ void main() {
       final conFotoDePerfil = InicioViewModel(
         busDeEventos: busDeEventos,
         authRepository: auth,
+        recordatorioRepository: recordatorios,
         paciente: paciente.copyWith(fotoUrl: 'https://foto.com/perfil.png'),
       );
       addTearDown(conFotoDePerfil.dispose);
@@ -114,6 +175,7 @@ void main() {
       final sinUid = InicioViewModel(
         busDeEventos: busDeEventos,
         authRepository: auth,
+        recordatorioRepository: recordatorios,
         paciente: paciente.copyWith(uid: ''),
       );
       addTearDown(sinUid.dispose);

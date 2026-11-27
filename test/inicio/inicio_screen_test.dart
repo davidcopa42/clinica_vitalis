@@ -5,10 +5,12 @@ import 'package:clinica_vitalis/ui/informacion/widgets/informacion_screen.dart';
 import 'package:clinica_vitalis/ui/inicio/view_models/inicio_view_model.dart';
 import 'package:clinica_vitalis/ui/inicio/widgets/inicio_screen.dart';
 import 'package:clinica_vitalis/ui/perfil/view_models/perfil_view_model.dart';
+import 'package:clinica_vitalis/ui/turnos/widgets/mis_turnos_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../fakes/dependencias_falsas.dart';
+import '../fakes/fake_recordatorio_repository.dart';
 
 const pacienteAna = Paciente(
   uid: 'uid-1',
@@ -18,7 +20,11 @@ const pacienteAna = Paciente(
 );
 
 void main() {
-  Future<void> mostrarInicio(WidgetTester tester, Paciente paciente) async {
+  Future<void> mostrarInicio(
+    WidgetTester tester,
+    Paciente paciente, {
+    bool recordatorioTocado = false,
+  }) async {
     // Superficie alta: el ListView no construye las tarjetas fuera de
     // pantalla y en 800x600 la ultima queda afuera.
     tester.view.physicalSize = const Size(1080, 2400);
@@ -26,9 +32,12 @@ void main() {
     addTearDown(tester.view.reset);
 
     final dependencias = crearDependenciasFalsas();
+    (dependencias.recordatorioRepository as FakeRecordatorioRepository)
+        .recordatorioTocadoPendiente = recordatorioTocado;
     final inicio = InicioViewModel(
       busDeEventos: dependencias.busDeEventos,
       authRepository: dependencias.authRepository,
+      recordatorioRepository: dependencias.recordatorioRepository,
       paciente: paciente,
     );
     final perfil = PerfilViewModel(
@@ -68,6 +77,19 @@ void main() {
     expect(find.text('Mis turnos'), findsOneWidget);
     expect(find.text('Registrar síntomas'), findsOneWidget);
     expect(find.text('Historia clínica'), findsOneWidget);
+  });
+
+  testWidgets('un recordatorio tocado abre Mis turnos al entrar',
+      (tester) async {
+    await mostrarInicio(tester, pacienteAna, recordatorioTocado: true);
+
+    expect(find.byType(MisTurnosScreen), findsOneWidget);
+  });
+
+  testWidgets('sin recordatorio tocado se queda en Inicio', (tester) async {
+    await mostrarInicio(tester, pacienteAna);
+
+    expect(find.byType(MisTurnosScreen), findsNothing);
   });
 
   testWidgets('sin nombre saluda como Paciente', (tester) async {

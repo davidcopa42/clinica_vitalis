@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:clinica_vitalis/data/repositories/recordatorio_repositorio_local.dart';
 import 'package:clinica_vitalis/data/services/notificaciones_service.dart';
 import 'package:clinica_vitalis/domain/models/turno.dart';
@@ -8,6 +10,19 @@ class FakeNotificacionesService implements NotificacionesService {
   final List<Turno> programados = [];
   final List<int> cancelados = [];
   bool permiso = true;
+  String? payloadDeLanzamiento;
+  int lanzamientosConsultados = 0;
+  final StreamController<String?> controladorToques =
+      StreamController<String?>.broadcast();
+
+  @override
+  Stream<String?> get toques => controladorToques.stream;
+
+  @override
+  Future<String?> obtenerPayloadDeLanzamiento() async {
+    lanzamientosConsultados++;
+    return payloadDeLanzamiento;
+  }
 
   @override
   Future<void> inicializar() async {}
@@ -53,6 +68,48 @@ void main() {
     await repositorio.cancelarRecordatorio(7);
 
     expect(servicio.cancelados, [7]);
+  });
+
+  group('recordatorios tocados', () {
+    test('sin toques no hay nada pendiente', () async {
+      expect(await repositorio.consumirRecordatorioTocado(), isFalse);
+    });
+
+    test('un toque se avisa y se consume una sola vez', () async {
+      var avisos = 0;
+      repositorio.recordatoriosTocados.listen((_) => avisos++);
+
+      servicio.controladorToques.add(NotificacionesService.payloadMisTurnos);
+      await pumpEventQueue();
+
+      expect(avisos, 1);
+      expect(await repositorio.consumirRecordatorioTocado(), isTrue);
+      expect(await repositorio.consumirRecordatorioTocado(), isFalse);
+    });
+
+    test('se recuerda aunque nadie escuche cuando se toca', () async {
+      servicio.controladorToques.add(NotificacionesService.payloadMisTurnos);
+      await pumpEventQueue();
+
+      expect(await repositorio.consumirRecordatorioTocado(), isTrue);
+    });
+
+    test('ignora notificaciones con otro payload', () async {
+      servicio.controladorToques.add('otra_cosa');
+      await pumpEventQueue();
+
+      expect(await repositorio.consumirRecordatorioTocado(), isFalse);
+    });
+
+    test(
+        'si la app se abrio desde un recordatorio lo cuenta una sola vez '
+        'y no vuelve a preguntar', () async {
+      servicio.payloadDeLanzamiento = NotificacionesService.payloadMisTurnos;
+
+      expect(await repositorio.consumirRecordatorioTocado(), isTrue);
+      expect(await repositorio.consumirRecordatorioTocado(), isFalse);
+      expect(servicio.lanzamientosConsultados, 1);
+    });
   });
 
   test('pedirPermiso devuelve la respuesta del servicio', () async {
