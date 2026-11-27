@@ -20,4 +20,7 @@ class RecordatorioRepositorioLocal implements RecordatorioRepository {
   Future<void> cancelarRecordatorio(int turnoId) async {
     await _notificacionesService.cancelarRecordatorio(turnoId);
   }
+
+  @override
+  Future<bool> pedirPermiso() => _notificacionesService.pedirPermiso();
 }

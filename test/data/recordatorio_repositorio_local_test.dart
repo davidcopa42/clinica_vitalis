@@ -7,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 class FakeNotificacionesService implements NotificacionesService {
   final List<Turno> programados = [];
   final List<int> cancelados = [];
+  bool permiso = true;
 
   @override
   Future<void> inicializar() async {}
@@ -18,6 +19,9 @@ class FakeNotificacionesService implements NotificacionesService {
   @override
   Future<void> cancelarRecordatorio(int turnoId) async =>
       cancelados.add(turnoId);
+
+  @override
+  Future<bool> pedirPermiso() async => permiso;
 }
 
 void main() {
@@ -49,5 +53,12 @@ void main() {
     await repositorio.cancelarRecordatorio(7);
 
     expect(servicio.cancelados, [7]);
+  });
+
+  test('pedirPermiso devuelve la respuesta del servicio', () async {
+    expect(await repositorio.pedirPermiso(), isTrue);
+
+    servicio.permiso = false;
+    expect(await repositorio.pedirPermiso(), isFalse);
   });
 }

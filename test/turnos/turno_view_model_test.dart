@@ -442,4 +442,33 @@ void main() {
       expect(eventosPublicados, hasLength(1));
     });
   });
+
+  group('activarAvisos', () {
+    test('con permiso confirma que va a avisar', () async {
+      final aviso = await viewModel.activarAvisos();
+
+      expect(recordatorios.permisosPedidos, 1);
+      expect(aviso, 'Listo, te avisamos un día antes del turno.');
+    });
+
+    test('sin permiso explica que igual puede ver el turno', () async {
+      recordatorios.permisoOtorgado = false;
+
+      final aviso = await viewModel.activarAvisos();
+
+      expect(
+        aviso,
+        'Sin permiso no podemos avisarte. '
+        'Igual podés ver el turno en Mis turnos.',
+      );
+    });
+
+    test('si pedir el permiso falla lo trata como negado', () async {
+      recordatorios.errorAlPedirPermiso = Exception('sin plugin');
+
+      final aviso = await viewModel.activarAvisos();
+
+      expect(aviso, startsWith('Sin permiso no podemos avisarte.'));
+    });
+  });
 }

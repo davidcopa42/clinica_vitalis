@@ -22,6 +22,9 @@ class NotificacionesService {
   final FlutterLocalNotificationsPlugin _notificaciones =
       FlutterLocalNotificationsPlugin();
 
+  /// Prepara zonas horarias, plugin y canal.
+  ///
+  /// No pide permiso: se pide en contexto, con un botón ([pedirPermiso]).
   Future<void> inicializar() async {
     tz_data.initializeTimeZones();
 
@@ -50,9 +53,16 @@ class NotificacionesService {
     );
 
     await android?.createNotificationChannel(canalRecordatorios);
+  }
 
-    await android?.requestNotificationsPermission();
-    await android?.requestExactAlarmsPermission();
+  /// Pide permiso para mostrar notificaciones (Android 13 o posterior).
+  ///
+  /// Devuelve true si el usuario lo otorgó.
+  Future<bool> pedirPermiso() async {
+    final android = _notificaciones.resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin>();
+    if (android == null) return false;
+    return await android.requestNotificationsPermission() ?? false;
   }
 
   Future<void> programarRecordatorio(Turno turno) async {
@@ -84,7 +94,9 @@ class NotificacionesService {
           'Mañana tenés turno con ${turno.profesional} a las ${turno.horario}.',
       scheduledDate: fechaProgramada,
       notificationDetails: detalles,
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      // Inexacta: alcanza para un recordatorio y no necesita el permiso
+      // especial de alarmas exactas.
+      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
     );
   }
 

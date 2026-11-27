@@ -7,4 +7,7 @@ abstract class RecordatorioRepository {
 
   /// Cancela el aviso del turno con ese id.
   Future<void> cancelarRecordatorio(int turnoId);
+
+  /// Pide permiso para mostrar los avisos. Devuelve true si se otorgó.
+  Future<bool> pedirPermiso();
 }

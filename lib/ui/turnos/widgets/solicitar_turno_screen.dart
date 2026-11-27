@@ -73,6 +73,7 @@ class _SolicitarTurnoScreenState extends State<SolicitarTurnoScreen> {
         builder: (context) => TurnoConfirmadoScreen(
           paciente: widget.paciente,
           turno: turno,
+          alActivarAvisos: _viewModel.activarAvisos,
         ),
       ),
     );

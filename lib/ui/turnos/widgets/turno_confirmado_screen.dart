@@ -9,10 +9,22 @@ class TurnoConfirmadoScreen extends StatelessWidget {
     super.key,
     required this.paciente,
     required this.turno,
+    required this.alActivarAvisos,
   });
 
   final Paciente paciente;
   final Turno turno;
+
+  /// Pide el permiso de recordatorios y devuelve el aviso para mostrar.
+  final Future<String> Function() alActivarAvisos;
+
+  /// Pide el permiso en contexto, cuando el paciente entiende para qué
+  /// sirve. Si lo niega, la app sigue funcionando.
+  Future<void> _activarAvisos(BuildContext context) async {
+    final aviso = await alActivarAvisos();
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(aviso)));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -135,6 +147,15 @@ class TurnoConfirmadoScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 25),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: () => _activarAvisos(context),
+                icon: const Icon(Icons.notifications_active),
+                label: const Text('Avisarme un día antes'),
+              ),
+            ),
+            const SizedBox(height: 12),
             SizedBox(
               width: double.infinity,
               child: OutlinedButton(

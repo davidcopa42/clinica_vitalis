@@ -218,6 +218,22 @@ class TurnoViewModel extends ChangeNotifier {
     }
   }
 
+  /// Pide permiso para los recordatorios y devuelve el aviso para mostrar.
+  ///
+  /// Si no se otorga, la app sigue funcionando sin recordatorios.
+  Future<String> activarAvisos() async {
+    bool otorgado;
+    try {
+      otorgado = await _recordatorioRepository.pedirPermiso();
+    } catch (_) {
+      otorgado = false;
+    }
+    return otorgado
+        ? 'Listo, te avisamos un día antes del turno.'
+        : 'Sin permiso no podemos avisarte. '
+            'Igual podés ver el turno en Mis turnos.';
+  }
+
   /// Restaura del borrador lo que siga siendo válido, en orden:
   /// especialidad, profesional, fecha, horarios libres y horario.
   ///
