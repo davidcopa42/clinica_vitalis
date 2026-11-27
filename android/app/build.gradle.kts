@@ -19,7 +19,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.egiclinica.clinica_vitalis"
+        applicationId = "com.example.clinica_vitalis.clinica_vitalis"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
