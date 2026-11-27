@@ -15,6 +15,7 @@ import 'data/services/bus_de_eventos.dart';
 import 'data/services/conectividad_service.dart';
 import 'data/services/notificaciones_service.dart';
 import 'data/services/perfil_service.dart';
+import 'data/services/tareas_background_service.dart';
 import 'dependencias.dart';
 import 'ui/auth/view_models/sesion_view_model.dart';
 import 'ui/auth/widgets/puerta_sesion.dart';
@@ -26,6 +27,13 @@ void main() async {
   // Servicios: hablan con el exterior.
   final notificacionesService = NotificacionesService();
   await notificacionesService.inicializar();
+
+  try {
+    await TareasBackgroundService().inicializar(despacharTareas);
+  } catch (_) {
+    // La limpieza de turnos vencidos no es imprescindible: si WorkManager
+    // falla, la app abre igual.
+  }
 
   // Repositorios: reciben sus servicios por constructor.
   final dependencias = Dependencias(
@@ -55,6 +63,23 @@ void main() async {
     ClinicaVitalisApp(
         sesionViewModel: sesionViewModel, dependencias: dependencias),
   );
+}
+
+/// Punto de entrada de las tareas en background.
+///
+/// Android lo ejecuta en otro isolate, aunque la app esté cerrada, así que
+/// no comparte las instancias de [main]: arma acá las que necesita.
+/// El `@pragma` evita que el compilador lo elimine en el APK de release.
+@pragma('vm:entry-point')
+void despacharTareas() {
+  final turnoRepository = TurnoRepositorioLocal(baseDatos: BaseDatosService());
+
+  TareasBackgroundService().atenderTareas({
+    tareaLimpiarTurnosVencidos: () async {
+      await turnoRepository.limpiarTurnosVencidos();
+      return true;
+    },
+  });
 }
 
 class ClinicaVitalisApp extends StatelessWidget {

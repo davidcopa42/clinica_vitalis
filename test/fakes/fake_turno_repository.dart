@@ -31,6 +31,7 @@ class FakeTurnoRepository implements TurnoRepository {
   final List<(String, DateTime)> consultasDeHorarios = [];
   final List<Turno> turnosGuardados = [];
   final List<int> turnosCancelados = [];
+  final List<DateTime?> limpiezas = [];
 
   int _proximoId = 100;
 
@@ -62,6 +63,12 @@ class FakeTurnoRepository implements TurnoRepository {
     turnosGuardados.add(turno);
     if (errorAlGuardar != null) throw errorAlGuardar!;
     return turno.copyWith(id: _proximoId++);
+  }
+
+  @override
+  Future<int> limpiarTurnosVencidos({DateTime? ahora}) async {
+    limpiezas.add(ahora);
+    return 0;
   }
 
   @override

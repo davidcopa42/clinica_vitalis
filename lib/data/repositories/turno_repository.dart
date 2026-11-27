@@ -28,4 +28,8 @@ abstract class TurnoRepository {
 
   /// Horarios libres de un profesional en una fecha.
   Future<List<String>> horariosDisponibles(String profesional, DateTime fecha);
+
+  /// Borra los turnos cuya fecha y hora ya pasaron, confirmados o
+  /// cancelados, y devuelve cuántos borró. [ahora] permite fijar el corte.
+  Future<int> limpiarTurnosVencidos({DateTime? ahora});
 }

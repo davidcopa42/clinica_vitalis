@@ -44,6 +44,11 @@ class FakeBaseDatosService implements BaseDatosService {
     final fila = filas.firstWhere((fila) => fila['id'] == id);
     fila.addAll(datos);
   }
+
+  @override
+  Future<void> eliminar(int id) async {
+    filas.removeWhere((fila) => fila['id'] == id);
+  }
 }
 
 void main() {
@@ -184,6 +189,35 @@ void main() {
 
       expect(baseDatos.filas, hasLength(1));
       expect(baseDatos.filas.single['estado'], 'cancelado');
+    });
+  });
+
+  group('limpiarTurnosVencidos', () {
+    test(
+        'borra los turnos que ya pasaron, confirmados o cancelados, '
+        'y deja los futuros', () async {
+      final manana = DateTime(hoy.year, hoy.month, hoy.day + 1);
+      final pasadoManana = DateTime(hoy.year, hoy.month, hoy.day + 2);
+      final vencido = await repositorio.guardarTurno(crearTurno(fecha: manana));
+      final cancelado = await repositorio
+          .guardarTurno(crearTurno(fecha: manana, horario: '10:00'));
+      await repositorio.cancelarTurno(cancelado.id!);
+      final futuro =
+          await repositorio.guardarTurno(crearTurno(fecha: pasadoManana));
+
+      final borrados =
+          await repositorio.limpiarTurnosVencidos(ahora: pasadoManana);
+
+      expect(borrados, 2);
+      expect(baseDatos.filas.map((fila) => fila['id']), [futuro.id]);
+      expect(vencido.id, isNot(futuro.id));
+    });
+
+    test('sin turnos vencidos no borra nada', () async {
+      await repositorio.guardarTurno(crearTurno());
+
+      expect(await repositorio.limpiarTurnosVencidos(), 0);
+      expect(baseDatos.filas, hasLength(1));
     });
   });
 

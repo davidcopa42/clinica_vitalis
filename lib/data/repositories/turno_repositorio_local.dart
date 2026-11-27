@@ -69,6 +69,22 @@ class TurnoRepositorioLocal implements TurnoRepository {
     await _baseDatos.actualizar(id, {'estado': EstadoTurno.cancelado.name});
   }
 
+  @override
+  Future<int> limpiarTurnosVencidos({DateTime? ahora}) async {
+    final corte = ahora ?? DateTime.now();
+    final filas = await _baseDatos.consultar();
+
+    final vencidos = filas
+        .map(Turno.fromMap)
+        .where((turno) => turno.fechaHora.isBefore(corte))
+        .toList();
+
+    for (final turno in vencidos) {
+      await _baseDatos.eliminar(turno.id!);
+    }
+    return vencidos.length;
+  }
+
   /// Horarios libres de un profesional en una fecha.
   ///
   /// Saca los ya reservados por cualquier paciente y, si la fecha es hoy,
