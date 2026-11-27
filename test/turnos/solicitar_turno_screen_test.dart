@@ -60,7 +60,13 @@ void main() {
     WidgetTester tester, {
     BorradorTurno borrador = const BorradorTurno(),
     List<String> horarios = const ['08:00', '08:40'],
+    double? ancho,
   }) async {
+    if (ancho != null) {
+      tester.view.physicalSize = Size(ancho, 1000);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+    }
     final busDeEventos = BusDeEventos();
     addTearDown(busDeEventos.dispose);
     await tester.pumpWidget(
@@ -88,6 +94,45 @@ void main() {
         fecha: fecha,
         horario: horario,
       );
+
+  Offset posicionEspecialidad(WidgetTester tester) =>
+      tester.getTopLeft(find.byType(DropdownButtonFormField<String>).first);
+
+  Offset posicionFecha(WidgetTester tester) => tester
+      .getTopLeft(find.widgetWithText(OutlinedButton, 'Seleccionar fecha'));
+
+  testWidgets('en celular muestra los campos en una sola columna',
+      (tester) async {
+    await mostrarFormulario(tester, ancho: 400);
+
+    final especialidad = posicionEspecialidad(tester);
+    final fecha = posicionFecha(tester);
+
+    expect(fecha.dx, especialidad.dx);
+    expect(fecha.dy, greaterThan(especialidad.dy));
+    expect(find.text('¿Con quién?'), findsNothing);
+  });
+
+  testWidgets('en tablet muestra los campos en dos columnas', (tester) async {
+    await mostrarFormulario(tester, ancho: 900);
+
+    final especialidad = posicionEspecialidad(tester);
+    final fecha = posicionFecha(tester);
+
+    expect(fecha.dx, greaterThan(especialidad.dx + 200));
+    expect(find.text('¿Con quién?'), findsOneWidget);
+    expect(find.text('¿Cuándo?'), findsOneWidget);
+    expect(find.text('Confirmar turno'), findsOneWidget);
+  });
+
+  testWidgets('en pantallas muy anchas el formulario no pasa de 900',
+      (tester) async {
+    await mostrarFormulario(tester, ancho: 1600);
+
+    final boton =
+        tester.getSize(find.widgetWithText(ElevatedButton, 'Confirmar turno'));
+    expect(boton.width, lessThanOrEqualTo(900));
+  });
 
   testWidgets('sin borrador pide elegir fecha y el profesional esta bloqueado',
       (tester) async {
