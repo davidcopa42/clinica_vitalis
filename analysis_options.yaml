@@ -1,14 +1,18 @@
-# This file configures the analyzer, which statically analyzes Dart code to
-# check for errors, warnings, and lints.
-#
-# The issues identified by the analyzer are surfaced in the UI of Dart-enabled
-# IDEs (https://dart.dev/tools#ides-and-editors). The analyzer can also be
-# invoked from the command line by running `flutter analyze`.
-
-# The following line activates a set of recommended lints for Flutter apps,
-# packages, and plugins designed to encourage good coding practices.
+# analysis_options.yaml (en la raíz del proyecto, al lado de pubspec.yaml)
+# Reglas recomendadas para Flutter (flutter create ya lo deja escrito)
 include: package:flutter_lints/flutter.yaml
-
+linter:
+  rules:
+    # Reglas extra que conviene activar
+    prefer_const_constructors: true
+    prefer_single_quotes: true
+    directives_ordering: true
+    always_declare_return_types: true
+    # Así se apaga una regla del paquete:
+    # avoid_print: false
+# Opcional (Dart 3.7 o posterior): ancho máximo de línea para dart format
+formatter:
+  page_width: 80
 analyzer:
   exclude:
     - build/**
@@ -18,14 +22,3 @@ analyzer:
     - windows/**
     - macos/**
     - linux/**
-
-linter:
-  rules:
-    # Reglas extra que activamos en la cátedra.
-    prefer_const_constructors: true
-    prefer_single_quotes: true
-    directives_ordering: true
-    always_declare_return_types: true
-
-formatter:
-  page_width: 80
