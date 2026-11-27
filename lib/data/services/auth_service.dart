@@ -18,17 +18,17 @@ class AuthService {
   }
 
   Future<UserCredential?> iniciarConGoogle() async {
-    final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-    if (googleUser == null) return null; // El usuario cerró la ventana
+    final GoogleSignInAccount? cuentaGoogle = await _googleSignIn.signIn();
+    if (cuentaGoogle == null) return null; // El usuario cerró la ventana
 
-    final GoogleSignInAuthentication googleAuth =
-        await googleUser.authentication;
-    final AuthCredential credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth.accessToken,
-      idToken: googleAuth.idToken,
+    final GoogleSignInAuthentication autenticacionGoogle =
+        await cuentaGoogle.authentication;
+    final AuthCredential credencial = GoogleAuthProvider.credential(
+      accessToken: autenticacionGoogle.accessToken,
+      idToken: autenticacionGoogle.idToken,
     );
 
-    return await _auth.signInWithCredential(credential);
+    return await _auth.signInWithCredential(credencial);
   }
 
   Future<void> enviarVerificacion() async {
@@ -37,6 +37,10 @@ class AuthService {
 
   Future<void> recargarUsuario() async {
     await _auth.currentUser?.reload();
+  }
+
+  Future<void> actualizarNombreVisible(String nombre) async {
+    await _auth.currentUser?.updateDisplayName(nombre);
   }
 
   Future<void> recuperarContrasena(String correo) async {

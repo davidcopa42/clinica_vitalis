@@ -1,14 +1,15 @@
-import 'package:clinica_vitalis/data/repositories/sintomas_repository.dart';
-import 'package:clinica_vitalis/domain/models/borrador_sintomas.dart';
 import 'package:flutter/foundation.dart';
 
+import '../../../data/repositories/borrador_repository.dart';
+import '../../../domain/models/borrador_sintomas.dart';
+
 class SintomasViewModel extends ChangeNotifier {
-  SintomasViewModel({SintomasRepository? repositorio})
-      : _repositorio = repositorio ?? SintomasRepository() {
+  SintomasViewModel({required BorradorRepository borradorRepository})
+      : _borradorRepository = borradorRepository {
     _cargarBorrador();
   }
 
-  final SintomasRepository _repositorio;
+  final BorradorRepository _borradorRepository;
 
   static const List<String> _sintomasDisponibles = [
     'Dolor de cabeza',
@@ -34,11 +35,17 @@ class SintomasViewModel extends ChangeNotifier {
     'Dificultad para hablar o mover un lado del cuerpo',
   };
 
+  static const _duracionInicial = 'Hoy';
+  static const _intensidadInicial = 1.0;
+
+  /// Desde esta intensidad (escala de 1 a 10) se recomienda la guardia.
+  static const _intensidadDeAlarma = 9;
+
   final Set<String> _sintomasSeleccionados = {};
 
   String _descripcion = '';
-  String _duracion = 'Hoy';
-  double _intensidad = 1;
+  String _duracion = _duracionInicial;
+  double _intensidad = _intensidadInicial;
   bool _registrado = false;
 
   List<String> get sintomasDisponibles =>
@@ -54,12 +61,27 @@ class SintomasViewModel extends ChangeNotifier {
 
   bool get tieneSignosAlarma {
     return _sintomasSeleccionados.any(_sintomasAlarma.contains) ||
-        _intensidad >= 9;
+        _intensidad >= _intensidadDeAlarma;
   }
 
-  /// Guarda el borrador actual al instante en el dispositivo.
+  /// Intensidad redondeada, para la etiqueta del control deslizante.
+  String get intensidadEtiqueta => _intensidad.round().toString();
+
+  /// Intensidad sobre 10, por ejemplo "Intensidad: 4 / 10".
+  String get intensidadTexto => 'Intensidad: $intensidadEtiqueta / 10';
+
+  /// Ya registrado y sin alarma: se recomienda pedir turno.
+  bool get mostrarRecomendacionDeTurno => _registrado && !tieneSignosAlarma;
+
+  /// Ya registrado y con alarma: solo se confirma el registro.
+  bool get mostrarRegistroConAlarma => _registrado && tieneSignosAlarma;
+
+  /// Con signos de alarma no se ofrece pedir turno: se indica la guardia.
+  bool get puedeSolicitarTurno => !tieneSignosAlarma;
+
+  /// Guarda el borrador actual al instante.
   Future<void> guardarBorrador() async {
-    await _repositorio.guardarBorrador(
+    await _borradorRepository.guardarBorradorSintomas(
       BorradorSintomas(
         sintomas: _sintomasSeleccionados.toList(),
         descripcion: _descripcion,
@@ -67,25 +89,35 @@ class SintomasViewModel extends ChangeNotifier {
         intensidad: _intensidad,
       ),
     );
-    debugPrint('Ciclo de vida - Borrador de síntomas guardado.');
   }
 
-  /// Carga el borrador guardado al abrir la pantalla.
+  /// Carga el borrador guardado al abrir la pantalla
   Future<void> _cargarBorrador() async {
-    final borrador = await _repositorio.cargarBorrador();
+    final borrador = await _borradorRepository.obtenerBorradorSintomas();
+    final sintomasGuardados = borrador.sintomas;
+    final descripcionGuardada = borrador.descripcion;
+    final duracionGuardada = borrador.duracion;
+    final intensidadGuardada = borrador.intensidad;
 
-    if (borrador != null) {
-      _sintomasSeleccionados.addAll(borrador.sintomas);
-      _descripcion = borrador.descripcion;
-      _duracion = borrador.duracion;
-      _intensidad = borrador.intensidad;
+    if (sintomasGuardados != null) {
+      _sintomasSeleccionados
+        ..clear()
+        ..addAll(sintomasGuardados);
+    }
+    if (descripcionGuardada != null) {
+      _descripcion = descripcionGuardada;
+    }
+    if (duracionGuardada != null) {
+      _duracion = duracionGuardada;
+    }
+    if (intensidadGuardada != null) {
+      _intensidad = intensidadGuardada;
     }
     notifyListeners();
   }
 
   /// Refresca o sincroniza datos al volver al frente (onResume)
   Future<void> refrescar() async {
-    debugPrint('Ciclo de vida - App retomada en Síntomas.');
     await _cargarBorrador();
   }
 
@@ -126,7 +158,6 @@ class SintomasViewModel extends ChangeNotifier {
     _registrado = true;
     notifyListeners();
 
-    // Limpiamos el borrador al registrarse con éxito
-    await _repositorio.eliminarBorrador();
+    await _borradorRepository.borrarBorradorSintomas();
   }
 }

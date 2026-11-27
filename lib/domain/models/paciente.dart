@@ -67,7 +67,11 @@ class Paciente {
     };
   }
 
+  /// Crea un paciente a partir del documento guardado.
+  ///
+  /// Una fecha de nacimiento vacía o inválida se toma como no cargada.
   factory Paciente.fromMap(Map<String, Object?> mapa) {
+    final textoFechaNacimiento = mapa['fechaNacimiento'] as String?;
     return Paciente(
       uid: mapa['uid'] as String? ?? '',
       nombre: mapa['nombre'] as String? ?? '',
@@ -75,9 +79,9 @@ class Paciente {
       correo: mapa['correo'] as String? ?? '',
       telefono: mapa['telefono'] as String? ?? '',
       dni: mapa['dni'] as String? ?? '',
-      fechaNacimiento: mapa['fechaNacimiento'] != null
-          ? DateTime.parse(mapa['fechaNacimiento'] as String)
-          : null,
+      fechaNacimiento: textoFechaNacimiento == null
+          ? null
+          : DateTime.tryParse(textoFechaNacimiento),
       obraSocial: mapa['obraSocial'] as String?,
       numeroAfiliado: mapa['numeroAfiliado'] as String?,
       fotoUrl: mapa['fotoUrl'] as String?,

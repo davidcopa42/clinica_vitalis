@@ -31,7 +31,14 @@ class Turno {
   final EstadoTurno estado;
 
   /// Fecha y hora juntas, para ordenar y programar el recordatorio.
-  DateTime get fechaHora {
+  DateTime get fechaHora => combinarFechaYHorario(fecha, horario);
+
+  /// Deja solo día, mes y año (hora 00:00).
+  static DateTime soloDia(DateTime fecha) =>
+      DateTime(fecha.year, fecha.month, fecha.day);
+
+  /// Junta el día de [fecha] con un [horario] 'HH:mm'.
+  static DateTime combinarFechaYHorario(DateTime fecha, String horario) {
     final partes = horario.split(':');
     return DateTime(
       fecha.year,
@@ -62,7 +69,7 @@ class Turno {
       'paciente_uid': pacienteUid,
       'especialidad': especialidad,
       'profesional': profesional,
-      'fecha': DateTime(fecha.year, fecha.month, fecha.day).toIso8601String(),
+      'fecha': soloDia(fecha).toIso8601String(),
       'horario': horario,
       'estado': estado.name,
     };

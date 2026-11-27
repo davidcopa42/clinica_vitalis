@@ -1,26 +1,33 @@
+import 'package:clinica_vitalis/data/repositories/borrador_repository.dart';
+import 'package:clinica_vitalis/data/repositories/recordatorio_repository.dart';
 import 'package:clinica_vitalis/data/repositories/turno_repository.dart';
-import 'package:clinica_vitalis/data/services/bus_de_eventos.dart';
-import 'package:clinica_vitalis/data/services/notificaciones_service.dart';
-import 'package:clinica_vitalis/domain/evento_de_app.dart';
+import 'package:clinica_vitalis/domain/models/borrador_turno.dart';
 import 'package:clinica_vitalis/domain/models/paciente.dart';
 import 'package:clinica_vitalis/domain/models/profesional.dart';
 import 'package:clinica_vitalis/domain/models/turno.dart';
 import 'package:clinica_vitalis/ui/core/estado_carga.dart';
+import 'package:clinica_vitalis/ui/core/formato.dart';
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../../data/services/bus_de_eventos.dart';
+import '../../../domain/models/evento_de_app.dart';
 
 /// Estado y lógica de la pantalla Solicitar turno.
 class TurnoViewModel extends ChangeNotifier {
   TurnoViewModel({
     required TurnoRepository repositorio,
-    NotificacionesService? notificaciones,
+    required BorradorRepository borradorRepository,
+    required RecordatorioRepository recordatorioRepository,
+    required BusDeEventos busDeEventos,
   })  : _repositorio = repositorio,
-        _notificaciones = notificaciones ?? NotificacionesService();
+        _borradorRepository = borradorRepository,
+        _recordatorioRepository = recordatorioRepository,
+        _busDeEventos = busDeEventos;
 
   final TurnoRepository _repositorio;
-  final NotificacionesService _notificaciones;
-
-  // ---------- Estado privado ----------
+  final BorradorRepository _borradorRepository;
+  final RecordatorioRepository _recordatorioRepository;
+  final BusDeEventos _busDeEventos;
 
   EstadoCarga _estado = EstadoCarga.inicial;
   List<Profesional> _profesionales = [];
@@ -32,8 +39,6 @@ class TurnoViewModel extends ChangeNotifier {
   bool _cargandoHorarios = false;
   bool _guardando = false;
   String? _error;
-
-  // ---------- Lo que la vista puede leer ----------
 
   EstadoCarga get estado => _estado;
   String? get especialidadSeleccionada => _especialidadSeleccionada;
@@ -47,13 +52,17 @@ class TurnoViewModel extends ChangeNotifier {
   String? get error => _error;
 
   /// Especialidades sin repetir.
-  List<String> get especialidades =>
-      _profesionales.map((p) => p.especialidad).toSet().toList();
+  List<String> get especialidades => List.unmodifiable(
+        _profesionales.map((profesional) => profesional.especialidad).toSet(),
+      );
 
   /// Profesionales de la especialidad elegida.
-  List<Profesional> get profesionalesDisponibles => _profesionales
-      .where((p) => p.especialidad == _especialidadSeleccionada)
-      .toList();
+  List<Profesional> get profesionalesDisponibles => List.unmodifiable(
+        _profesionales.where(
+          (profesional) =>
+              profesional.especialidad == _especialidadSeleccionada,
+        ),
+      );
 
   /// El horario se elige recién con profesional y fecha.
   bool get puedeElegirHorario =>
@@ -61,96 +70,47 @@ class TurnoViewModel extends ChangeNotifier {
       _fechaSeleccionada != null &&
       !_cargandoHorarios;
 
-  // ---------- Acciones de Persistencia Local (Borrador) ----------
+  /// El profesional se elige recién con especialidad.
+  bool get puedeElegirProfesional => _especialidadSeleccionada != null;
 
-  /// Guarda los datos actuales de forma inmediata en SharedPreferences.
-  Future<void> guardarBorrador() async {
-    final prefs = await SharedPreferences.getInstance();
-
-    if (_especialidadSeleccionada != null) {
-      await prefs.setString(
-          'borrador_especialidad', _especialidadSeleccionada!);
-    } else {
-      await prefs.remove('borrador_especialidad');
-    }
-
-    if (_profesionalSeleccionado != null) {
-      await prefs.setString('borrador_profesional', _profesionalSeleccionado!);
-    } else {
-      await prefs.remove('borrador_profesional');
-    }
-
-    if (_fechaSeleccionada != null) {
-      await prefs.setString(
-          'borrador_fecha', _fechaSeleccionada!.toIso8601String());
-    } else {
-      await prefs.remove('borrador_fecha');
-    }
-
-    if (_horarioSeleccionado != null) {
-      await prefs.setString('borrador_horario', _horarioSeleccionado!);
-    } else {
-      await prefs.remove('borrador_horario');
-    }
-
-    debugPrint('Ciclo de vida - Borrador actualizado en SharedPreferences.');
+  /// Fecha elegida con formato dd/mm/aaaa, o la invitación a elegirla.
+  String get fechaTexto {
+    final fecha = _fechaSeleccionada;
+    return fecha == null ? 'Seleccionar fecha' : formatearFecha(fecha);
   }
 
-  /// Refresca los datos cuando la app vuelve al frente (onResume).
+  /// Aviso cuando ya se puede elegir horario pero no queda ninguno libre.
+  String? get avisoSinHorarios =>
+      puedeElegirHorario && _horariosDisponibles.isEmpty
+          ? 'No hay horarios libres ese día.'
+          : null;
+
+  /// Guarda los datos actuales de forma inmediata en el borrador.
+  Future<void> guardarBorrador() async {
+    await _borradorRepository.guardarBorradorTurno(
+      BorradorTurno(
+        especialidad: _especialidadSeleccionada,
+        profesional: _profesionalSeleccionado,
+        fecha: _fechaSeleccionada,
+        horario: _horarioSeleccionado,
+      ),
+    );
+  }
+
+  /// Refresca los datos del servidor cuando la app vuelve al frente (onResume)
   Future<void> refrescar() async {
-    debugPrint('Ciclo de vida - App retomada. Refrescando turnos...');
     await cargar();
   }
 
-  /// Carga los profesionales y recupera el borrador si existe.
+  /// Carga los profesionales al abrir la pantalla y recupera todo el borrador si existe.
   Future<void> cargar() async {
     _estado = EstadoCarga.cargando;
     notifyListeners();
 
     try {
-      // 1. Profesionales del repositorio.
       _profesionales = await _repositorio.obtenerProfesionales();
-
-      // 2. Borrador guardado en SharedPreferences.
-      final prefs = await SharedPreferences.getInstance();
-      final espGuardada = prefs.getString('borrador_especialidad');
-      final profGuardado = prefs.getString('borrador_profesional');
-      final fechaGuardadaStr = prefs.getString('borrador_fecha');
-      final horarioGuardado = prefs.getString('borrador_horario');
-
-      // 3. Restauramos la especialidad si es válida.
-      if (espGuardada != null && especialidades.contains(espGuardada)) {
-        _especialidadSeleccionada = espGuardada;
-
-        // 4. Restauramos el profesional si existe.
-        if (profGuardado != null &&
-            profesionalesDisponibles.any((p) => p.nombre == profGuardado)) {
-          _profesionalSeleccionado = profGuardado;
-
-          // 5. Restauramos la fecha.
-          if (fechaGuardadaStr != null) {
-            _fechaSeleccionada = DateTime.parse(fechaGuardadaStr);
-          }
-
-          // 6. Con profesional y fecha, cargamos los horarios.
-          if (_fechaSeleccionada != null) {
-            try {
-              _horariosDisponibles = await _repositorio.horariosDisponibles(
-                _profesionalSeleccionado!,
-                _fechaSeleccionada!,
-              );
-            } catch (_) {
-              _horariosDisponibles = [];
-            }
-          }
-
-          // 7. Restauramos el horario si sigue disponible.
-          if (horarioGuardado != null &&
-              _horariosDisponibles.contains(horarioGuardado)) {
-            _horarioSeleccionado = horarioGuardado;
-          }
-        }
-      }
+      final borrador = await _borradorRepository.obtenerBorradorTurno();
+      await _restaurarBorrador(borrador);
 
       _estado = EstadoCarga.exito;
     } catch (_) {
@@ -195,7 +155,9 @@ class TurnoViewModel extends ChangeNotifier {
     guardarBorrador();
   }
 
-  /// Valida y guarda el turno. Devuelve el turno guardado, o null si falló.
+  /// Valida y guarda el turno, y programa su recordatorio.
+  ///
+  /// Devuelve el turno guardado, o null si no se pudo guardar.
   Future<Turno?> confirmar(Paciente paciente) async {
     if (_especialidadSeleccionada == null ||
         _profesionalSeleccionado == null ||
@@ -210,8 +172,9 @@ class TurnoViewModel extends ChangeNotifier {
     _error = null;
     notifyListeners();
 
+    late final Turno turnoGuardado;
     try {
-      final turnoGuardado = await _repositorio.guardarTurno(
+      turnoGuardado = await _repositorio.guardarTurno(
         Turno(
           pacienteUid: paciente.uid,
           especialidad: _especialidadSeleccionada!,
@@ -221,30 +184,15 @@ class TurnoViewModel extends ChangeNotifier {
         ),
       );
 
-      // Programa el aviso 24 h antes. Si falla, el turno igual queda guardado.
-      try {
-        await _notificaciones.programarRecordatorio(turnoGuardado);
-      } catch (_) {
-        debugPrint('No se pudo programar el recordatorio.');
-      }
+      await _borradorRepository.borrarBorradorTurno();
 
-      // Limpiamos el borrador al confirmar el turno con éxito.
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.remove('borrador_especialidad');
-      await prefs.remove('borrador_profesional');
-      await prefs.remove('borrador_fecha');
-      await prefs.remove('borrador_horario');
-
-      // Publicamos el evento en el bus (Stream) para que Mis turnos se entere.
-      busDeEventos.publicar(
+      _busDeEventos.publicar(
         TurnoConfirmadoEvento(
           especialidad: _especialidadSeleccionada!,
           profesional: _profesionalSeleccionado!,
           fecha: _fechaSeleccionada!,
         ),
       );
-
-      return turnoGuardado;
     } on TurnoNoDisponibleException {
       _error = 'Ese horario se acaba de ocupar. Elegí otro.';
       _horarioSeleccionado = null;
@@ -256,6 +204,72 @@ class TurnoViewModel extends ChangeNotifier {
     } finally {
       _guardando = false;
       notifyListeners();
+    }
+
+    await _programarRecordatorio(turnoGuardado);
+    return turnoGuardado;
+  }
+
+  Future<void> _programarRecordatorio(Turno turno) async {
+    try {
+      await _recordatorioRepository.programarRecordatorio(turno);
+    } catch (_) {
+      // El turno ya quedó guardado; sin recordatorio sigue siendo válido.
+    }
+  }
+
+  /// Pide permiso para los recordatorios y devuelve el aviso para mostrar.
+  ///
+  /// Si no se otorga, la app sigue funcionando sin recordatorios.
+  Future<String> activarAvisos() async {
+    bool otorgado;
+    try {
+      otorgado = await _recordatorioRepository.pedirPermiso();
+    } catch (_) {
+      otorgado = false;
+    }
+    return otorgado
+        ? 'Listo, te avisamos un día antes del turno.'
+        : 'Sin permiso no podemos avisarte. '
+            'Igual podés ver el turno en Mis turnos.';
+  }
+
+  /// Restaura del borrador lo que siga siendo válido, en orden:
+  /// especialidad, profesional, fecha, horarios libres y horario.
+  ///
+  /// Si un paso no es válido, deja de restaurar los siguientes.
+  Future<void> _restaurarBorrador(BorradorTurno borrador) async {
+    final especialidadGuardada = borrador.especialidad;
+    if (especialidadGuardada == null ||
+        !especialidades.contains(especialidadGuardada)) {
+      return;
+    }
+    _especialidadSeleccionada = especialidadGuardada;
+
+    final profesionalGuardado = borrador.profesional;
+    final profesionalEsValido = profesionalesDisponibles
+        .any((profesional) => profesional.nombre == profesionalGuardado);
+    if (profesionalGuardado == null || !profesionalEsValido) return;
+    _profesionalSeleccionado = profesionalGuardado;
+
+    final fechaGuardada = borrador.fecha;
+    if (fechaGuardada != null) _fechaSeleccionada = fechaGuardada;
+
+    // Usa la fecha ya elegida aunque el borrador no tenga una.
+    final fecha = _fechaSeleccionada;
+    if (fecha != null) {
+      try {
+        _horariosDisponibles =
+            await _repositorio.horariosDisponibles(profesionalGuardado, fecha);
+      } catch (_) {
+        _horariosDisponibles = [];
+      }
+    }
+
+    final horarioGuardado = borrador.horario;
+    if (horarioGuardado != null &&
+        _horariosDisponibles.contains(horarioGuardado)) {
+      _horarioSeleccionado = horarioGuardado;
     }
   }
 

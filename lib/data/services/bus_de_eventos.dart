@@ -1,16 +1,14 @@
 import 'dart:async';
-import '../../domain/evento_de_app.dart';
 
-/// Bus de eventos global para la comunicación desacoplada mediante Streams.
+import '../../domain/models/evento_de_app.dart';
+
+/// Bus de eventos para la comunicación desacoplada entre módulos.
+///
+/// Se crea una sola instancia en `main.dart` y se inyecta por constructor
+/// a quien necesite publicar o escuchar eventos.
 class BusDeEventos {
-  // Patrón Singleton para usar la misma instancia en toda la app
-  static final BusDeEventos _instancia = BusDeEventos._interno();
-  factory BusDeEventos() => _instancia;
-  BusDeEventos._interno();
-
-  // Controlador de stream tipo broadcast (permite múltiples oyentes)
   final StreamController<EventoDeApp> _controlador =
-  StreamController<EventoDeApp>.broadcast();
+      StreamController<EventoDeApp>.broadcast();
 
   /// Expone el stream para que los widgets o ViewModels puedan escucharlo.
   Stream<EventoDeApp> get stream => _controlador.stream;
@@ -27,6 +25,3 @@ class BusDeEventos {
     _controlador.close();
   }
 }
-
-// Instancia global accesible desde cualquier archivo
-final busDeEventos = BusDeEventos();

@@ -1,8 +1,11 @@
 import 'package:clinica_vitalis/data/repositories/auth_repository.dart';
 import 'package:clinica_vitalis/data/repositories/perfil_repository.dart';
 import 'package:clinica_vitalis/domain/models/paciente.dart';
+import 'package:clinica_vitalis/domain/models/usuario_autenticado.dart';
 import 'package:clinica_vitalis/ui/auth/view_models/sesion_view_model.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import '../fakes/fake_auth_repository.dart' as compartido;
 
 // Repositorio Falso de Auth para los tests
 class FakeAuthRepository implements AuthRepository {
@@ -16,6 +19,11 @@ class FakeAuthRepository implements AuthRepository {
 
   @override
   String? get uidActual => _uidSimulado;
+
+  UsuarioAutenticado? usuario;
+
+  @override
+  UsuarioAutenticado? get usuarioActual => usuario;
 
   @override
   bool get correoVerificado => _correoVerificadoSimulado;
@@ -33,10 +41,13 @@ class FakeAuthRepository implements AuthRepository {
   Future<void> iniciarConCorreo(String correo, String contrasena) async {}
 
   @override
-  Future<void> iniciarConGoogle() async {}
+  Future<UsuarioAutenticado?> iniciarConGoogle() async => null;
 
   @override
   Future<void> recargarUsuario() async {}
+
+  @override
+  Future<void> actualizarNombreVisible(String nombre) async {}
 
   @override
   Future<void> recuperarContrasena(String correo) async {}
@@ -61,10 +72,6 @@ class FakePerfilRepository implements PerfilRepository {
       String uid, Map<String, dynamic> datosPerfil) async {}
 
   @override
-  Future<void> actualizarDatosPerfil(String uid,
-      {String? nombre, String? telefono, String? obraSocial}) async {}
-
-  @override
   Future<Paciente?> obtenerPerfil(String uid) async {
     if (datosPerfilSimulados == null) {
       return null;
@@ -79,11 +86,11 @@ void main() {
       final authRepo = FakeAuthRepository(uidSimulado: null);
       final perfilRepo = FakePerfilRepository();
 
-      final sesionVM =
+      final sesionViewModel =
           SesionViewModel(authRepo: authRepo, perfilRepo: perfilRepo);
       await Future.delayed(const Duration(milliseconds: 50));
 
-      expect(sesionVM.estadoSesion, EstadoSesion.sinSesion);
+      expect(sesionViewModel.estadoSesion, EstadoSesion.sinSesion);
     });
 
     test('Debe retornar correoSinVerificar si el correo no está verificado',
@@ -92,11 +99,11 @@ void main() {
           uidSimulado: '123', correoVerificadoSimulado: false);
       final perfilRepo = FakePerfilRepository();
 
-      final sesionVM =
+      final sesionViewModel =
           SesionViewModel(authRepo: authRepo, perfilRepo: perfilRepo);
       await Future.delayed(const Duration(milliseconds: 50));
 
-      expect(sesionVM.estadoSesion, EstadoSesion.correoSinVerificar);
+      expect(sesionViewModel.estadoSesion, EstadoSesion.correoSinVerificar);
     });
 
     test('Debe retornar perfilIncompleto si el perfil en Firestore es nulo',
@@ -105,11 +112,34 @@ void main() {
           uidSimulado: '123', correoVerificadoSimulado: true);
       final perfilRepo = FakePerfilRepository(datosPerfilSimulados: null);
 
-      final sesionVM =
+      final sesionViewModel =
           SesionViewModel(authRepo: authRepo, perfilRepo: perfilRepo);
       await Future.delayed(const Duration(milliseconds: 50));
 
-      expect(sesionVM.estadoSesion, EstadoSesion.perfilIncompleto);
+      expect(sesionViewModel.estadoSesion, EstadoSesion.perfilIncompleto);
+    });
+
+    test(
+        'un perfil recien registrado (fechaNacimiento vacia) queda '
+        'incompleto pero con el paciente cargado', () async {
+      final authRepo = FakeAuthRepository(
+          uidSimulado: '123', correoVerificadoSimulado: true);
+      final perfilRepo = FakePerfilRepository(datosPerfilSimulados: {
+        'uid': '123',
+        'nombre': 'Ana',
+        'apellido': 'López',
+        'correo': 'ana@test.com',
+        'telefono': '',
+        'dni': '',
+        'fechaNacimiento': '',
+      });
+
+      final sesionViewModel =
+          SesionViewModel(authRepo: authRepo, perfilRepo: perfilRepo);
+      await Future.delayed(const Duration(milliseconds: 50));
+
+      expect(sesionViewModel.estadoSesion, EstadoSesion.perfilIncompleto);
+      expect(sesionViewModel.pacienteActual?.nombre, 'Ana');
     });
 
     test(
@@ -131,11 +161,48 @@ void main() {
       final perfilRepo =
           FakePerfilRepository(datosPerfilSimulados: datosCompletos);
 
-      final sesionVM =
+      final sesionViewModel =
           SesionViewModel(authRepo: authRepo, perfilRepo: perfilRepo);
       await Future.delayed(const Duration(milliseconds: 50));
 
-      expect(sesionVM.estadoSesion, EstadoSesion.lista);
+      expect(sesionViewModel.estadoSesion, EstadoSesion.lista);
+    });
+
+    test('usuarioActual expone los datos de la cuenta del repositorio', () {
+      final authRepo = FakeAuthRepository(uidSimulado: '123')
+        ..usuario = const UsuarioAutenticado(
+          uid: '123',
+          nombreVisible: 'Ana López',
+          correo: 'ana@test.com',
+        );
+
+      final sesionViewModel = SesionViewModel(
+        authRepo: authRepo,
+        perfilRepo: FakePerfilRepository(),
+      );
+      addTearDown(sesionViewModel.dispose);
+
+      expect(sesionViewModel.usuarioActual!.correo, 'ana@test.com');
+      expect(sesionViewModel.usuarioActual!.nombreVisible, 'Ana López');
+    });
+
+    test('recargarYCalcular deja de cargar y recalcula aunque falle la recarga',
+        () async {
+      final authRepo = compartido.FakeAuthRepository()
+        ..uid = '123'
+        ..errores['recargarUsuario'] = Exception('sin red');
+      final sesionViewModel = SesionViewModel(
+        authRepo: authRepo,
+        perfilRepo: FakePerfilRepository(),
+      );
+      addTearDown(sesionViewModel.dispose);
+      await pumpEventQueue();
+
+      await sesionViewModel.recargarYCalcular();
+
+      expect(authRepo.llamadas, contains('recargarUsuario'));
+      expect(sesionViewModel.estaCargando, isFalse);
+      expect(sesionViewModel.estadoSesion, EstadoSesion.correoSinVerificar);
     });
   });
 }

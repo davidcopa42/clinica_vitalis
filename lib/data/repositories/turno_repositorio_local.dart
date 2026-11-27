@@ -1,0 +1,121 @@
+import 'package:clinica_vitalis/data/repositories/turno_repository.dart';
+import 'package:clinica_vitalis/data/services/base_datos_service.dart';
+import 'package:clinica_vitalis/data/services/datos_ejemplo.dart';
+import 'package:clinica_vitalis/domain/models/profesional.dart';
+import 'package:clinica_vitalis/domain/models/turno.dart';
+import 'package:flutter/foundation.dart';
+
+/// Convierte las filas de la base en turnos, descarta los que ya pasaron
+/// y los ordena del más cercano al más lejano.
+///
+/// Es una función de nivel superior porque `compute()` la ejecuta en otro
+/// isolate y solo acepta funciones de ese tipo. Recibe un único argumento:
+/// un record con las filas y la fecha de corte.
+List<Turno> procesarTurnos(
+  ({List<Map<String, Object?>> filas, DateTime ahora}) datos,
+) {
+  final turnos = datos.filas
+      .map(Turno.fromMap)
+      .where((turno) => turno.fechaHora.isAfter(datos.ahora))
+      .toList();
+
+  turnos.sort(
+      (primero, segundo) => primero.fechaHora.compareTo(segundo.fechaHora));
+  return turnos;
+}
+
+/// Implementación de [TurnoRepository] que guarda los turnos en la base
+/// SQLite local mediante [BaseDatosService].
+class TurnoRepositorioLocal implements TurnoRepository {
+  TurnoRepositorioLocal({required BaseDatosService baseDatos})
+      : _baseDatos = baseDatos;
+
+  final BaseDatosService _baseDatos;
+
+  /// Profesionales de la clínica.
+  ///
+  /// Hoy son datos de ejemplo. Es Future para que, si mañana vienen
+  /// de una API, no haya que cambiar a quien lo usa.
+  @override
+  Future<List<Profesional>> obtenerProfesionales() async {
+    return profesionalesDeEjemplo;
+  }
+
+  @override
+  Future<List<Turno>> obtenerTurnos(String pacienteUid) async {
+    final filas = await _baseDatos.consultar(
+      where: 'paciente_uid = ? AND estado = ?',
+      whereArgs: [pacienteUid, EstadoTurno.confirmado.name],
+    );
+
+    // En un isolate aparte para no trabar la interfaz si el paciente
+    // tiene muchos turnos.
+    return compute(procesarTurnos, (filas: filas, ahora: DateTime.now()));
+  }
+
+  @override
+  Future<Turno> guardarTurno(Turno turno) async {
+    final libres = await horariosDisponibles(turno.profesional, turno.fecha);
+    if (!libres.contains(turno.horario)) {
+      throw const TurnoNoDisponibleException();
+    }
+
+    final id = await _baseDatos.insertar(turno.toMap());
+    return turno.copyWith(id: id);
+  }
+
+  @override
+  Future<void> cancelarTurno(int id) async {
+    await _baseDatos.actualizar(id, {'estado': EstadoTurno.cancelado.name});
+  }
+
+  @override
+  Future<int> limpiarTurnosVencidos({DateTime? ahora}) async {
+    final corte = ahora ?? DateTime.now();
+    final filas = await _baseDatos.consultar();
+
+    final vencidos = filas
+        .map(Turno.fromMap)
+        .where((turno) => turno.fechaHora.isBefore(corte))
+        .toList();
+
+    for (final turno in vencidos) {
+      await _baseDatos.eliminar(turno.id!);
+    }
+    return vencidos.length;
+  }
+
+  /// Horarios libres de un profesional en una fecha.
+  ///
+  /// Saca los ya reservados por cualquier paciente y, si la fecha es hoy,
+  /// los que ya pasaron.
+  @override
+  Future<List<String>> horariosDisponibles(
+    String profesional,
+    DateTime fecha,
+  ) async {
+    final profesionales = await obtenerProfesionales();
+    final elegido =
+        profesionales.where((candidato) => candidato.nombre == profesional);
+    if (elegido.isEmpty) return [];
+
+    final filas = await _baseDatos.consultar(
+      where: 'profesional = ? AND fecha = ? AND estado = ?',
+      whereArgs: [
+        profesional,
+        Turno.soloDia(fecha).toIso8601String(),
+        EstadoTurno.confirmado.name,
+      ],
+    );
+    final ocupados = filas.map((fila) => fila['horario'] as String).toSet();
+
+    final ahora = DateTime.now();
+    return elegido.first.horarios
+        .where((horario) => !ocupados.contains(horario))
+        .where(
+          (horario) =>
+              Turno.combinarFechaYHorario(fecha, horario).isAfter(ahora),
+        )
+        .toList();
+  }
+}

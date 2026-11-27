@@ -3,6 +3,10 @@ import 'package:sqflite/sqflite.dart';
 
 /// Acceso a la base de datos local de la app.
 class BaseDatosService {
+  static const _nombreArchivo = 'clinica_vitalis.db';
+  static const _versionEsquema = 1;
+  static const _tablaTurnos = 'turnos';
+
   static Database? _baseDatos;
 
   /// Abre la base una sola vez y la reutiliza.
@@ -11,13 +15,13 @@ class BaseDatosService {
   }
 
   Future<Database> _abrir() async {
-    final ruta = join(await getDatabasesPath(), 'clinica_vitalis.db');
+    final ruta = join(await getDatabasesPath(), _nombreArchivo);
     return openDatabase(
       ruta,
-      version: 1,
+      version: _versionEsquema,
       onCreate: (db, version) {
         return db.execute('''
-          CREATE TABLE turnos (
+          CREATE TABLE $_tablaTurnos (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             paciente_uid TEXT NOT NULL,
             especialidad TEXT NOT NULL,
@@ -34,7 +38,7 @@ class BaseDatosService {
   /// Inserta una fila y devuelve el id que le asignó SQLite.
   Future<int> insertar(Map<String, Object?> datos) async {
     final db = await _db;
-    return db.insert('turnos', datos..remove('id'));
+    return db.insert(_tablaTurnos, datos..remove('id'));
   }
 
   /// Devuelve las filas que cumplen la condición.
@@ -43,18 +47,18 @@ class BaseDatosService {
     List<Object?>? whereArgs,
   }) async {
     final db = await _db;
-    return db.query('turnos', where: where, whereArgs: whereArgs);
+    return db.query(_tablaTurnos, where: where, whereArgs: whereArgs);
   }
 
   /// Actualiza la fila con ese id.
   Future<void> actualizar(int id, Map<String, Object?> datos) async {
     final db = await _db;
-    await db.update('turnos', datos, where: 'id = ?', whereArgs: [id]);
+    await db.update(_tablaTurnos, datos, where: 'id = ?', whereArgs: [id]);
   }
 
   /// Borra la fila con ese id.
   Future<void> eliminar(int id) async {
     final db = await _db;
-    await db.delete('turnos', where: 'id = ?', whereArgs: [id]);
+    await db.delete(_tablaTurnos, where: 'id = ?', whereArgs: [id]);
   }
 }

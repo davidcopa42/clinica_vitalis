@@ -1,11 +1,20 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter/foundation.dart';
 
-import '../../../data/services/perfil_service.dart';
+import '../../../data/repositories/auth_repository.dart';
+import '../../../data/repositories/perfil_repository.dart';
+import '../../../domain/models/paciente.dart';
 import '../../core/estado_carga.dart';
 
 class LoginViewModel extends ChangeNotifier {
+  /// Nombre del perfil cuando la cuenta de Google no informa uno.
+  static const _nombrePorDefecto = 'Sin nombre';
+
+  LoginViewModel({
+    required AuthRepository authRepository,
+    required PerfilRepository perfilRepository,
+  })  : _authRepo = authRepository,
+        _perfilRepo = perfilRepository;
+
   EstadoCarga _estadoCarga = EstadoCarga.inicial;
   String? _mensajeError;
   bool _esNuevoUsuario = false;
@@ -14,46 +23,24 @@ class LoginViewModel extends ChangeNotifier {
   String? get mensajeError => _mensajeError;
   bool get esNuevoUsuario => _esNuevoUsuario;
 
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
-  final PerfilService _perfilService = PerfilService();
+  final AuthRepository _authRepo;
+  final PerfilRepository _perfilRepo;
 
-  Future<void> iniciarSesion(String correo, String password) async {
+  Future<void> iniciarSesion(String correo, String contrasena) async {
     _estadoCarga = EstadoCarga.cargando;
     _mensajeError = null;
     notifyListeners();
 
     try {
-      await _auth.signInWithEmailAndPassword(
-        email: correo,
-        password: password,
-      );
+      await _authRepo.iniciarConCorreo(correo, contrasena);
 
       _estadoCarga = EstadoCarga.exito;
-    } on FirebaseAuthException catch (e) {
+    } on AuthException catch (error) {
       _estadoCarga = EstadoCarga.error;
-      switch (e.code) {
-        case 'user-not-found':
-          _mensajeError = 'No existe una cuenta con este correo.';
-          break;
-        case 'wrong-password':
-          _mensajeError = 'Contraseña incorrecta.';
-          break;
-        case 'invalid-email':
-          _mensajeError = 'El formato del correo es inválido.';
-          break;
-        case 'user-disabled':
-          _mensajeError = 'Este usuario ha sido deshabilitado.';
-          break;
-        case 'invalid-credential':
-          _mensajeError = 'Credenciales inválidas. Verifique sus datos.';
-          break;
-        default:
-          _mensajeError = 'Error de autenticación: ${e.message}';
-      }
-    } catch (e) {
+      _mensajeError = error.mensaje;
+    } catch (_) {
       _estadoCarga = EstadoCarga.error;
-      _mensajeError = 'Ocurrió un error inesperado: $e';
+      _mensajeError = 'Ocurrió un error inesperado. Probá de nuevo.';
     } finally {
       notifyListeners();
     }
@@ -65,47 +52,38 @@ class LoginViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      if (googleUser == null) {
+      final usuario = await _authRepo.iniciarConGoogle();
+      if (usuario == null) {
         _estadoCarga = EstadoCarga.inicial;
         notifyListeners();
         return;
       }
 
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
+      final perfilExistente =
+          await _perfilRepo.cargarPerfilUsuario(usuario.uid);
 
-      final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-
-      UserCredential userCredential =
-          await _auth.signInWithCredential(credential);
-      final user = userCredential.user;
-
-      if (user != null) {
-        final perfilExistente = await _perfilService.obtenerPerfil(user.uid);
-
-        if (perfilExistente == null || perfilExistente.isEmpty) {
-          _esNuevoUsuario = true;
-          await _perfilService.guardarPerfil(user.uid, {
-            'nombre': user.displayName ?? 'Sin nombre',
-            'correo': user.email ?? '',
-            'dni': '',
-            'fechaNacimiento': '',
-            'telefono': user.phoneNumber ?? '',
-            'obraSocial': '',
-          });
-        } else {
-          _esNuevoUsuario = false;
-        }
+      if (perfilExistente == null || perfilExistente.isEmpty) {
+        _esNuevoUsuario = true;
+        final pacienteNuevo = Paciente(
+          uid: usuario.uid,
+          nombre: usuario.nombreVisible ?? _nombrePorDefecto,
+          apellido: '',
+          correo: usuario.correo ?? '',
+          telefono: usuario.telefono ?? '',
+          obraSocial: '',
+        );
+        await _perfilRepo.guardarPerfil(usuario.uid, pacienteNuevo.toMap());
+      } else {
+        _esNuevoUsuario = false;
       }
 
       _estadoCarga = EstadoCarga.exito;
-    } catch (e) {
+    } on AuthException catch (error) {
       _estadoCarga = EstadoCarga.error;
-      _mensajeError = 'No se pudo iniciar sesión con Google: $e';
+      _mensajeError = 'No se pudo iniciar sesión con Google: ${error.mensaje}';
+    } catch (_) {
+      _estadoCarga = EstadoCarga.error;
+      _mensajeError = 'No se pudo iniciar sesión con Google. Probá de nuevo.';
     } finally {
       notifyListeners();
     }

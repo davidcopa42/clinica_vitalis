@@ -1,12 +1,22 @@
+import 'dart:async';
+
 import 'package:clinica_vitalis/domain/models/turno.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/data/latest_all.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 
-/// Programa y cancela los recordatorios de turnos.
 class NotificacionesService {
+  static const _idCanal = 'recordatorios_turnos';
+  static const _nombreCanal = 'Recordatorios de turnos';
+  static const _descripcionCanal = 'Avisos de próximos turnos médicos.';
+
+  /// Cuánto antes del turno llega el recordatorio.
+  static const _anticipacionRecordatorio = Duration(hours: 24);
+
+  /// Payload de los recordatorios de turno: al tocarlos se abre Mis turnos.
+  static const payloadMisTurnos = 'mis_turnos';
+
   NotificacionesService._internal();
 
   static final NotificacionesService _instancia =
@@ -17,59 +27,61 @@ class NotificacionesService {
   final FlutterLocalNotificationsPlugin _notificaciones =
       FlutterLocalNotificationsPlugin();
 
-  /// Payload que llevan los recordatorios de turno. Al tocarlos,
-  /// la app abre la pantalla Mis turnos.
-  static const String payloadMisTurnos = 'mis_turnos';
+  final StreamController<String?> _toques =
+      StreamController<String?>.broadcast();
 
-  /// Payload de la última notificación tocada que todavía no se atendió.
+  /// Payload de cada notificación que el usuario toca con la app abierta
+  /// o en segundo plano.
+  Stream<String?> get toques => _toques.stream;
+
+  /// Prepara zonas horarias, plugin y canal.
   ///
-  /// La notificación se puede tocar antes de que haya una pantalla lista
-  /// para navegar (app cerrada, o en el login). Por eso se guarda acá:
-  /// `InicioPage` la escucha, abre la pantalla y la vuelve a poner en null.
-  final ValueNotifier<String?> payloadPendiente = ValueNotifier(null);
-
-  /// Prepara zonas horarias, plugin y canal. NO pide permiso:
-  /// el permiso se pide en contexto, con un botón (ver pedirPermiso).
+  /// No pide permiso: se pide en contexto, con un botón ([pedirPermiso]).
   Future<void> inicializar() async {
     tz_data.initializeTimeZones();
 
     final zonaHoraria = await FlutterTimezone.getLocalTimezone();
     tz.setLocalLocation(tz.getLocation(zonaHoraria.identifier));
 
+    const configuracionAndroid =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
+
     const configuracion = InitializationSettings(
-      android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+      android: configuracionAndroid,
     );
 
-    // Se llama cuando el usuario toca una notificación con la app
-    // abierta o en segundo plano.
     await _notificaciones.initialize(
       settings: configuracion,
       onDidReceiveNotificationResponse: (respuesta) {
-        payloadPendiente.value = respuesta.payload;
+        _toques.add(respuesta.payload);
       },
     );
 
-    // Si la app estaba cerrada y se abrió por tocar una notificación,
-    // el callback de arriba no se ejecuta: hay que preguntarlo acá.
-    final lanzamiento = await _notificaciones.getNotificationAppLaunchDetails();
-    if (lanzamiento?.didNotificationLaunchApp ?? false) {
-      payloadPendiente.value = lanzamiento!.notificationResponse?.payload;
-    }
+    final android = _notificaciones.resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin>();
 
     const canalRecordatorios = AndroidNotificationChannel(
-      'recordatorios_turnos',
-      'Recordatorios de turnos',
-      description: 'Avisos de próximos turnos médicos.',
+      _idCanal,
+      _nombreCanal,
+      description: _descripcionCanal,
       importance: Importance.max,
     );
 
-    await _notificaciones
-        .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
-        ?.createNotificationChannel(canalRecordatorios);
+    await android?.createNotificationChannel(canalRecordatorios);
   }
 
-  /// Pide permiso para mostrar notificaciones (Android 13+).
+  /// Payload de la notificación que abrió la app estando cerrada, o null
+  /// si la app no se abrió desde una notificación.
+  ///
+  /// En ese caso [toques] no emite: hay que preguntarlo.
+  Future<String?> obtenerPayloadDeLanzamiento() async {
+    final lanzamiento = await _notificaciones.getNotificationAppLaunchDetails();
+    if (!(lanzamiento?.didNotificationLaunchApp ?? false)) return null;
+    return lanzamiento!.notificationResponse?.payload;
+  }
+
+  /// Pide permiso para mostrar notificaciones (Android 13 o posterior).
+  ///
   /// Devuelve true si el usuario lo otorgó.
   Future<bool> pedirPermiso() async {
     final android = _notificaciones.resolvePlatformSpecificImplementation<
@@ -78,20 +90,23 @@ class NotificacionesService {
     return await android.requestNotificationsPermission() ?? false;
   }
 
-  /// Programa el aviso 24 h antes del turno.
   Future<void> programarRecordatorio(Turno turno) async {
     if (turno.id == null) return;
+
     if (turno.estado != EstadoTurno.confirmado) return;
 
     final fechaRecordatorio =
-        turno.fechaHora.subtract(const Duration(hours: 24));
+        turno.fechaHora.subtract(_anticipacionRecordatorio);
+
     if (!fechaRecordatorio.isAfter(DateTime.now())) return;
+
+    final fechaProgramada = tz.TZDateTime.from(fechaRecordatorio, tz.local);
 
     const detalles = NotificationDetails(
       android: AndroidNotificationDetails(
-        'recordatorios_turnos',
-        'Recordatorios de turnos',
-        channelDescription: 'Avisos de próximos turnos médicos.',
+        _idCanal,
+        _nombreCanal,
+        channelDescription: _descripcionCanal,
         importance: Importance.max,
         priority: Priority.high,
       ),
@@ -102,16 +117,15 @@ class NotificacionesService {
       title: 'Recordatorio de turno',
       body:
           'Mañana tenés turno con ${turno.profesional} a las ${turno.horario}.',
-      scheduledDate: tz.TZDateTime.from(fechaRecordatorio, tz.local),
+      scheduledDate: fechaProgramada,
       notificationDetails: detalles,
       payload: payloadMisTurnos,
-      // Inexacta: es lo que recomienda el apunte para recordatorios
-      // y no necesita el permiso especial de alarmas exactas.
+      // Inexacta: alcanza para un recordatorio y no necesita el permiso
+      // especial de alarmas exactas.
       androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
     );
   }
 
-  /// Cancela el aviso con el mismo id del turno.
   Future<void> cancelarRecordatorio(int turnoId) async {
     await _notificaciones.cancel(id: turnoId);
   }
