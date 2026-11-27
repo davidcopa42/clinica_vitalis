@@ -21,6 +21,34 @@ void main() {
     horario: '08:40',
   );
 
+  testWidgets('el contenido aparece de a poco', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: TurnoConfirmadoScreen(
+          paciente: paciente,
+          turno: turno,
+          alActivarAvisos: () async => '',
+        ),
+      ),
+    );
+
+    double opacidad() => tester
+        .widget<FadeTransition>(
+          find
+              .ancestor(
+                of: find.text('Turno confirmado'),
+                matching: find.byType(FadeTransition),
+              )
+              .first,
+        )
+        .opacity
+        .value;
+
+    expect(opacidad(), 0);
+    await tester.pumpAndSettle();
+    expect(opacidad(), 1);
+  });
+
   testWidgets('el boton de avisos pide el permiso y muestra la respuesta',
       (tester) async {
     tester.view.physicalSize = const Size(1080, 2400);
