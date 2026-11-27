@@ -3,6 +3,26 @@ import 'package:clinica_vitalis/data/services/base_datos_service.dart';
 import 'package:clinica_vitalis/data/services/datos_ejemplo.dart';
 import 'package:clinica_vitalis/domain/models/profesional.dart';
 import 'package:clinica_vitalis/domain/models/turno.dart';
+import 'package:flutter/foundation.dart';
+
+/// Convierte las filas de la base en turnos, descarta los que ya pasaron
+/// y los ordena del más cercano al más lejano.
+///
+/// Es una función de nivel superior porque `compute()` la ejecuta en otro
+/// isolate y solo acepta funciones de ese tipo. Recibe un único argumento:
+/// un record con las filas y la fecha de corte.
+List<Turno> procesarTurnos(
+  ({List<Map<String, Object?>> filas, DateTime ahora}) datos,
+) {
+  final turnos = datos.filas
+      .map(Turno.fromMap)
+      .where((turno) => turno.fechaHora.isAfter(datos.ahora))
+      .toList();
+
+  turnos.sort(
+      (primero, segundo) => primero.fechaHora.compareTo(segundo.fechaHora));
+  return turnos;
+}
 
 /// Implementación de [TurnoRepository] que guarda los turnos en la base
 /// SQLite local mediante [BaseDatosService].
@@ -28,15 +48,9 @@ class TurnoRepositorioLocal implements TurnoRepository {
       whereArgs: [pacienteUid, EstadoTurno.confirmado.name],
     );
 
-    final ahora = DateTime.now();
-    final turnos = filas
-        .map(Turno.fromMap)
-        .where((turno) => turno.fechaHora.isAfter(ahora))
-        .toList();
-
-    turnos.sort(
-        (primero, segundo) => primero.fechaHora.compareTo(segundo.fechaHora));
-    return turnos;
+    // En un isolate aparte para no trabar la interfaz si el paciente
+    // tiene muchos turnos.
+    return compute(procesarTurnos, (filas: filas, ahora: DateTime.now()));
   }
 
   @override

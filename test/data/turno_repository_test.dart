@@ -187,6 +187,31 @@ void main() {
     });
   });
 
+  group('procesarTurnos', () {
+    Map<String, Object?> fila(int id, DateTime fecha, String horario) {
+      return crearTurno(fecha: fecha, horario: horario)
+          .copyWith(id: id)
+          .toMap();
+    }
+
+    test('descarta los turnos pasados y ordena del mas cercano al mas lejano',
+        () {
+      final ahora = DateTime(2026, 11, 18, 12);
+
+      final resultado = procesarTurnos((
+        filas: [
+          fila(1, DateTime(2026, 11, 20), '10:00'),
+          fila(2, DateTime(2026, 11, 18), '09:20'),
+          fila(3, DateTime(2026, 11, 18), '15:30'),
+          fila(4, DateTime(2026, 11, 19), '08:00'),
+        ],
+        ahora: ahora,
+      ));
+
+      expect(resultado.map((turno) => turno.id), [3, 4, 1]);
+    });
+  });
+
   group('obtenerTurnos', () {
     test('devuelve solo turnos confirmados y futuros del paciente, ordenados',
         () async {
